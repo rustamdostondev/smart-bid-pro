@@ -290,20 +290,7 @@ export function MyProposals({ onCreateProposal, onViewProposal }: MyProposalsPro
                       <span>Submitted: {new Date(proposal.submittedAt).toLocaleDateString()}</span>
                     </div>
 
-                    <div className="bg-muted/30 p-2 rounded-md">
-                      <div className="flex justify-between text-xs mb-1">
-                        <span>Match Status:</span>
-                        <span className={matchStats.matchPercentage >= 80 ? 'text-green-600' : 'text-amber-600'}>
-                          {matchStats.matchedItems}/{matchStats.totalItems} items matched ({matchStats.matchPercentage}%)
-                        </span>
-                      </div>
-                      <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-                        <div 
-                          className={`h-full ${matchStats.matchPercentage >= 80 ? 'bg-green-500' : 'bg-amber-500'}`}
-                          style={{ width: `${matchStats.matchPercentage}%` }}
-                        ></div>
-                      </div>
-                    </div>
+                   
                   </CardContent>
                   
                   <CardFooter className="pt-2">

@@ -699,37 +699,123 @@ export function ProposalOwnerDetail({ proposalId, onBack }: ProposalOwnerDetailP
           <div className="flex items-center space-x-4">
             <Button variant="outline" onClick={onBack}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to My Tenders
+              Back to My Proposals
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{tender.title}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{proposal?.name}</h1>
               <div className="flex items-center space-x-4 mt-1">
-                <span className="text-sm text-gray-600">ID: {tender.id}</span>
+                <span className="text-sm text-gray-600">Proposal ID: {proposalId}</span>
                 <Badge 
                   className={
-                    tender.status === 'published' ? 'bg-green-100 text-green-700' :
-                    tender.status === 'draft' ? 'bg-yellow-100 text-yellow-700' :
+                    proposal?.status === 'submitted' ? 'bg-green-100 text-green-700' :
+                    proposal?.status === 'draft' ? 'bg-yellow-100 text-yellow-700' :
                     'bg-gray-100 text-gray-700'
                   }
                 >
-                  {tender.status}
+                  {proposal?.status}
                 </Badge>
                 <span className="text-sm text-gray-600 flex items-center">
                   <Calendar className="w-4 h-4 mr-1" />
-                  Deadline: {new Date(tender.deadline).toLocaleDateString()}
+                  Submitted: {proposal ? new Date(proposal.submittedAt).toLocaleDateString() : 'N/A'}
                 </span>
               </div>
             </div>
           </div>
           <div className="text-right">
-            <div className="text-sm text-gray-600">Budget</div>
+            <div className="text-sm text-gray-600">Total Value</div>
             <div className="text-xl font-bold text-green-600 flex items-center">
               <DollarSign className="w-5 h-5 mr-1" />
-              {tender.budget?.toLocaleString()}
+              {proposalItems.reduce((sum, item) => sum + (item.cost * item.quantity), 0).toLocaleString()}
             </div>
           </div>
         </div>
       </div>
+      
+      {/* Tender Information Card */}
+      {tender && (
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+            <CardHeader className="pb-2">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-lg text-blue-800 flex items-center">
+                  <Target className="w-5 h-5 mr-2" />
+                  Responding to Tender
+                </CardTitle>
+                <Badge className="bg-blue-100 text-blue-800 border-blue-300">
+                  {tender.visibility === 'public' ? 'Public Tender' : 'Private Tender'}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-gray-900">{tender.name}</h3>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Building className="w-4 h-4 mr-2 text-gray-500" />
+                    {tender.organization || 'Organization not specified'}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <User className="w-4 h-4 mr-2 text-gray-500" />
+                    {tender.createdBy}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Mail className="w-4 h-4 mr-2 text-gray-500" />
+                    {tender.contactEmail}
+                  </div>
+                  {tender.contactPhone && (
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Phone className="w-4 h-4 mr-2 text-gray-500" />
+                      {tender.contactPhone}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-gray-900">Key Information</h3>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+                    <span className="font-medium">Created:</span>
+                    <span className="ml-2">{new Date().toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+                    <span className="font-medium">Deadline:</span>
+                    <span className="ml-2">{new Date(tender.deadline).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                    <span className="font-medium">Location:</span>
+                    <span className="ml-2">{tender.location || 'Not specified'}</span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
+                    <span className="font-medium">Budget:</span>
+                    <span className="ml-2">{tender.budget?.toLocaleString() || 'Not specified'}</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-gray-900">Tender Summary</h3>
+                  <p className="text-sm text-gray-600">
+                    {tender.description || 'No description provided.'}
+                  </p>
+                  <div className="flex items-center text-sm">
+                    <div className="flex items-center mr-4">
+                      <FileText className="w-4 h-4 mr-1 text-gray-500" />
+                      <span>{tender.items?.length || 0} items</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      <Badge variant="outline" className="bg-white text-gray-700">
+                        {tender.status}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <div className="flex h-[calc(100vh-80px)]">
         {/* Left Sidebar - Processing Steps */}
