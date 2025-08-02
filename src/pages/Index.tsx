@@ -7,7 +7,8 @@ import { MyTenders } from '@/components/MyTenders';
 import { TenderDetail } from '@/components/TenderDetail';
 
 import { CreateTender } from '@/components/CreateTender';
-import { ProposalDashboard } from '@/components/ProposalDashboard';
+import { MyProposals } from '@/components/MyProposals';
+import { ProposalDetail } from '@/components/ProposalDetail';
 import { CreateProposal } from '@/components/CreateProposal';
 import { getCurrentUser } from '@/lib/mockData';
 
@@ -15,6 +16,9 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState('landing');
   const [previousPage, setPreviousPage] = useState('landing');
   const [selectedTenderId, setSelectedTenderId] = useState<string | null>(null);
+  const [selectedProposalId, setSelectedProposalId] = useState<string | null>(null);
+  const [matchingProposalId, setMatchingProposalId] = useState<string | null>(null);
+  const [matchingTenderId, setMatchingTenderId] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
@@ -38,6 +42,9 @@ const Index = () => {
     setPreviousPage(currentPage); // Store the current page as previous
     setCurrentPage(page);
     setSelectedTenderId(null); // Clear selected tender when navigating
+    setSelectedProposalId(null); // Clear selected proposal when navigating
+    setMatchingProposalId(null); // Clear matching proposal when navigating
+    setMatchingTenderId(null); // Clear matching tender when navigating
     if (page === 'login') {
       setIsAuthenticated(false);
     }
@@ -51,9 +58,17 @@ const Index = () => {
 
   const handleBackToDashboard = () => {
     setSelectedTenderId(null);
+    setSelectedProposalId(null);
+    setMatchingProposalId(null);
+    setMatchingTenderId(null);
     setCurrentPage(previousPage); // Go back to the previous page
   };
 
+  const handleViewProposal = (proposalId: string) => {
+    setPreviousPage(currentPage); // Store the current page as previous
+    setSelectedProposalId(proposalId);
+    setCurrentPage('proposal-detail');
+  };
 
 
   if (!isAuthenticated && currentPage === 'login') {
@@ -124,13 +139,37 @@ const Index = () => {
         );
       case 'proposals':
         return (
-          <ProposalDashboard
+          <MyProposals
             onCreateProposal={() => handleNavigate('create-proposal')}
-            onViewProposal={(id) => console.log('View proposal:', id)}
+            onViewProposal={handleViewProposal}
           />
         );
       case 'create-proposal':
         return <CreateProposal onBack={() => handleNavigate('proposals')} />;
+      case 'proposal-detail':
+        return selectedProposalId ? (
+          <ProposalDetail
+            proposalId={selectedProposalId}
+            onBack={handleBackToDashboard}
+            onEdit={(id) => {
+              setSelectedProposalId(id);
+              setCurrentPage('edit-proposal');
+            }}
+            onDelete={(id) => {
+              // Handle delete logic here
+              console.log('Delete proposal:', id);
+              handleBackToDashboard();
+            }}
+
+          />
+        ) : (
+          <MyProposals
+            onCreateProposal={() => handleNavigate('create-proposal')}
+            onViewProposal={handleViewProposal}
+
+          />
+        );
+
       case 'analysis':
         return <div>Analysis page coming soon...</div>;
       default:

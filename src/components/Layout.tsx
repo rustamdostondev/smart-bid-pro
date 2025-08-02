@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { getCurrentUser, logoutUser } from '@/lib/mockData';
-import { FileText, Users, BarChart3, LogOut, Plus, Globe, FolderOpen } from 'lucide-react';
+import { FileText, Users, BarChart3, LogOut, Plus, Globe, FolderOpen, Briefcase } from 'lucide-react';
 
 interface LayoutProps {
   children: ReactNode;
@@ -51,7 +51,7 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
                   onClick={() => onNavigate('proposals')}
                   className="text-primary-foreground hover:bg-white/10"
                 >
-                  <Users className="w-4 h-4 mr-2" />
+                  <Briefcase className="w-4 h-4 mr-2" />
                   Proposals
                 </Button>
                 <Button
