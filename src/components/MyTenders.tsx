@@ -127,23 +127,23 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">My Tenders</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold text-gray-900">My Tenders</h1>
+          <p className="text-gray-600 mt-1">
             Manage and track your tender publications
           </p>
         </div>
-        <Button onClick={onCreateTender} className="shadow-lg hover:shadow-xl transition-shadow">
+        <Button onClick={onCreateTender} className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all">
           <Plus className="w-4 h-4 mr-2" />
           Create New Tender
         </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5 mb-8">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
@@ -202,23 +202,23 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
       </div>
 
       {/* Search and Filter */}
-      <Card className="p-4">
+      <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-                placeholder="Search your tenders..."
+                placeholder="Search your tenders by name or description..."
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-10"
+                className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Status" />
+              <SelectTrigger className="w-[160px] border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
@@ -228,20 +228,20 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
               </SelectContent>
             </Select>
             {(searchQuery || statusFilter !== 'all') && (
-              <Button variant="outline" onClick={clearFilters}>
+              <Button variant="outline" onClick={clearFilters} className="border-gray-300 hover:bg-gray-50">
                 <Filter className="w-4 h-4 mr-2" />
-                Clear
+                Clear Filters
               </Button>
             )}
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Results Summary & Items Per Page */}
     
 
       {/* Tender Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {paginatedTenders.map((tender) => {
           const deadlineNear = isDeadlineNear(tender.deadline);
           const deadlinePassed = isDeadlinePassed(tender.deadline);

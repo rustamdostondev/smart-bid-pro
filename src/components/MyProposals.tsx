@@ -143,22 +143,22 @@ export function MyProposals({ onCreateProposal, onViewProposal }: MyProposalsPro
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="max-w-7xl mx-auto">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">My Proposals</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold text-gray-900">My Proposals</h1>
+          <p className="text-gray-600 mt-1">
             Manage and track all your tender proposals
           </p>
         </div>
-        {/* <Button onClick={onCreateProposal} className="shadow-soft">
+        {/* <Button onClick={onCreateProposal} className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all">
           <Plus className="w-4 h-4 mr-2" />
           Create Proposal
         </Button> */}
       </div>
 
       {/* Statistics Dashboard */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5 mb-8">
         <Card className="shadow-soft">
           <CardContent className="p-4 flex flex-col items-center justify-center">
             <div className="rounded-full bg-primary/10 p-3 mb-2">
@@ -211,47 +211,49 @@ export function MyProposals({ onCreateProposal, onViewProposal }: MyProposalsPro
       </div>
 
       {/* Search and Filter */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search proposals..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1); // Reset to first page on search
-            }}
-            className="pl-8"
-          />
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Filter className="h-4 w-4 text-muted-foreground" />
-          <Select 
-            value={statusFilter} 
-            onValueChange={(value) => {
-              setStatusFilter(value);
-              setCurrentPage(1); // Reset to first page on filter change
-            }}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="submitted">Submitted</SelectItem>
-              <SelectItem value="accepted">Accepted</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
+      <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder="Search proposals by name or description..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1); // Reset to first page on search
+                }}
+                className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Select 
+              value={statusFilter} 
+              onValueChange={(value) => {
+                setStatusFilter(value);
+                setCurrentPage(1); // Reset to first page on filter change
+              }}
+            >
+              <SelectTrigger className="w-[180px] border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="submitted">Submitted</SelectItem>
+                <SelectItem value="accepted">Accepted</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
       {/* Proposals List */}
       <div className="space-y-4">
         {paginatedProposals.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {paginatedProposals.map((proposal) => {
               const matchStats = getMatchStats(proposal);
               const tender = mockTenders.find(t => t.id === proposal.tenderIds);
@@ -405,7 +407,7 @@ export function MyProposals({ onCreateProposal, onViewProposal }: MyProposalsPro
       <div className="mt-8 space-y-4">
         <h2 className="text-xl font-semibold">Available Tenders for Proposals</h2>
         
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {mockTenders
             .filter(tender => 
               tender.visibility === 'public' && 

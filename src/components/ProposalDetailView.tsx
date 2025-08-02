@@ -63,29 +63,27 @@ export function ProposalDetailView({ proposalId, onBack }: ProposalDetailViewPro
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="max-w-7xl mx-auto">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button onClick={onBack} variant="outline" size="sm">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">{proposal.name}</h1>
-              <p className="text-gray-600 text-sm">Proposal Details</p>
-            </div>
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-8">
+        <div className="flex items-center gap-4">
+          <Button onClick={onBack} variant="outline" className="border-gray-300 hover:bg-gray-50">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{proposal.name}</h1>
+            <p className="text-gray-600 mt-1">Proposal Details</p>
           </div>
-          <Badge className={`${getStatusVariant(proposal.status)} flex items-center gap-1`}>
-            {getStatusIcon(proposal.status)}
-            <span className="capitalize">{proposal.status}</span>
-          </Badge>
         </div>
+        <Badge className={`${getStatusVariant(proposal.status)} flex items-center gap-1 px-3 py-1`}>
+          {getStatusIcon(proposal.status)}
+          <span className="capitalize">{proposal.status}</span>
+        </Badge>
       </div>
 
       {/* Content */}
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
+      <div className="space-y-8">
         
         {/* Basic Information */}
         <Card>

@@ -17,7 +17,7 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('published');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(9);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
 
   const isDeadlineNear = (deadline: string) => {
     const deadlineDate = new Date(deadline);
@@ -84,42 +84,46 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto">
       {/* Header */}
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Available Tenders</h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
-          Browse and discover tender opportunities. Submit your proposals for projects that match your expertise.
-        </p>
-        <div className="flex justify-center items-center gap-6 mt-4 text-sm text-muted-foreground">
-          <span className="flex items-center gap-2">
-            <Globe className="w-4 h-4" />
-            {filteredTenders.filter(t => t.visibility === 'public').length} Public Tenders
-          </span>
-          <span className="flex items-center gap-2">
-            <Building2 className="w-4 h-4" />
-            {filteredTenders.length} Total Available
-          </span>
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Available Tenders</h1>
+            <p className="text-gray-600 mt-1">
+              Browse and discover tender opportunities that match your expertise.
+            </p>
+          </div>
+          <div className="flex items-center gap-6 text-sm text-gray-500">
+            <span className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border">
+              <Globe className="w-4 h-4 text-blue-500" />
+              {filteredTenders.filter(t => t.visibility === 'public').length} Public
+            </span>
+            <span className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border">
+              <Building2 className="w-4 h-4 text-green-500" />
+              {filteredTenders.length} Total
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Search and Filter */}
-      <Card className="p-4">
-        <div className="flex flex-col md:flex-row gap-4">
+      <div className="bg-white rounded-lg border shadow-sm p-6 mb-6">
+        <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
-                placeholder="Search tenders..."
+                placeholder="Search tenders by name or description..."
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-10"
+                className="pl-11 h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-[160px] h-11 border-gray-200">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -130,19 +134,19 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
               </SelectContent>
             </Select>
             {(searchQuery || statusFilter !== 'published') && (
-              <Button variant="outline" onClick={clearFilters}>
+              <Button variant="outline" onClick={clearFilters} className="h-11 px-4">
                 <Filter className="w-4 h-4 mr-2" />
-                Clear
+                Clear Filters
               </Button>
             )}
           </div>
         </div>
-      </Card>
+      </div>
 
    
 
       {/* Tender Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {paginatedTenders.map((tender) => {
           const deadlineNear = isDeadlineNear(tender.deadline);
           const deadlinePassed = isDeadlinePassed(tender.deadline);
