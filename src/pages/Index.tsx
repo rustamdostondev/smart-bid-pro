@@ -3,6 +3,8 @@ import { LoginForm } from '@/components/LoginForm';
 import { Layout } from '@/components/Layout';
 import { TenderDashboard } from '@/components/TenderDashboard';
 import { CreateTender } from '@/components/CreateTender';
+import { ProposalDashboard } from '@/components/ProposalDashboard';
+import { CreateProposal } from '@/components/CreateProposal';
 import { getCurrentUser } from '@/lib/mockData';
 
 const Index = () => {
@@ -45,7 +47,14 @@ const Index = () => {
       case 'create-tender':
         return <CreateTender onBack={() => handleNavigate('dashboard')} />;
       case 'proposals':
-        return <div>Proposals page coming soon...</div>;
+        return (
+          <ProposalDashboard
+            onCreateProposal={() => handleNavigate('create-proposal')}
+            onViewProposal={(id) => console.log('View proposal:', id)}
+          />
+        );
+      case 'create-proposal':
+        return <CreateProposal onBack={() => handleNavigate('proposals')} />;
       case 'analysis':
         return <div>Analysis page coming soon...</div>;
       default:
