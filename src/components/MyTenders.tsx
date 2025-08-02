@@ -309,26 +309,63 @@ export function MyTenders({
                     : "bg-gray-300"
                 }`}
               />
-
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
+                  <div className="flex items-center space-x-2 flex-1 min-w-0">
+                    {tender.visibility === "public" ? (
+                      <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
+                    ) : (
+                      <Lock className="w-4 h-4 text-muted-foreground shrink-0" />
+                    )}
                     <CardTitle className="text-lg group-hover:text-primary transition-colors line-clamp-1">
                       {tender.name}
                     </CardTitle>
-                    <CardDescription className="line-clamp-2 mt-1">
-                      {tender.description}
-                    </CardDescription>
                   </div>
-                  <Badge
-                    variant={
-                      tender.status === "published" ? "default" : "secondary"
-                    }
-                    className="ml-2 shrink-0"
-                  >
-                    {tender.status}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant={getStatusVariant(tender.status)}
+                      className="flex items-center gap-1 shrink-0"
+                    >
+                      {getStatusIcon(tender.status)}
+                      {tender.status}
+                    </Badge>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                        >
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => onViewTender(tender.id)}
+                        >
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => onEditTender(tender.id)}
+                        >
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit Tender
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => onDeleteTender(tender.id)}
+                          className="text-red-600"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
+                <CardDescription className="line-clamp-2 mt-2">
+                  {tender.description}
+                </CardDescription>
               </CardHeader>
 
               <CardContent className="space-y-4">
@@ -352,28 +389,35 @@ export function MyTenders({
 
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Users className="w-4 h-4 mr-2" />
-                    <span>{tender.items.length} items required</span>
+                    <span>{tender.items.length} items</span>
                   </div>
 
-                  {tender.visibility === "public" && (
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Globe className="w-4 h-4 mr-2" />
-                      <span>Public tender</span>
-                    </div>
-                  )}
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    <span>
+                      Created {new Date(tender.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
                 </div>
 
-                <Button
-                  onClick={() => onViewTender(tender.id)}
-                  className="w-full"
-                  variant={deadlinePassed ? "outline" : "default"}
-                  disabled={deadlinePassed && tender.status === "closed"}
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  {deadlinePassed && tender.status === "closed"
-                    ? "View (Closed)"
-                    : "View Details"}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => onViewTender(tender.id)}
+                    className="flex-1"
+                    variant="outline"
+                    size="sm"
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    View
+                  </Button>
+                  <Button
+                    onClick={() => onEditTender(tender.id)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           );
@@ -415,7 +459,7 @@ export function MyTenders({
       )}
 
       {/* Enhanced Pagination */}
-      {totalPages >= 1 && (
+      {totalPages > 1 && (
         <Card className="p-4 bg-gradient-to-r from-background to-muted/20 mt-7">
           <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
             {/* Page Statistics */}

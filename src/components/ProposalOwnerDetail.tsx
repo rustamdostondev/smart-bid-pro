@@ -427,8 +427,8 @@ export function ProposalOwnerDetail({
   const steps: ProcessingStep[] = [
     {
       id: "file_processing",
-      name: "File Upload",
-      description: "Upload and validate proposal document",
+      name: "File Upload & Parsing",
+      description: "Upload, validate and extract proposal data",
       status:
         proposal.fileProcessing?.parsing === "completed"
           ? "completed"
@@ -436,20 +436,6 @@ export function ProposalOwnerDetail({
           ? "running"
           : "pending",
       icon: FileText,
-    },
-    {
-      id: "signature_verification",
-      name: "Signature Check",
-      description: "Verify digital signatures",
-      status: "completed",
-      icon: Shield,
-    },
-    {
-      id: "ai_parsing",
-      name: "Parse to JSON",
-      description: "Extract and structure proposal data",
-      status: "completed",
-      icon: Code,
     },
     {
       id: "proposal_matching",
@@ -462,6 +448,13 @@ export function ProposalOwnerDetail({
           ? "running"
           : "pending",
       icon: Target,
+    },
+    {
+      id: "ai_insights",
+      name: "AI Analysis",
+      description: "Generate insights and recommendations",
+      status: "pending",
+      icon: Brain,
     },
   ];
 

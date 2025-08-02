@@ -5,20 +5,23 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Calendar, FileText, Building, Eye, Plus, DollarSign, Search, Filter, 
   CheckCircle, Clock, X, AlertTriangle, BarChart, FileCheck, FileQuestion, 
-  FileX, ArrowRight, Loader2
+  FileX, ArrowRight, Loader2, MoreHorizontal, Edit, Trash2
 } from 'lucide-react';
 import { mockProposals, mockTenders, getCurrentUser, Proposal } from '@/lib/mockData';
 
 interface MyProposalsProps {
   onCreateProposal: () => void;
   onViewProposal: (proposalId: string) => void;
+  onEditProposal?: (proposalId: string) => void;
+  onDeleteProposal?: (proposalId: string) => void;
 }
 
-export function MyProposals({ onCreateProposal, onViewProposal }: MyProposalsProps) {
+export function MyProposals({ onCreateProposal, onViewProposal, onEditProposal, onDeleteProposal }: MyProposalsProps) {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -129,6 +132,58 @@ export function MyProposals({ onCreateProposal, onViewProposal }: MyProposalsPro
       matchedItems,
       matchPercentage
     };
+  };
+
+  // Handle proposal deletion
+  const handleDeleteProposal = async (proposalId: string) => {
+    try {
+      // Show confirmation dialog
+      const confirmed = window.confirm('Are you sure you want to delete this proposal? This action cannot be undone.');
+      if (!confirmed) return;
+
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Remove from mock data
+      const proposalIndex = mockProposals.findIndex(p => p.id === proposalId);
+      if (proposalIndex !== -1) {
+        mockProposals.splice(proposalIndex, 1);
+      }
+      
+      // Update local state
+      const updatedProposals = proposals.filter(p => p.id !== proposalId);
+      setProposals(updatedProposals);
+      
+      // Update statistics
+      setStats({
+        total: updatedProposals.length,
+        draft: updatedProposals.filter(p => p.status === 'draft').length,
+        submitted: updatedProposals.filter(p => p.status === 'submitted').length,
+        accepted: updatedProposals.filter(p => p.status === 'accepted').length,
+        rejected: updatedProposals.filter(p => p.status === 'rejected').length
+      });
+      
+      toast({
+        title: "Proposal deleted",
+        description: "The proposal has been successfully deleted.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error deleting proposal",
+        description: "Could not delete the proposal. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle proposal editing (placeholder - would navigate to edit form)
+  const handleEditProposal = (proposalId: string) => {
+    // In a real app, this would navigate to an edit form or open a modal
+    toast({
+      title: "Edit Proposal",
+      description: `Opening edit form for proposal ${proposalId}`,
+    });
+    console.log('Edit proposal:', proposalId);
   };
 
   if (loading) {
@@ -262,13 +317,47 @@ export function MyProposals({ onCreateProposal, onViewProposal }: MyProposalsPro
                 <Card key={proposal.id} className="shadow-soft hover:shadow-medium transition-all duration-300">
                   <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
-                      <CardTitle className="text-lg">{proposal.name}</CardTitle>
-                      <Badge variant={getStatusVariant(proposal.status)} className="flex items-center space-x-1">
-                        {getStatusIcon(proposal.status)}
-                        <span>{proposal.status}</span>
-                      </Badge>
+                      <CardTitle className="text-lg flex-1 min-w-0">{proposal.name}</CardTitle>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={getStatusVariant(proposal.status)} className="flex items-center gap-1 shrink-0">
+                          {getStatusIcon(proposal.status)}
+                          {proposal.status}
+                        </Badge>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => onViewProposal(proposal.id)}
+                            >
+                              <Eye className="w-4 h-4 mr-2" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleEditProposal(proposal.id)}
+                            >
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit Proposal
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteProposal(proposal.id)}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </div>
-                    <CardDescription className="line-clamp-2">{proposal.description}</CardDescription>
+                    <CardDescription className="line-clamp-2 mt-2">{proposal.description}</CardDescription>
                   </CardHeader>
                   
                   <CardContent className="pb-2 space-y-3">
@@ -296,17 +385,23 @@ export function MyProposals({ onCreateProposal, onViewProposal }: MyProposalsPro
                   </CardContent>
                   
                   <CardFooter className="pt-2">
-                    <div className="flex space-x-2 w-full">
+                    <div className="flex gap-2">
                       <Button 
                         onClick={() => onViewProposal(proposal.id)}
                         className="flex-1"
                         variant="outline"
                         size="sm"
                       >
-                        <Eye className="w-3.5 h-3.5 mr-1" />
+                        <Eye className="w-4 h-4 mr-2" />
                         View
                       </Button>
-
+                      <Button
+                        onClick={() => handleEditProposal(proposal.id)}
+                        variant="outline"
+                        size="sm"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
                     </div>
                   </CardFooter>
                 </Card>
