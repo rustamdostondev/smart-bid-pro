@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,9 +25,11 @@ import {
   Building,
   Mail,
   Phone,
-  MapPin
+  MapPin,
+  Package,
+  Link
 } from 'lucide-react';
-import { mockProposals, mockTenders, getCurrentUser, type ProposalItem } from '@/lib/mockData';
+import { mockProposals, mockTenders, getCurrentUser, type ProposalItem, type TenderItem } from '@/lib/mockData';
 
 interface ProcessingStep {
   id: string;
@@ -35,6 +37,299 @@ interface ProcessingStep {
   description: string;
   status: 'pending' | 'running' | 'completed' | 'failed';
   icon: any;
+}
+
+interface Connection {
+  proposalItemId: string;
+  tenderItemId: string;
+  id: string;
+}
+
+interface ProposalTenderMatcherProps {
+  proposalItems: ProposalItem[];
+  tenderItems: TenderItem[];
+}
+
+// ProposalTenderMatcher Component
+function ProposalTenderMatcher({ proposalItems, tenderItems }: ProposalTenderMatcherProps) {
+  const [connections, setConnections] = useState<Connection[]>([]);
+  const [selectedProposal, setSelectedProposal] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [svgDimensions, setSvgDimensions] = useState({ width: 0, height: 0 });
+
+  // Initialize with multiple default connections to demonstrate the matching interface
+  useEffect(() => {
+    if (proposalItems.length > 0 && tenderItems.length > 0) {
+      const defaultConnections: Connection[] = [
+        // Connect first proposal item to first tender item
+        {
+          id: 'conn-1',
+          proposalItemId: proposalItems[0]?.id || '',
+          tenderItemId: tenderItems[0]?.id || ''
+        },
+        // Connect second proposal item to second tender item (if they exist)
+        ...(proposalItems.length > 1 && tenderItems.length > 1 ? [{
+          id: 'conn-2',
+          proposalItemId: proposalItems[1]?.id || '',
+          tenderItemId: tenderItems[1]?.id || ''
+        }] : []),
+        // Connect third proposal item to third tender item (if they exist)
+        ...(proposalItems.length > 2 && tenderItems.length > 2 ? [{
+          id: 'conn-3',
+          proposalItemId: proposalItems[2]?.id || '',
+          tenderItemId: tenderItems[2]?.id || ''
+        }] : [])
+      ];
+      setConnections(defaultConnections);
+    }
+  }, [proposalItems, tenderItems]);
+
+  // Update SVG dimensions when container resizes
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setSvgDimensions({ width: rect.width, height: rect.height });
+      }
+    };
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
+
+  const handleProposalClick = (proposalId: string) => {
+    setSelectedProposal(proposalId);
+  };
+
+  const handleTenderClick = (tenderId: string) => {
+    if (!selectedProposal) return;
+
+    // Check if connection already exists
+    const existingConnection = connections.find(
+      c => c.proposalItemId === selectedProposal || c.tenderItemId === tenderId
+    );
+
+    if (existingConnection) {
+      // Remove existing connection
+      setConnections(connections.filter(c => c.id !== existingConnection.id));
+    }
+
+    // Add new connection
+    const newConnection: Connection = {
+      id: `conn-${Date.now()}`,
+      proposalItemId: selectedProposal,
+      tenderItemId: tenderId
+    };
+
+    setConnections([...connections.filter(c => 
+      c.proposalItemId !== selectedProposal && c.tenderItemId !== tenderId
+    ), newConnection]);
+    
+    setSelectedProposal(null);
+  };
+
+  const removeConnection = (connectionId: string) => {
+    setConnections(connections.filter(c => c.id !== connectionId));
+  };
+
+  const getConnectionPath = (proposalId: string, tenderId: string) => {
+    const proposalEl = document.getElementById(`proposal-${proposalId}`);
+    const tenderEl = document.getElementById(`tender-${tenderId}`);
+    const containerEl = containerRef.current;
+
+    if (!proposalEl || !tenderEl || !containerEl) return '';
+
+    const containerRect = containerEl.getBoundingClientRect();
+    const proposalRect = proposalEl.getBoundingClientRect();
+    const tenderRect = tenderEl.getBoundingClientRect();
+
+    const startX = proposalRect.right - containerRect.left;
+    const startY = proposalRect.top + proposalRect.height / 2 - containerRect.top;
+    const endX = tenderRect.left - containerRect.left;
+    const endY = tenderRect.top + tenderRect.height / 2 - containerRect.top;
+
+    return `M ${startX} ${startY} L ${endX} ${endY}`;
+  };
+
+  return (
+    <div className="relative" ref={containerRef}>
+      <div className="grid grid-cols-2 gap-8 min-h-[400px]">
+        {/* Proposal Items - Left Side */}
+        <div>
+          <h4 className="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Package className="w-4 h-4 text-blue-600" />
+            Proposal Items ({proposalItems.length})
+          </h4>
+          <div className="space-y-3">
+            {proposalItems.map((item) => {
+              const isSelected = selectedProposal === item.id;
+              const isConnected = connections.some(c => c.proposalItemId === item.id);
+              
+              return (
+                <div
+                  key={item.id}
+                  id={`proposal-${item.id}`}
+                  onClick={() => handleProposalClick(item.id)}
+                  className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                    isSelected 
+                      ? 'bg-blue-50 border-blue-300 shadow-md' 
+                      : isConnected
+                      ? 'bg-green-50 border-green-300'
+                      : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                  }`}
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h5 className="font-medium text-gray-900 text-sm">{item.name}</h5>
+                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">{item.description}</p>
+                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                        <span>Qty: {item.quantity}</span>
+                        <span className="font-medium text-green-600">${item.cost.toLocaleString()}</span>
+                      </div>
+                    </div>
+                    {isConnected && (
+                      <div className="ml-2">
+                        <Link className="w-4 h-4 text-green-600" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Tender Items - Right Side */}
+        <div>
+          <h4 className="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <FileText className="w-4 h-4 text-orange-600" />
+            Tender Requirements ({tenderItems.length})
+          </h4>
+          <div className="space-y-3">
+            {tenderItems.map((item) => {
+              const isConnected = connections.some(c => c.tenderItemId === item.id);
+              
+              return (
+                <div
+                  key={item.id}
+                  id={`tender-${item.id}`}
+                  onClick={() => handleTenderClick(item.id)}
+                  className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                    isConnected
+                      ? 'bg-green-50 border-green-300'
+                      : selectedProposal
+                      ? 'bg-orange-50 border-orange-300 hover:bg-orange-100'
+                      : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                  }`}
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h5 className="font-medium text-gray-900 text-sm">{item.name}</h5>
+                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">{item.description}</p>
+                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                        <span>Qty: {item.quantity}</span>
+                        <span className="font-medium text-orange-600">${item.estimatedCost?.toLocaleString()}</span>
+                      </div>
+                    </div>
+                    {isConnected && (
+                      <div className="ml-2">
+                        <Link className="w-4 h-4 text-green-600" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* SVG for drawing connection lines */}
+      <svg
+        className="absolute top-0 left-0 pointer-events-none"
+        width={svgDimensions.width}
+        height={svgDimensions.height}
+        style={{ zIndex: 1 }}
+      >
+        {connections.map((connection) => {
+          const path = getConnectionPath(connection.proposalItemId, connection.tenderItemId);
+          if (!path) return null;
+
+          return (
+            <g key={connection.id}>
+              <path
+                d={path}
+                stroke="#10b981"
+                strokeWidth="2"
+                fill="none"
+                markerEnd="url(#arrowhead)"
+              />
+              {/* Remove button positioned at the middle of the line */}
+              <circle
+                cx={path.split(' ')[4]} // Approximate middle X
+                cy={path.split(' ')[5]} // Approximate middle Y
+                r="8"
+                fill="#ef4444"
+                className="cursor-pointer"
+                style={{ pointerEvents: 'all' }}
+                onClick={() => removeConnection(connection.id)}
+              />
+              <text
+                x={path.split(' ')[4]}
+                y={path.split(' ')[5]}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fill="white"
+                fontSize="10"
+                className="cursor-pointer"
+                style={{ pointerEvents: 'all' }}
+                onClick={() => removeConnection(connection.id)}
+              >
+                ✕
+              </text>
+            </g>
+          );
+        })}
+        
+        {/* Arrow marker definition */}
+        <defs>
+          <marker
+            id="arrowhead"
+            markerWidth="10"
+            markerHeight="7"
+            refX="9"
+            refY="3.5"
+            orient="auto"
+          >
+            <polygon
+              points="0 0, 10 3.5, 0 7"
+              fill="#10b981"
+            />
+          </marker>
+        </defs>
+      </svg>
+
+      {/* Instructions */}
+      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="flex items-start gap-3">
+          <Target className="w-5 h-5 text-blue-600 mt-0.5" />
+          <div>
+            <h5 className="font-medium text-blue-900 mb-1">How to create matches:</h5>
+            <ol className="text-sm text-blue-800 space-y-1">
+              <li>1. Click on a proposal item (left side) to select it</li>
+              <li>2. Click on a tender requirement (right side) to create a match</li>
+              <li>3. Click the red ✕ button on a line to remove the connection</li>
+            </ol>
+            <p className="text-xs text-blue-700 mt-2">
+              Connected items: {connections.length} | 
+              Proposal coverage: {Math.round((connections.length / Math.max(proposalItems.length, 1)) * 100)}%
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 interface ProposalOwnerDetailProps {
@@ -92,9 +387,9 @@ export function ProposalOwnerDetail({ proposalId, onBack }: ProposalOwnerDetailP
       icon: Code
     },
     {
-      id: 'tender_matching',
+      id: 'proposal_matching',
       name: 'Tender Matching',
-      description: 'Match with tender requirements',
+      description: 'Match proposal items with tender requirements',
       status: proposal.fileProcessing?.matching === 'completed' ? 'completed' : 
               proposal.fileProcessing?.matching === 'progress' ? 'running' : 'pending',
       icon: Target
@@ -655,16 +950,13 @@ export function ProposalOwnerDetail({ proposalId, onBack }: ProposalOwnerDetailP
           <div className="space-y-6">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Proposal Matching</h3>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <div className="flex items-center">
-                  <Clock className="w-5 h-5 text-gray-600 mr-2" />
-                  <span className="text-gray-800 font-medium">Waiting for previous steps</span>
-                </div>
-                <p className="text-gray-700 mt-1">
-                  This step will begin automatically once AI parsing is completed.
-                </p>
-              </div>
+              <p className="text-gray-600 mb-4">Click a proposal item, then click a tender item to create a match</p>
             </div>
+            
+            <ProposalTenderMatcher 
+              proposalItems={proposalItems}
+              tenderItems={tender?.items || []}
+            />
           </div>
         );
 

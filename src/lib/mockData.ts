@@ -886,6 +886,70 @@ export const mockProposals: Proposal[] = [
     },
     submittedAt: "2024-01-22",
   },
+  {
+    id: "3",
+    tenderIds: "1",
+    name: "Premium Enterprise Solution",
+    description: "High-end proposal for enterprise-grade office equipment with advanced features",
+    submittedBy: "1", // Admin user
+    company: "TenderCorp",
+    status: "submitted",
+    items: [
+      {
+        id: "7",
+        name: "MacBook Pro 16-inch",
+        description: "Top-tier laptop for professional work with M2 Pro chip",
+        cost: 2500,
+        quantity: 50,
+        matchedTenderId: "1",
+        matchPercentage: 98,
+        attributes: {
+          brand: "Apple",
+          ram: "32GB",
+          storage: "1TB SSD",
+          screen: "16 inch Retina",
+          processor: "M2 Pro"
+        },
+      },
+      {
+        id: "8",
+        name: "Sony VPL-FHZ75",
+        description: "Professional laser projector with 4K support",
+        cost: 1500,
+        quantity: 10,
+        matchedTenderId: "2",
+        matchPercentage: 96,
+        attributes: {
+          brightness: "6500 lumens",
+          resolution: "4K",
+          connectivity: "HDMI, USB-C, WiFi, Bluetooth",
+          technology: "Laser"
+        },
+      },
+      {
+        id: "9",
+        name: "Herman Miller Embody",
+        description: "Premium ergonomic chair with advanced postural support",
+        cost: 1200,
+        quantity: 100,
+        matchedTenderId: "3",
+        matchPercentage: 99,
+        attributes: {
+          type: "Premium Ergonomic",
+          material: "Pixelated Support",
+          adjustable: "Height, Arms, Tilt, Lumbar",
+          warranty: "12 years"
+        },
+      },
+    ],
+    totalCost: 260000,
+    fileProcessing: {
+      parsing: "completed",
+      signature: "completed",
+      matching: "completed",
+    },
+    submittedAt: "2024-01-25",
+  },
 ];
 
 // Mock Analysis Results
