@@ -63,7 +63,7 @@ export function ProposalDetailView({ proposalId, onBack }: ProposalDetailViewPro
   };
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto mx-auto">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-8">
         <div className="flex items-center gap-4">
