@@ -1,17 +1,17 @@
-import React, { useState, useMemo } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
-  ArrowLeft, 
-  ChevronDown, 
+import React, { useState, useMemo } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  ArrowLeft,
+  ChevronDown,
   ExternalLink,
   Trophy,
   CheckCircle2,
   Crown,
-  AlertTriangle
-} from 'lucide-react';
-import { Tender, Proposal } from '@/lib/mockData';
+  AlertTriangle,
+} from "lucide-react";
+import { Tender, Proposal } from "@/lib/mockData";
 
 interface TenderAnalyticsProps {
   tender: Tender;
@@ -34,54 +34,69 @@ interface AnalysisResult {
   }[];
 }
 
-const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, onBack, onViewProposalDetail }) => {
-  const [selectedWinners, setSelectedWinners] = useState<Record<string, string>>({});
+const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
+  tender,
+  proposals,
+  onBack,
+  onViewProposalDetail,
+}) => {
+  const [selectedWinners, setSelectedWinners] = useState<
+    Record<string, string>
+  >({});
   const [showWinnersList, setShowWinnersList] = useState(false);
-  const [expandedElements, setExpandedElements] = useState<Set<string>>(new Set());
+  const [expandedElements, setExpandedElements] = useState<Set<string>>(
+    new Set()
+  );
 
   // Generate comprehensive analysis results
   const analysisResults: AnalysisResult[] = useMemo(() => {
-    return proposals.map((proposal, index) => {
-      const rank = index + 1;
-      const overallMatch = Math.floor(Math.random() * 20) + 75; // 75-95%
-      
-      // Generate item matches for each tender item
-      const itemMatches = tender.items.map((tenderItem, itemIndex) => {
-        const proposalItem = proposal.items[itemIndex];
-        const matchPercentage = Math.floor(Math.random() * 25) + 70; // 70-95%
-        
-        const reasons = [
-          `Excellent match for ${tenderItem.name} specifications`,
-          `High quality ${proposalItem?.name || 'item'} meets all requirements`,
-          `Competitive pricing with good value proposition`,
-          `Strong technical specifications alignment`,
-          `Reliable supplier with proven track record`
-        ];
-        
+    return proposals
+      .map((proposal, index) => {
+        const rank = index + 1;
+        const overallMatch = Math.floor(Math.random() * 20) + 75; // 75-95%
+
+        // Generate item matches for each tender item
+        const itemMatches = tender.items.map((tenderItem, itemIndex) => {
+          const proposalItem = proposal.items[itemIndex];
+          const matchPercentage = Math.floor(Math.random() * 25) + 70; // 70-95%
+
+          const reasons = [
+            `Excellent match for ${tenderItem.name} specifications`,
+            `High quality ${
+              proposalItem?.name || "item"
+            } meets all requirements`,
+            `Competitive pricing with good value proposition`,
+            `Strong technical specifications alignment`,
+            `Reliable supplier with proven track record`,
+          ];
+
+          return {
+            tenderItemName: tenderItem.name,
+            proposalItemName: proposalItem?.name || `Item ${itemIndex + 1}`,
+            matchPercentage,
+            reasoning: reasons[Math.floor(Math.random() * reasons.length)],
+            costDifference: proposalItem
+              ? proposalItem.cost - (tenderItem.estimatedCost || 0)
+              : 0,
+          };
+        });
+
         return {
-          tenderItemName: tenderItem.name,
-          proposalItemName: proposalItem?.name || `Item ${itemIndex + 1}`,
-          matchPercentage,
-          reasoning: reasons[Math.floor(Math.random() * reasons.length)],
-          costDifference: proposalItem ? (proposalItem.cost - (tenderItem.estimatedCost || 0)) : 0
+          proposalId: proposal.id,
+          company: proposal.company || `Company ${index + 1}`,
+          rank,
+          overallMatch,
+          itemMatches,
         };
-      });
-      
-      return {
-        proposalId: proposal.id,
-        company: proposal.company || `Company ${index + 1}`,
-        rank,
-        overallMatch,
-        itemMatches
-      };
-    }).sort((a, b) => b.overallMatch - a.overallMatch);
+      })
+      .sort((a, b) => b.overallMatch - a.overallMatch);
   }, [proposals, tender.items]);
 
   const getMatchColor = (percentage: number) => {
-    if (percentage >= 90) return 'bg-green-100 text-green-800';
-    if (percentage >= 80) return 'bg-blue-100 text-blue-800';
-    if (percentage >= 70) return 'bg-yellow-100 text-yellow-800';
-    return 'bg-red-100 text-red-800';
+    if (percentage >= 90) return "bg-green-100 text-green-800";
+    if (percentage >= 80) return "bg-blue-100 text-blue-800";
+    if (percentage >= 70) return "bg-yellow-100 text-yellow-800";
+    return "bg-red-100 text-red-800";
   };
 
   const toggleElement = (elementId: string) => {
@@ -95,20 +110,20 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
   };
 
   const selectWinner = (elementId: string, proposalId: string) => {
-    setSelectedWinners(prev => ({
+    setSelectedWinners((prev) => ({
       ...prev,
-      [elementId]: proposalId
+      [elementId]: proposalId,
     }));
   };
 
   const getSelectedWinnersList = () => {
     return Object.entries(selectedWinners).map(([elementId, proposalId]) => {
-      const element = tender.items.find(item => item.id === elementId);
-      const proposal = proposals.find(p => p.id === proposalId);
+      const element = tender.items.find((item) => item.id === elementId);
+      const proposal = proposals.find((p) => p.id === proposalId);
       return {
-        elementName: element?.name || 'Unknown Element',
-        company: proposal?.companyName || 'Unknown Company',
-        proposalId
+        elementName: element?.name || "Unknown Element",
+        company: proposal?.companyName || "Unknown Company",
+        proposalId,
       };
     });
   };
@@ -127,14 +142,15 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
             <p className="text-gray-600">Detailed Proposal Analysis</p>
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-4">
-          <Button 
+          <Button
             onClick={() => setShowWinnersList(!showWinnersList)}
             variant={showWinnersList ? "default" : "outline"}
           >
             <Trophy className="w-4 h-4 mr-2" />
-            {showWinnersList ? 'Hide Winners' : 'Show Winners'} ({Object.keys(selectedWinners).length})
+            {showWinnersList ? "Hide Winners" : "Show Winners"} (
+            {Object.keys(selectedWinners).length})
           </Button>
         </div>
       </div>
@@ -148,14 +164,19 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
           </h3>
           <div className="space-y-3">
             {getSelectedWinnersList().map((winner, index) => (
-              <div key={index} className="flex items-center justify-between bg-white rounded-lg p-3 border border-green-200">
+              <div
+                key={index}
+                className="flex items-center justify-between bg-white rounded-lg p-3 border border-green-200"
+              >
                 <div>
-                  <h4 className="font-medium text-gray-900">{winner.elementName}</h4>
-                  <p className="text-sm text-gray-600">Winner: {winner.company}</p>
+                  <h4 className="font-medium text-gray-900">
+                    {winner.elementName}
+                  </h4>
+                  <p className="text-sm text-gray-600">
+                    Winner: {winner.company}
+                  </p>
                 </div>
-                <Badge className="bg-green-100 text-green-800">
-                  Selected
-                </Badge>
+                <Badge className="bg-green-100 text-green-800">Selected</Badge>
               </div>
             ))}
           </div>
@@ -175,32 +196,46 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
         <div className="space-y-3">
           {tender.items.map((tenderItem, itemIndex) => {
             // Get all proposal responses for this tender item
-            const proposalResponses = analysisResults.map(result => {
-              const match = result.itemMatches[itemIndex];
-              const proposalItem = proposals.find(p => p.id === result.proposalId)?.items[itemIndex];
-              return {
-                company: result.company,
-                proposalId: result.proposalId,
-                rank: result.rank,
-                matchPercentage: match?.matchPercentage || 0,
-                proposalItemName: match?.proposalItemName || 'No matching item',
-                proposalItem: proposalItem,
-                reasoning: match?.reasoning || 'No analysis available',
-                costDifference: match?.costDifference || 0,
-                overallMatch: result.overallMatch
-              };
-            }).sort((a, b) => b.matchPercentage - a.matchPercentage);
+            const proposalResponses = analysisResults
+              .map((result) => {
+                const match = result.itemMatches[itemIndex];
+                const proposalItem = proposals.find(
+                  (p) => p.id === result.proposalId
+                )?.items[itemIndex];
+                return {
+                  company: result.company,
+                  proposalId: result.proposalId,
+                  rank: result.rank,
+                  matchPercentage: match?.matchPercentage || 0,
+                  proposalItemName:
+                    match?.proposalItemName || "No matching item",
+                  proposalItem: proposalItem,
+                  reasoning: match?.reasoning || "No analysis available",
+                  costDifference: match?.costDifference || 0,
+                  overallMatch: result.overallMatch,
+                };
+              })
+              .sort((a, b) => b.matchPercentage - a.matchPercentage);
 
             // Group proposals by category with simplified color scheme
-            const highMatchProposals = proposalResponses.filter(r => r.matchPercentage >= 85);  // Green
-            const mediumMatchProposals = proposalResponses.filter(r => r.matchPercentage >= 70 && r.matchPercentage < 85);  // Orange
-            const lowMatchProposals = proposalResponses.filter(r => r.matchPercentage < 70);  // Red
+            const highMatchProposals = proposalResponses.filter(
+              (r) => r.matchPercentage >= 85
+            ); // Green
+            const mediumMatchProposals = proposalResponses.filter(
+              (r) => r.matchPercentage >= 70 && r.matchPercentage < 85
+            ); // Orange
+            const lowMatchProposals = proposalResponses.filter(
+              (r) => r.matchPercentage < 70
+            ); // Red
 
             const isExpanded = expandedElements.has(tenderItem.id);
             const selectedWinner = selectedWinners[tenderItem.id];
 
             return (
-              <div key={tenderItem.id} className="border border-gray-200 rounded-lg">
+              <div
+                key={tenderItem.id}
+                className="border border-gray-200 rounded-lg"
+              >
                 {/* Collapsible Header */}
                 <button
                   onClick={() => toggleElement(tenderItem.id)}
@@ -216,55 +251,81 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
                       )}
                     </h4>
                     <p className="text-sm text-gray-600">
-                      {proposalResponses.length} proposals • Budget: ${(tenderItem.estimatedCost || 0).toLocaleString()}
+                      {proposalResponses.length} proposals • Budget: $
+                      {(tenderItem.estimatedCost || 0).toLocaleString()}
                     </p>
                   </div>
                   <div className="flex items-center space-x-3">
                     <div className="text-right">
                       <div className="text-sm text-gray-500">Best Match</div>
-                      <div className={`px-2 py-1 rounded text-sm font-bold ${getMatchColor(proposalResponses[0]?.matchPercentage || 0)}`}>
+                      <div
+                        className={`px-2 py-1 rounded text-sm font-bold ${getMatchColor(
+                          proposalResponses[0]?.matchPercentage || 0
+                        )}`}
+                      >
                         {proposalResponses[0]?.matchPercentage || 0}%
                       </div>
                     </div>
-                    <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                    <ChevronDown
+                      className={`w-5 h-5 text-gray-400 transition-transform ${
+                        isExpanded ? "rotate-180" : ""
+                      }`}
+                    />
                   </div>
                 </button>
-
                 {/* Expanded Content */}
                 {isExpanded && (
                   <div className="px-6 pb-6 border-t border-gray-100">
                     {/* Tender Element Details */}
                     <div className="mb-6 pt-4">
-                      <p className="text-gray-700 mb-3">{tenderItem.description}</p>
+                      <p className="text-gray-700 mb-3">
+                        {tenderItem.description}
+                      </p>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
                           <span className="text-gray-500">Quantity:</span>
-                          <p className="font-medium">{tenderItem.quantity} {tenderItem.unit}</p>
+                          <p className="font-medium">
+                            {tenderItem.quantity} {tenderItem.unit}
+                          </p>
                         </div>
                         <div>
                           <span className="text-gray-500">Budget:</span>
-                          <p className="font-medium">${(tenderItem.estimatedCost || 0).toLocaleString()}</p>
+                          <p className="font-medium">
+                            ${(tenderItem.estimatedCost || 0).toLocaleString()}
+                          </p>
                         </div>
                         <div>
                           <span className="text-gray-500">Unit:</span>
-                          <p className="font-medium">{tenderItem.unit || 'units'}</p>
+                          <p className="font-medium">
+                            {tenderItem.unit || "units"}
+                          </p>
                         </div>
                         <div>
                           <span className="text-gray-500">Specifications:</span>
-                          <p className="font-medium">{Object.keys(tenderItem.attributes || {}).length} attributes</p>
+                          <p className="font-medium">
+                            {Object.keys(tenderItem.attributes || {}).length}{" "}
+                            attributes
+                          </p>
                         </div>
                       </div>
 
                       {/* Required Specifications */}
                       {Object.keys(tenderItem.attributes || {}).length > 0 && (
                         <div className="mt-3">
-                          <span className="text-gray-500 text-sm">Required Specifications:</span>
+                          <span className="text-gray-500 text-sm">
+                            Required Specifications:
+                          </span>
                           <div className="flex flex-wrap gap-2 mt-1">
-                            {Object.entries(tenderItem.attributes || {}).map(([key, value]) => (
-                              <span key={key} className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                                {key}: {value}
-                              </span>
-                            ))}
+                            {Object.entries(tenderItem.attributes || {}).map(
+                              ([key, value]) => (
+                                <span
+                                  key={key}
+                                  className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs"
+                                >
+                                  {key}: {value}
+                                </span>
+                              )
+                            )}
                           </div>
                         </div>
                       )}
@@ -279,24 +340,36 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
                               <Crown className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                              <h5 className="text-xl font-bold text-green-800 mb-1">High Match Proposals</h5>
-                              <p className="text-sm text-green-600 font-medium">85%+ Match • Excellent Quality</p>
+                              <h5 className="text-xl font-bold text-green-800 mb-1">
+                                High Match Proposals
+                              </h5>
+                              <p className="text-sm text-green-600 font-medium">
+                                85%+ Match • Excellent Quality
+                              </p>
                             </div>
                             <div className="ml-auto">
                               <Badge className="bg-green-500 text-white px-3 py-1 text-sm font-semibold">
-                                {highMatchProposals.length} Proposal{highMatchProposals.length !== 1 ? 's' : ''}
+                                {highMatchProposals.length} Proposal
+                                {highMatchProposals.length !== 1 ? "s" : ""}
                               </Badge>
                             </div>
                           </div>
                           <p className="text-sm text-green-700 leading-relaxed">
-                            These proposals demonstrate exceptional alignment with tender requirements, offering the best value, quality, and compliance.
+                            These proposals demonstrate exceptional alignment
+                            with tender requirements, offering the best value,
+                            quality, and compliance.
                           </p>
                         </div>
-                        
+
                         {highMatchProposals.map((response, idx) => {
-                          const proposal = proposals.find(p => p.id === response.proposalId);
+                          const proposal = proposals.find(
+                            (p) => p.id === response.proposalId
+                          );
                           return (
-                            <div key={response.proposalId} className="bg-white border-2 border-green-300 rounded-2xl p-6 mb-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                            <div
+                              key={response.proposalId}
+                              className="bg-white border-2 border-green-300 rounded-2xl p-6 mb-6 shadow-lg hover:shadow-xl transition-all duration-300"
+                            >
                               {/* Header with Company and Match Score */}
                               <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center space-x-4">
@@ -304,23 +377,33 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
                                     <Crown className="w-6 h-6 text-white" />
                                   </div>
                                   <div>
-                                    <h6 className="text-xl font-bold text-gray-900 mb-1">{response.company}</h6>
+                                    <h6 className="text-xl font-bold text-gray-900 mb-1">
+                                      {response.company}
+                                    </h6>
                                     <div className="flex items-center space-x-3">
                                       <div className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold">
                                         {response.matchPercentage}% Match
                                       </div>
-                                      <Badge className="bg-green-100 text-green-800 border border-green-200">Rank #{response.rank}</Badge>
+                                      <Badge className="bg-green-100 text-green-800 border border-green-200">
+                                        Rank #{response.rank}
+                                      </Badge>
                                     </div>
                                   </div>
                                 </div>
-                                
+
                                 <div className="flex items-center space-x-3">
                                   <Button
                                     size="sm"
-                                    onClick={() => selectWinner(tenderItem.id, response.proposalId)}
-                                    className={selectedWinner === response.proposalId 
-                                      ? "bg-green-600 hover:bg-green-700 text-white shadow-md" 
-                                      : "bg-white border-2 border-green-500 text-green-600 hover:bg-green-50"
+                                    onClick={() =>
+                                      selectWinner(
+                                        tenderItem.id,
+                                        response.proposalId
+                                      )
+                                    }
+                                    className={
+                                      selectedWinner === response.proposalId
+                                        ? "bg-green-600 hover:bg-green-700 text-white shadow-md"
+                                        : "bg-white border-2 border-green-500 text-green-600 hover:bg-green-50"
                                     }
                                   >
                                     {selectedWinner === response.proposalId ? (
@@ -329,13 +412,17 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
                                         Winner Selected
                                       </>
                                     ) : (
-                                      'Select as Winner'
+                                      "Select as Winner"
                                     )}
                                   </Button>
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => onViewProposalDetail?.(response.proposalId)}
+                                    onClick={() =>
+                                      onViewProposalDetail?.(
+                                        response.proposalId
+                                      )
+                                    }
                                     className="border-green-300 text-green-700 hover:bg-green-50"
                                   >
                                     <ExternalLink className="w-4 h-4 mr-2" />
@@ -347,23 +434,45 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
                               {/* Key Information Cards */}
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                                 <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-                                  <div className="text-sm text-green-600 font-medium mb-1">Product</div>
-                                  <div className="font-semibold text-gray-900">{response.proposalItem?.name || 'N/A'}</div>
+                                  <div className="text-sm text-green-600 font-medium mb-1">
+                                    Product
+                                  </div>
+                                  <div className="font-semibold text-gray-900">
+                                    {response.proposalItem?.name || "N/A"}
+                                  </div>
                                 </div>
                                 <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-                                  <div className="text-sm text-green-600 font-medium mb-1">Quantity</div>
-                                  <div className="font-semibold text-gray-900">{response.proposalItem?.quantity || 0} units</div>
+                                  <div className="text-sm text-green-600 font-medium mb-1">
+                                    Quantity
+                                  </div>
+                                  <div className="font-semibold text-gray-900">
+                                    {response.proposalItem?.quantity || 0} units
+                                  </div>
                                 </div>
                                 <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-                                  <div className="text-sm text-green-600 font-medium mb-1">Total Price</div>
-                                  <div className="font-bold text-green-700 text-lg">${(response.proposalItem?.cost || 0).toLocaleString()}</div>
+                                  <div className="text-sm text-green-600 font-medium mb-1">
+                                    Total Price
+                                  </div>
+                                  <div className="font-bold text-green-700 text-lg">
+                                    $
+                                    {(
+                                      response.proposalItem?.cost || 0
+                                    ).toLocaleString()}
+                                  </div>
                                 </div>
                                 <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-                                  <div className="text-sm text-green-600 font-medium mb-1">Budget Difference</div>
-                                  <div className={`font-bold text-lg ${
-                                    response.costDifference > 0 ? 'text-red-600' : 'text-green-600'
-                                  }`}>
-                                    {response.costDifference > 0 ? '+' : ''}${response.costDifference.toLocaleString()}
+                                  <div className="text-sm text-green-600 font-medium mb-1">
+                                    Budget Difference
+                                  </div>
+                                  <div
+                                    className={`font-bold text-lg ${
+                                      response.costDifference > 0
+                                        ? "text-red-600"
+                                        : "text-green-600"
+                                    }`}
+                                  >
+                                    {response.costDifference > 0 ? "+" : ""}$
+                                    {response.costDifference.toLocaleString()}
                                   </div>
                                 </div>
                               </div>
@@ -372,25 +481,38 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
                               <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-5 border border-green-200">
                                 <h6 className="font-semibold text-green-800 mb-3 flex items-center">
                                   <div className="w-5 h-5 bg-green-500 rounded-full mr-2 flex items-center justify-center">
-                                    <span className="text-white text-xs font-bold">✓</span>
+                                    <span className="text-white text-xs font-bold">
+                                      ✓
+                                    </span>
                                   </div>
                                   Why This is Excellent
                                 </h6>
-                                <p className="text-sm text-green-700 leading-relaxed mb-4">{response.reasoning}</p>
-                                
+                                <p className="text-sm text-green-700 leading-relaxed mb-4">
+                                  {response.reasoning}
+                                </p>
+
                                 {/* Technical Specifications */}
-                                {response.proposalItem?.attributes && Object.keys(response.proposalItem.attributes).length > 0 && (
-                                  <div>
-                                    <div className="text-sm text-green-600 font-medium mb-2">Technical Specifications:</div>
-                                    <div className="flex flex-wrap gap-2">
-                                      {Object.entries(response.proposalItem.attributes).map(([key, value]) => (
-                                        <span key={key} className="bg-white text-green-800 px-3 py-1 rounded-full text-xs border border-green-300 font-medium">
-                                          {key}: {value}
-                                        </span>
-                                      ))}
+                                {response.proposalItem?.attributes &&
+                                  Object.keys(response.proposalItem.attributes)
+                                    .length > 0 && (
+                                    <div>
+                                      <div className="text-sm text-green-600 font-medium mb-2">
+                                        Technical Specifications:
+                                      </div>
+                                      <div className="flex flex-wrap gap-2">
+                                        {Object.entries(
+                                          response.proposalItem.attributes
+                                        ).map(([key, value]) => (
+                                          <span
+                                            key={key}
+                                            className="bg-white text-green-800 px-3 py-1 rounded-full text-xs border border-green-300 font-medium"
+                                          >
+                                            {key}: {value}
+                                          </span>
+                                        ))}
+                                      </div>
                                     </div>
-                                  </div>
-                                )}
+                                  )}
                               </div>
                             </div>
                           );
@@ -407,24 +529,35 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
                               <Trophy className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                              <h5 className="text-xl font-bold text-orange-800 mb-1">Medium Match Proposals</h5>
-                              <p className="text-sm text-orange-600 font-medium">70-84% Match • Good Quality</p>
+                              <h5 className="text-xl font-bold text-orange-800 mb-1">
+                                Medium Match Proposals
+                              </h5>
+                              <p className="text-sm text-orange-600 font-medium">
+                                70-84% Match • Good Quality
+                              </p>
                             </div>
                             <div className="ml-auto">
                               <Badge className="bg-orange-500 text-white px-3 py-1 text-sm font-semibold">
-                                {mediumMatchProposals.length} Proposal{mediumMatchProposals.length !== 1 ? 's' : ''}
+                                {mediumMatchProposals.length} Proposal
+                                {mediumMatchProposals.length !== 1 ? "s" : ""}
                               </Badge>
                             </div>
                           </div>
                           <p className="text-sm text-orange-700 leading-relaxed">
-                            These proposals meet most requirements with good value and acceptable compliance levels.
+                            These proposals meet most requirements with good
+                            value and acceptable compliance levels.
                           </p>
                         </div>
-                        
+
                         {mediumMatchProposals.map((response, idx) => {
-                          const proposal = proposals.find(p => p.id === response.proposalId);
+                          const proposal = proposals.find(
+                            (p) => p.id === response.proposalId
+                          );
                           return (
-                            <div key={response.proposalId} className="bg-white border-2 border-orange-300 rounded-2xl p-5 mb-5 shadow-md hover:shadow-lg transition-all duration-300">
+                            <div
+                              key={response.proposalId}
+                              className="bg-white border-2 border-orange-300 rounded-2xl p-5 mb-5 shadow-md hover:shadow-lg transition-all duration-300"
+                            >
                               {/* Header with Company and Match Score */}
                               <div className="flex items-center justify-between mb-5">
                                 <div className="flex items-center space-x-4">
@@ -432,23 +565,33 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
                                     <Trophy className="w-5 h-5 text-white" />
                                   </div>
                                   <div>
-                                    <h6 className="text-lg font-bold text-gray-900 mb-1">{response.company}</h6>
+                                    <h6 className="text-lg font-bold text-gray-900 mb-1">
+                                      {response.company}
+                                    </h6>
                                     <div className="flex items-center space-x-3">
                                       <div className="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold">
                                         {response.matchPercentage}% Match
                                       </div>
-                                      <Badge className="bg-orange-100 text-orange-800 border border-orange-200">Rank #{response.rank}</Badge>
+                                      <Badge className="bg-orange-100 text-orange-800 border border-orange-200">
+                                        Rank #{response.rank}
+                                      </Badge>
                                     </div>
                                   </div>
                                 </div>
-                                
+
                                 <div className="flex items-center space-x-3">
                                   <Button
                                     size="sm"
-                                    onClick={() => selectWinner(tenderItem.id, response.proposalId)}
-                                    className={selectedWinner === response.proposalId 
-                                      ? "bg-orange-600 hover:bg-orange-700 text-white shadow-md" 
-                                      : "bg-white border-2 border-orange-500 text-orange-600 hover:bg-orange-50"
+                                    onClick={() =>
+                                      selectWinner(
+                                        tenderItem.id,
+                                        response.proposalId
+                                      )
+                                    }
+                                    className={
+                                      selectedWinner === response.proposalId
+                                        ? "bg-orange-600 hover:bg-orange-700 text-white shadow-md"
+                                        : "bg-white border-2 border-orange-500 text-orange-600 hover:bg-orange-50"
                                     }
                                   >
                                     {selectedWinner === response.proposalId ? (
@@ -457,13 +600,17 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
                                         Winner Selected
                                       </>
                                     ) : (
-                                      'Select as Winner'
+                                      "Select as Winner"
                                     )}
                                   </Button>
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => onViewProposalDetail?.(response.proposalId)}
+                                    onClick={() =>
+                                      onViewProposalDetail?.(
+                                        response.proposalId
+                                      )
+                                    }
                                     className="border-orange-300 text-orange-700 hover:bg-orange-50"
                                   >
                                     <ExternalLink className="w-4 h-4 mr-2" />
@@ -475,19 +622,37 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
                               {/* Key Information Cards */}
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
                                 <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
-                                  <div className="text-sm text-orange-600 font-medium mb-1">Product</div>
-                                  <div className="font-semibold text-gray-900">{response.proposalItem?.name || 'N/A'}</div>
+                                  <div className="text-sm text-orange-600 font-medium mb-1">
+                                    Product
+                                  </div>
+                                  <div className="font-semibold text-gray-900">
+                                    {response.proposalItem?.name || "N/A"}
+                                  </div>
                                 </div>
                                 <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
-                                  <div className="text-sm text-orange-600 font-medium mb-1">Total Price</div>
-                                  <div className="font-bold text-orange-700 text-lg">${(response.proposalItem?.cost || 0).toLocaleString()}</div>
+                                  <div className="text-sm text-orange-600 font-medium mb-1">
+                                    Total Price
+                                  </div>
+                                  <div className="font-bold text-orange-700 text-lg">
+                                    $
+                                    {(
+                                      response.proposalItem?.cost || 0
+                                    ).toLocaleString()}
+                                  </div>
                                 </div>
                                 <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
-                                  <div className="text-sm text-orange-600 font-medium mb-1">Budget Difference</div>
-                                  <div className={`font-bold text-lg ${
-                                    response.costDifference > 0 ? 'text-red-600' : 'text-green-600'
-                                  }`}>
-                                    {response.costDifference > 0 ? '+' : ''}${response.costDifference.toLocaleString()}
+                                  <div className="text-sm text-orange-600 font-medium mb-1">
+                                    Budget Difference
+                                  </div>
+                                  <div
+                                    className={`font-bold text-lg ${
+                                      response.costDifference > 0
+                                        ? "text-red-600"
+                                        : "text-green-600"
+                                    }`}
+                                  >
+                                    {response.costDifference > 0 ? "+" : ""}$
+                                    {response.costDifference.toLocaleString()}
                                   </div>
                                 </div>
                               </div>
@@ -496,11 +661,15 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
                               <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-200">
                                 <h6 className="font-semibold text-orange-800 mb-2 flex items-center">
                                   <div className="w-5 h-5 bg-orange-500 rounded-full mr-2 flex items-center justify-center">
-                                    <span className="text-white text-xs font-bold">!</span>
+                                    <span className="text-white text-xs font-bold">
+                                      !
+                                    </span>
                                   </div>
                                   Analysis Summary
                                 </h6>
-                                <p className="text-sm text-orange-700 leading-relaxed">{response.reasoning}</p>
+                                <p className="text-sm text-orange-700 leading-relaxed">
+                                  {response.reasoning}
+                                </p>
                               </div>
                             </div>
                           );
@@ -517,24 +686,35 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
                               <AlertTriangle className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                              <h5 className="text-xl font-bold text-red-800 mb-1">Low Match Proposals</h5>
-                              <p className="text-sm text-red-600 font-medium">&lt;70% Match • Requires Review</p>
+                              <h5 className="text-xl font-bold text-red-800 mb-1">
+                                Low Match Proposals
+                              </h5>
+                              <p className="text-sm text-red-600 font-medium">
+                                &lt;70% Match • Requires Review
+                              </p>
                             </div>
                             <div className="ml-auto">
                               <Badge className="bg-red-500 text-white px-3 py-1 text-sm font-semibold">
-                                {lowMatchProposals.length} Proposal{lowMatchProposals.length !== 1 ? 's' : ''}
+                                {lowMatchProposals.length} Proposal
+                                {lowMatchProposals.length !== 1 ? "s" : ""}
                               </Badge>
                             </div>
                           </div>
                           <p className="text-sm text-red-700 leading-relaxed">
-                            These proposals have significant gaps or issues that may require careful consideration.
+                            These proposals have significant gaps or issues that
+                            may require careful consideration.
                           </p>
                         </div>
-                        
+
                         {lowMatchProposals.map((response, idx) => {
-                          const proposal = proposals.find(p => p.id === response.proposalId);
+                          const proposal = proposals.find(
+                            (p) => p.id === response.proposalId
+                          );
                           return (
-                            <div key={response.proposalId} className="bg-white border-2 border-red-300 rounded-2xl p-5 mb-5 shadow-md hover:shadow-lg transition-all duration-300">
+                            <div
+                              key={response.proposalId}
+                              className="bg-white border-2 border-red-300 rounded-2xl p-5 mb-5 shadow-md hover:shadow-lg transition-all duration-300"
+                            >
                               {/* Header with Company and Match Score */}
                               <div className="flex items-center justify-between mb-5">
                                 <div className="flex items-center space-x-4">
@@ -542,23 +722,33 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
                                     <AlertTriangle className="w-5 h-5 text-white" />
                                   </div>
                                   <div>
-                                    <h6 className="text-lg font-bold text-gray-900 mb-1">{response.company}</h6>
+                                    <h6 className="text-lg font-bold text-gray-900 mb-1">
+                                      {response.company}
+                                    </h6>
                                     <div className="flex items-center space-x-3">
                                       <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
                                         {response.matchPercentage}% Match
                                       </div>
-                                      <Badge className="bg-red-100 text-red-800 border border-red-200">Rank #{response.rank}</Badge>
+                                      <Badge className="bg-red-100 text-red-800 border border-red-200">
+                                        Rank #{response.rank}
+                                      </Badge>
                                     </div>
                                   </div>
                                 </div>
-                                
+
                                 <div className="flex items-center space-x-3">
                                   <Button
                                     size="sm"
-                                    onClick={() => selectWinner(tenderItem.id, response.proposalId)}
-                                    className={selectedWinner === response.proposalId 
-                                      ? "bg-red-600 hover:bg-red-700 text-white shadow-md" 
-                                      : "bg-white border-2 border-red-500 text-red-600 hover:bg-red-50"
+                                    onClick={() =>
+                                      selectWinner(
+                                        tenderItem.id,
+                                        response.proposalId
+                                      )
+                                    }
+                                    className={
+                                      selectedWinner === response.proposalId
+                                        ? "bg-red-600 hover:bg-red-700 text-white shadow-md"
+                                        : "bg-white border-2 border-red-500 text-red-600 hover:bg-red-50"
                                     }
                                   >
                                     {selectedWinner === response.proposalId ? (
@@ -567,13 +757,17 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
                                         Winner Selected
                                       </>
                                     ) : (
-                                      'Select as Winner'
+                                      "Select as Winner"
                                     )}
                                   </Button>
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => onViewProposalDetail?.(response.proposalId)}
+                                    onClick={() =>
+                                      onViewProposalDetail?.(
+                                        response.proposalId
+                                      )
+                                    }
                                     className="border-red-300 text-red-700 hover:bg-red-50"
                                   >
                                     <ExternalLink className="w-4 h-4 mr-2" />
@@ -585,19 +779,37 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
                               {/* Key Information Cards */}
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
                                 <div className="bg-red-50 rounded-xl p-4 border border-red-200">
-                                  <div className="text-sm text-red-600 font-medium mb-1">Product</div>
-                                  <div className="font-semibold text-gray-900">{response.proposalItem?.name || 'N/A'}</div>
+                                  <div className="text-sm text-red-600 font-medium mb-1">
+                                    Product
+                                  </div>
+                                  <div className="font-semibold text-gray-900">
+                                    {response.proposalItem?.name || "N/A"}
+                                  </div>
                                 </div>
                                 <div className="bg-red-50 rounded-xl p-4 border border-red-200">
-                                  <div className="text-sm text-red-600 font-medium mb-1">Total Price</div>
-                                  <div className="font-bold text-red-700 text-lg">${(response.proposalItem?.cost || 0).toLocaleString()}</div>
+                                  <div className="text-sm text-red-600 font-medium mb-1">
+                                    Total Price
+                                  </div>
+                                  <div className="font-bold text-red-700 text-lg">
+                                    $
+                                    {(
+                                      response.proposalItem?.cost || 0
+                                    ).toLocaleString()}
+                                  </div>
                                 </div>
                                 <div className="bg-red-50 rounded-xl p-4 border border-red-200">
-                                  <div className="text-sm text-red-600 font-medium mb-1">Budget Difference</div>
-                                  <div className={`font-bold text-lg ${
-                                    response.costDifference > 0 ? 'text-red-600' : 'text-green-600'
-                                  }`}>
-                                    {response.costDifference > 0 ? '+' : ''}${response.costDifference.toLocaleString()}
+                                  <div className="text-sm text-red-600 font-medium mb-1">
+                                    Budget Difference
+                                  </div>
+                                  <div
+                                    className={`font-bold text-lg ${
+                                      response.costDifference > 0
+                                        ? "text-red-600"
+                                        : "text-green-600"
+                                    }`}
+                                  >
+                                    {response.costDifference > 0 ? "+" : ""}$
+                                    {response.costDifference.toLocaleString()}
                                   </div>
                                 </div>
                               </div>
@@ -606,32 +818,30 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({ tender, proposals, on
                               <div className="bg-gradient-to-r from-red-50 to-rose-50 rounded-xl p-4 border border-red-200">
                                 <h6 className="font-semibold text-red-800 mb-2 flex items-center">
                                   <div className="w-5 h-5 bg-red-500 rounded-full mr-2 flex items-center justify-center">
-                                    <span className="text-white text-xs font-bold">!</span>
+                                    <span className="text-white text-xs font-bold">
+                                      !
+                                    </span>
                                   </div>
                                   Analysis Summary
                                 </h6>
-                                <p className="text-sm text-red-700 leading-relaxed">{response.reasoning}</p>
+                                <p className="text-sm text-red-700 leading-relaxed">
+                                  {response.reasoning}
+                                </p>
                               </div>
                             </div>
                           );
                         })}
                       </div>
                     )}
-
-
                   </div>
-                )
-              })
-            </div>)
+                )}
+              </div>
+            );
           })}
         </div>
-
-     </div>
-
-     </div>
-
-    );
-
-}
+      </div>
+    </div>
+  );
+};
 
 export default TenderAnalytics;
