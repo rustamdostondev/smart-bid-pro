@@ -53,7 +53,7 @@ export interface ProposalItem {
 }
 
 export interface Proposal {
-  companyName: string;
+  companyName?: string;
   id: string;
   tenderIds: string;
   name: string;
@@ -827,6 +827,7 @@ export const mockProposals: Proposal[] = [
       matching: "completed",
     },
     submittedAt: "2024-01-20",
+    companyName: "",
   },
   {
     id: "2",
@@ -836,6 +837,7 @@ export const mockProposals: Proposal[] = [
     submittedBy: "3",
     company: "Office Supplies Inc",
     status: "submitted",
+    companyName: "",
     items: [
       {
         id: "4",

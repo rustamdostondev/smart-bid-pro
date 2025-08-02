@@ -48,6 +48,25 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
     new Set()
   );
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Number of tender elements to show per page
+  
+  // Calculate pagination values
+  const totalItems = tender.items.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+  
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Reset expanded elements when changing pages
+    setExpandedElements(new Set());
+    // Scroll to top of the analysis section
+    document.getElementById('analysis-section')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   // Generate comprehensive analysis results
   const analysisResults: AnalysisResult[] = useMemo(() => {
     return proposals
@@ -192,17 +211,18 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
       )}
 
       {/* Element-by-Element Analysis */}
-      <div className="space-y-4">
+      <div id="analysis-section" className="space-y-4">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold">Element-by-Element Analysis</h3>
           <div className="text-sm text-gray-600">
-            Comparing all proposals across {tender.items.length} tender elements
+            Showing {startIndex + 1}-{endIndex} of {tender.items.length} tender elements
           </div>
         </div>
 
         {/* Element-by-Element Collapsible Sections */}
         <div className="space-y-3">
-          {tender.items.map((tenderItem, itemIndex) => {
+          {tender.items.slice(startIndex, endIndex).map((tenderItem, paginatedIndex) => {
+            const itemIndex = startIndex + paginatedIndex; // Calculate the actual index in the full array
             // Get all proposal responses for this tender item
             const proposalResponses = analysisResults
               .map((result) => {
@@ -847,6 +867,73 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
             );
           })}
         </div>
+        
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex flex-col items-center justify-center space-y-4">
+            <div className="flex items-center justify-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(1)}
+                disabled={currentPage === 1}
+                className="h-8 w-8 p-0"
+              >
+                <span className="sr-only">First Page</span>
+                <ChevronDown className="h-4 w-4 rotate-90" />
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="h-8 w-8 p-0"
+              >
+                <span className="sr-only">Previous Page</span>
+                <ChevronDown className="h-4 w-4 -rotate-90" />
+              </Button>
+              
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handlePageChange(page)}
+                  className={`h-8 w-8 p-0 ${currentPage === page ? "bg-blue-600 hover:bg-blue-700" : ""}`}
+                >
+                  {page}
+                </Button>
+              ))}
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="h-8 w-8 p-0"
+              >
+                <span className="sr-only">Next Page</span>
+                <ChevronDown className="h-4 w-4 rotate-90" />
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(totalPages)}
+                disabled={currentPage === totalPages}
+                className="h-8 w-8 p-0"
+              >
+                <span className="sr-only">Last Page</span>
+                <ChevronDown className="h-4 w-4 -rotate-90" />
+              </Button>
+            </div>
+            
+            <div className="text-sm text-gray-600">
+              Page {currentPage} of {totalPages} • {tender.items.length} total elements
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

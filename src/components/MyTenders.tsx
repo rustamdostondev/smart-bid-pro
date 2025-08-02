@@ -1,32 +1,57 @@
-import { useState, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from '@/components/ui/pagination';
-import { mockTenders, getCurrentUser } from '@/lib/mockData';
-import { 
-  Calendar, 
-  Eye, 
-  Users, 
-  Lock, 
-  Globe, 
-  Search, 
-  Filter, 
-  Plus, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
-  Edit, 
+import { useState, useMemo } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
+import { mockTenders, getCurrentUser } from "@/lib/mockData";
+import {
+  Calendar,
+  Eye,
+  Users,
+  Lock,
+  Globe,
+  Search,
+  Filter,
+  Plus,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Edit,
   Trash2,
   MoreHorizontal,
   FileText,
   TrendingUp,
   AlertTriangle,
-  X
-} from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+  X,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface MyTendersProps {
   onCreateTender: () => void;
@@ -35,10 +60,15 @@ interface MyTendersProps {
   onDeleteTender: (tenderId: string) => void;
 }
 
-export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDeleteTender }: MyTendersProps) {
+export function MyTenders({
+  onCreateTender,
+  onViewTender,
+  onEditTender,
+  onDeleteTender,
+}: MyTendersProps) {
   const user = getCurrentUser();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
 
@@ -57,19 +87,20 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
   };
 
   const myTenders = useMemo(() => {
-    let tenders = mockTenders.filter(tender => tender.createdBy === user?.id);
+    let tenders = mockTenders.filter((tender) => tender.createdBy === user?.id);
 
     // Search filter
     if (searchQuery) {
-      tenders = tenders.filter(tender => 
-        tender.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        tender.description.toLowerCase().includes(searchQuery.toLowerCase())
+      tenders = tenders.filter(
+        (tender) =>
+          tender.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          tender.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     // Status filter
-    if (statusFilter !== 'all') {
-      tenders = tenders.filter(tender => tender.status === statusFilter);
+    if (statusFilter !== "all") {
+      tenders = tenders.filter((tender) => tender.status === statusFilter);
     }
 
     return tenders;
@@ -77,16 +108,19 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
 
   const totalPages = Math.ceil(myTenders.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedTenders = myTenders.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedTenders = myTenders.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const clearFilters = () => {
-    setSearchQuery('');
-    setStatusFilter('all');
+    setSearchQuery("");
+    setStatusFilter("all");
     setCurrentPage(1);
   };
 
@@ -103,28 +137,38 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
 
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case 'published': return 'default';
-      case 'draft': return 'secondary';
-      case 'closed': return 'destructive';
-      default: return 'outline';
+      case "published":
+        return "default";
+      case "draft":
+        return "secondary";
+      case "closed":
+        return "destructive";
+      default:
+        return "outline";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'published': return <CheckCircle className="w-4 h-4" />;
-      case 'draft': return <Clock className="w-4 h-4" />;
-      case 'closed': return <XCircle className="w-4 h-4" />;
-      default: return null;
+      case "published":
+        return <CheckCircle className="w-4 h-4" />;
+      case "draft":
+        return <Clock className="w-4 h-4" />;
+      case "closed":
+        return <XCircle className="w-4 h-4" />;
+      default:
+        return null;
     }
   };
 
   const stats = {
     total: myTenders.length,
-    published: myTenders.filter(t => t.status === 'published').length,
-    draft: myTenders.filter(t => t.status === 'draft').length,
-    closed: myTenders.filter(t => t.status === 'closed').length,
-    expiringSoon: myTenders.filter(t => isDeadlineNear(t.deadline) && t.status === 'published').length
+    published: myTenders.filter((t) => t.status === "published").length,
+    draft: myTenders.filter((t) => t.status === "draft").length,
+    closed: myTenders.filter((t) => t.status === "closed").length,
+    expiringSoon: myTenders.filter(
+      (t) => isDeadlineNear(t.deadline) && t.status === "published"
+    ).length,
   };
 
   return (
@@ -137,7 +181,10 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
             Manage and track your tender publications
           </p>
         </div>
-        <Button onClick={onCreateTender} className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all">
+        <Button
+          onClick={onCreateTender}
+          className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Create New Tender
         </Button>
@@ -154,7 +201,7 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
             <p className="text-2xl font-bold">{stats.total}</p>
           </CardContent>
         </Card>
-        
+
         <Card className="shadow-soft">
           <CardContent className="p-4 flex flex-col items-center justify-center">
             <div className="rounded-full bg-green-100 p-3 mb-2">
@@ -164,7 +211,7 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
             <p className="text-2xl font-bold">{stats.published}</p>
           </CardContent>
         </Card>
-        
+
         <Card className="shadow-soft">
           <CardContent className="p-4 flex flex-col items-center justify-center">
             <div className="rounded-full bg-yellow-100 p-3 mb-2">
@@ -174,7 +221,7 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
             <p className="text-2xl font-bold">{stats.draft}</p>
           </CardContent>
         </Card>
-        
+
         <Card className="shadow-soft">
           <CardContent className="p-4 flex flex-col items-center justify-center">
             <div className="rounded-full bg-gray-100 p-3 mb-2">
@@ -184,7 +231,7 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
             <p className="text-2xl font-bold">{stats.closed}</p>
           </CardContent>
         </Card>
-        
+
         <Card className="shadow-soft">
           <CardContent className="p-4 flex flex-col items-center justify-center">
             <div className="rounded-full bg-orange-100 p-3 mb-2">
@@ -223,9 +270,9 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
                 <SelectItem value="expiring">Expiring Soon</SelectItem>
               </SelectContent>
             </Select>
-            {(searchQuery || statusFilter !== 'all') && (
-              <Button 
-                variant="outline" 
+            {(searchQuery || statusFilter !== "all") && (
+              <Button
+                variant="outline"
                 onClick={clearFilters}
                 className="border-gray-300 hover:bg-gray-50 text-gray-700 h-11"
               >
@@ -238,110 +285,95 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
       </Card>
 
       {/* Results Summary & Items Per Page */}
-    
 
       {/* Tender Grid */}
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {paginatedTenders.map((tender) => {
           const deadlineNear = isDeadlineNear(tender.deadline);
           const deadlinePassed = isDeadlinePassed(tender.deadline);
-          
+
           return (
-            <Card key={tender.id} className={`group hover:shadow-lg transition-all duration-300 border-l-4 ${
-              deadlinePassed ? 'border-l-red-500' : 
-              deadlineNear ? 'border-l-yellow-500' : 
-              tender.status === 'published' ? 'border-l-green-500' : 'border-l-gray-300'
-            }`}>
+            <Card
+              key={tender.id}
+              className="group hover:shadow-lg transition-all duration-300 relative overflow-hidden"
+            >
+              {/* Status indicator */}
+              <div
+                className={`absolute top-0 left-0 w-full h-1 ${
+                  deadlinePassed
+                    ? "bg-red-500"
+                    : deadlineNear
+                    ? "bg-yellow-500"
+                    : tender.status === "published"
+                    ? "bg-green-500"
+                    : "bg-gray-300"
+                }`}
+              />
+
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-2 flex-1 min-w-0">
-                    {tender.visibility === 'public' ? 
-                      <Globe className="w-4 h-4 text-muted-foreground shrink-0" /> : 
-                      <Lock className="w-4 h-4 text-muted-foreground shrink-0" />
-                    }
+                  <div className="flex-1 min-w-0">
                     <CardTitle className="text-lg group-hover:text-primary transition-colors line-clamp-1">
                       {tender.name}
                     </CardTitle>
+                    <CardDescription className="line-clamp-2 mt-1">
+                      {tender.description}
+                    </CardDescription>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={getStatusVariant(tender.status)} className="flex items-center gap-1 shrink-0">
-                      {getStatusIcon(tender.status)}
-                      {tender.status}
-                    </Badge>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onViewTender(tender.id)}>
-                          <Eye className="w-4 h-4 mr-2" />
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onEditTender(tender.id)}>
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit Tender
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => onDeleteTender(tender.id)}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+                  <Badge
+                    variant={
+                      tender.status === "published" ? "default" : "secondary"
+                    }
+                    className="ml-2 shrink-0"
+                  >
+                    {tender.status}
+                  </Badge>
                 </div>
-                <CardDescription className="line-clamp-2 mt-2">
-                  {tender.description}
-                </CardDescription>
               </CardHeader>
-              
+
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <div className={`flex items-center text-sm ${
-                    deadlinePassed ? 'text-red-600' : 
-                    deadlineNear ? 'text-yellow-600' : 'text-muted-foreground'
-                  }`}>
+                  <div
+                    className={`flex items-center text-sm ${
+                      deadlinePassed
+                        ? "text-red-600"
+                        : deadlineNear
+                        ? "text-yellow-600"
+                        : "text-muted-foreground"
+                    }`}
+                  >
                     <Calendar className="w-4 h-4 mr-2" />
                     <span>
                       {new Date(tender.deadline).toLocaleDateString()}
-                      {deadlineNear && !deadlinePassed && ' (Soon)'}
-                      {deadlinePassed && ' (Expired)'}
+                      {deadlineNear && !deadlinePassed && " (Soon)"}
+                      {deadlinePassed && " (Expired)"}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Users className="w-4 h-4 mr-2" />
-                    <span>{tender.items.length} items</span>
+                    <span>{tender.items.length} items required</span>
                   </div>
 
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <TrendingUp className="w-4 h-4 mr-2" />
-                    <span>Created {new Date(tender.createdAt).toLocaleDateString()}</span>
-                  </div>
+                  {tender.visibility === "public" && (
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Globe className="w-4 h-4 mr-2" />
+                      <span>Public tender</span>
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={() => onViewTender(tender.id)}
-                    className="flex-1"
-                    variant="outline"
-                    size="sm"
-                  >
-                    <Eye className="w-4 h-4 mr-2" />
-                    View
-                  </Button>
-                  <Button 
-                    onClick={() => onEditTender(tender.id)}
-                    variant="outline"
-                    size="sm"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                </div>
+                <Button
+                  onClick={() => onViewTender(tender.id)}
+                  className="w-full"
+                  variant={deadlinePassed ? "outline" : "default"}
+                  disabled={deadlinePassed && tender.status === "closed"}
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  {deadlinePassed && tender.status === "closed"
+                    ? "View (Closed)"
+                    : "View Details"}
+                </Button>
               </CardContent>
             </Card>
           );
@@ -357,20 +389,18 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
             </div>
             <div>
               <h3 className="text-lg font-semibold mb-2">
-                {searchQuery || statusFilter !== 'all' 
-                  ? 'No tenders match your filters' 
-                  : 'No tenders created yet'
-                }
+                {searchQuery || statusFilter !== "all"
+                  ? "No tenders match your filters"
+                  : "No tenders created yet"}
               </h3>
               <p className="text-muted-foreground mb-4">
-                {searchQuery || statusFilter !== 'all'
-                  ? 'Try adjusting your search criteria or filters'
-                  : 'Create your first tender to get started with the procurement process'
-                }
+                {searchQuery || statusFilter !== "all"
+                  ? "Try adjusting your search criteria or filters"
+                  : "Create your first tender to get started with the procurement process"}
               </p>
             </div>
             <div className="flex gap-2 justify-center">
-              {(searchQuery || statusFilter !== 'all') && (
+              {(searchQuery || statusFilter !== "all") && (
                 <Button variant="outline" onClick={clearFilters}>
                   Clear Filters
                 </Button>
@@ -385,13 +415,22 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
       )}
 
       {/* Enhanced Pagination */}
-      {totalPages > 1 && (
+      {totalPages >= 1 && (
         <Card className="p-4 bg-gradient-to-r from-background to-muted/20 mt-7">
           <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
             {/* Page Statistics */}
             <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
-                <span>Page <span className="font-medium text-foreground">{currentPage}</span> of <span className="font-medium text-foreground">{totalPages}</span></span>
+                <span>
+                  Page{" "}
+                  <span className="font-medium text-foreground">
+                    {currentPage}
+                  </span>{" "}
+                  of{" "}
+                  <span className="font-medium text-foreground">
+                    {totalPages}
+                  </span>
+                </span>
               </div>
               <div className="hidden sm:flex items-center gap-2 text-muted-foreground">
                 <span>•</span>
@@ -402,7 +441,7 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
                 <span>{stats.published} published</span>
               </div>
             </div>
-            
+
             {/* Main Pagination Controls */}
             <div className="flex items-center gap-2">
               {/* First Page */}
@@ -416,7 +455,7 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
               >
                 ««
               </Button>
-              
+
               {/* Previous Page */}
               <Button
                 variant="outline"
@@ -428,46 +467,51 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
               >
                 ‹
               </Button>
-              
+
               {/* Page Numbers with Smart Display */}
               <div className="flex items-center gap-1 mx-2">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                  // Show first, last, current, and adjacent pages
-                  if (
-                    page === 1 ||
-                    page === totalPages ||
-                    (page >= currentPage - 2 && page <= currentPage + 2)
-                  ) {
-                    return (
-                      <Button
-                        key={page}
-                        variant={currentPage === page ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handlePageChange(page)}
-                        className={`h-9 w-9 p-0 transition-all duration-200 ${
-                          currentPage === page 
-                            ? 'bg-primary text-primary-foreground shadow-md scale-105' 
-                            : 'hover:bg-primary hover:text-primary-foreground'
-                        }`}
-                      >
-                        {page}
-                      </Button>
-                    );
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => {
+                    // Show first, last, current, and adjacent pages
+                    if (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 2 && page <= currentPage + 2)
+                    ) {
+                      return (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(page)}
+                          className={`h-9 w-9 p-0 transition-all duration-200 ${
+                            currentPage === page
+                              ? "bg-primary text-primary-foreground shadow-md scale-105"
+                              : "hover:bg-primary hover:text-primary-foreground"
+                          }`}
+                        >
+                          {page}
+                        </Button>
+                      );
+                    }
+
+                    // Show ellipsis for gaps
+                    if (page === currentPage - 3 || page === currentPage + 3) {
+                      return (
+                        <span
+                          key={page}
+                          className="px-2 text-muted-foreground font-medium"
+                        >
+                          …
+                        </span>
+                      );
+                    }
+
+                    return null;
                   }
-                  
-                  // Show ellipsis for gaps
-                  if (page === currentPage - 3 || page === currentPage + 3) {
-                    return (
-                      <span key={page} className="px-2 text-muted-foreground font-medium">
-                        …
-                      </span>
-                    );
-                  }
-                  
-                  return null;
-                })}
+                )}
               </div>
-              
+
               {/* Next Page */}
               <Button
                 variant="outline"
@@ -479,7 +523,7 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
               >
                 ›
               </Button>
-              
+
               {/* Last Page */}
               <Button
                 variant="outline"
@@ -492,11 +536,13 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
                 »»
               </Button>
             </div>
-            
+
             {/* Quick Navigation */}
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground hidden sm:inline">Jump to:</span>
+                <span className="text-sm text-muted-foreground hidden sm:inline">
+                  Jump to:
+                </span>
                 <Input
                   type="number"
                   min={1}

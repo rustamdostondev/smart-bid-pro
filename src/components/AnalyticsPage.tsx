@@ -17,7 +17,8 @@ import {
   Eye,
   FileText,
   Target,
-  Award
+  Award,
+  ChevronDown
 } from 'lucide-react';
 import { mockTenders, mockProposals, getCurrentUser, type Tender } from '@/lib/mockData';
 
@@ -30,6 +31,10 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onOpenTenderAnalytics }) 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'closed' | 'draft'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'proposals' | 'name'>('date');
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6; // Number of tenders to show per page
 
   // Get user's tenders with proposal counts
   const userTendersWithAnalytics = useMemo(() => {
@@ -100,6 +105,24 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onOpenTenderAnalytics }) 
 
     return filtered;
   }, [userTendersWithAnalytics, searchTerm, statusFilter, sortBy]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredTenders.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, filteredTenders.length);
+  const paginatedTenders = filteredTenders.slice(startIndex, endIndex);
+  
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of the page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  
+  // Reset pagination when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, sortBy]);
 
   // Summary statistics
   const summaryStats = useMemo(() => {
@@ -236,7 +259,7 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onOpenTenderAnalytics }) 
             </p>
           </Card>
         ) : (
-          filteredTenders.map((tender) => (
+          paginatedTenders.map((tender) => (
             <Card key={tender.id} className="p-6 hover:shadow-md transition-shadow">
               <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                 {/* Tender Info */}
@@ -326,6 +349,155 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onOpenTenderAnalytics }) 
           ))
         )}
       </div>
+
+      {/* Enhanced Pagination */}
+      {totalPages >= 1 && (
+        <Card className="p-4 bg-gradient-to-r from-background to-muted/20 mt-7">
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
+            {/* Page Statistics */}
+            <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <span>
+                  Page{" "}
+                  <span className="font-medium text-foreground">
+                    {currentPage}
+                  </span>{" "}
+                  of{" "}
+                  <span className="font-medium text-foreground">
+                    {totalPages}
+                  </span>
+                </span>
+              </div>
+              <div className="hidden sm:flex items-center gap-2 text-muted-foreground">
+                <span>•</span>
+                <span>{filteredTenders.length} total tenders</span>
+              </div>
+              <div className="hidden md:flex items-center gap-2 text-muted-foreground">
+                <span>•</span>
+                <span>Showing {startIndex + 1}-{endIndex}</span>
+              </div>
+            </div>
+
+            {/* Main Pagination Controls */}
+            <div className="flex items-center gap-2">
+              {/* First Page */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(1)}
+                disabled={currentPage === 1}
+                className="h-9 w-9 p-0 hover:bg-primary hover:text-primary-foreground transition-colors"
+                title="First page"
+              >
+                ««
+              </Button>
+
+              {/* Previous Page */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="h-9 w-9 p-0 hover:bg-primary hover:text-primary-foreground transition-colors"
+                title="Previous page"
+              >
+                ‹
+              </Button>
+
+              {/* Page Numbers with Smart Display */}
+              <div className="flex items-center gap-1 mx-2">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => {
+                    // Show first, last, current, and adjacent pages
+                    if (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 2 && page <= currentPage + 2)
+                    ) {
+                      return (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(page)}
+                          className={`h-9 w-9 p-0 transition-all duration-200 ${
+                            currentPage === page
+                              ? "bg-primary text-primary-foreground shadow-md scale-105"
+                              : "hover:bg-primary hover:text-primary-foreground"
+                          }`}
+                        >
+                          {page}
+                        </Button>
+                      );
+                    }
+
+                    // Show ellipsis for gaps
+                    if (page === currentPage - 3 || page === currentPage + 3) {
+                      return (
+                        <span
+                          key={page}
+                          className="px-2 text-muted-foreground font-medium"
+                        >
+                          …
+                        </span>
+                      );
+                    }
+
+                    return null;
+                  }
+                )}
+              </div>
+
+              {/* Next Page */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="h-9 w-9 p-0 hover:bg-primary hover:text-primary-foreground transition-colors"
+                title="Next page"
+              >
+                ›
+              </Button>
+
+              {/* Last Page */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(totalPages)}
+                disabled={currentPage === totalPages}
+                className="h-9 w-9 p-0 hover:bg-primary hover:text-primary-foreground transition-colors"
+                title="Last page"
+              >
+                »»
+              </Button>
+            </div>
+
+            {/* Quick Navigation */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground hidden sm:inline">
+                  Jump to:
+                </span>
+                <Input
+                  type="number"
+                  min={1}
+                  max={totalPages}
+                  value={currentPage}
+                  onChange={(e) => {
+                    const page = Number(e.target.value);
+                    if (page >= 1 && page <= totalPages) {
+                      handlePageChange(page);
+                    }
+                  }}
+                  className="w-16 h-9 text-center border-2 focus:border-primary transition-colors"
+                  placeholder="#"
+                />
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Empty State for No Tenders */}
       {userTendersWithAnalytics.length === 0 && (
