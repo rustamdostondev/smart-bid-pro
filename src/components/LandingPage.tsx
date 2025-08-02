@@ -178,19 +178,19 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
             {/* Desktop Navigation */}
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-8">
-                <a href="#features" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors">
+                <a href="#features" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 ease-in-out px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
                   Features
                 </a>
-                <a href="#pricing" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors">
+                <a href="#pricing" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 ease-in-out px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
                   Pricing
                 </a>
-                <a href="#testimonials" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors">
+                <a href="#testimonials" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 ease-in-out px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
                   Testimonials
                 </a>
-                <Button variant="ghost" onClick={onLogin} className="text-gray-700 hover:text-blue-600">
+                <Button variant="ghost" onClick={onLogin} className="text-gray-700 hover:text-blue-600 transition-colors duration-200 ease-in-out px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
                   Sign In
                 </Button>
-                <Button onClick={onGetStarted} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                <Button onClick={onGetStarted} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-colors duration-200 ease-in-out px-3 py-2 text-sm font-medium rounded-md">
                   Get Started
                 </Button>
               </div>
@@ -237,7 +237,6 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
             </Badge>
             
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-              Transform Your
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 {" "}Procurement Process
               </span>
@@ -268,14 +267,14 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-8 mt-16">
               {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="flex justify-center mb-2">
-                    <stat.icon className="w-8 h-8 text-blue-600" />
+                <div key={index} className="flex flex-col items-center border border-gray-200 rounded-xl p-4">
+                  <div className="flex items-center justify-center w-12 h-12 mb-4 bg-white rounded-xl shadow-lg">
+                    <stat.icon className="w-6 h-6 text-blue-600" />
                   </div>
-                  <div className="text-3xl font-bold text-gray-900 mb-1">{stat.number}</div>
-                  <div className="text-gray-600">{stat.label}</div>
+                  <div className="text-2xl font-bold text-gray-900 mb-1">{stat.number}</div>
+                  <div className="text-sm text-gray-600">{stat.label}</div>
                 </div>
               ))}
             </div>
