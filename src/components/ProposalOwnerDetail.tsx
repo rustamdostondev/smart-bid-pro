@@ -326,7 +326,7 @@ export function ProposalOwnerDetail({ proposalId, onBack }: ProposalOwnerDetailP
               </div>
             </div>
 
-            {/* Tender Items CRUD */}
+            {/* Proposal Items CRUD */}
             <div>
               <div className="flex justify-between items-center mb-4">
                 <div>
@@ -348,7 +348,7 @@ export function ProposalOwnerDetail({ proposalId, onBack }: ProposalOwnerDetailP
               </div>
 
               {/* Search and Filter */}
-              {tenderItems.length > 0 && (
+              {proposalItems.length > 0 && (
                 <div className="mb-4 p-3 bg-gray-50 rounded-lg">
                   <div className="flex space-x-3">
                     <Input
@@ -625,7 +625,7 @@ export function ProposalOwnerDetail({ proposalId, onBack }: ProposalOwnerDetailP
                 ))}
               </div>
 
-              {filteredItems.length === 0 && tenderItems.length > 0 && (
+              {filteredItems.length === 0 && proposalItems.length > 0 && (
                 <div className="text-center py-8 text-gray-500">
                   <Code className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                   <p>No items match your search criteria.</p>
@@ -640,7 +640,7 @@ export function ProposalOwnerDetail({ proposalId, onBack }: ProposalOwnerDetailP
                 </div>
               )}
 
-              {tenderItems.length === 0 && (
+              {proposalItems.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
                   <Code className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                   <p>No items found. Add items manually or wait for AI parsing to complete.</p>
@@ -775,7 +775,7 @@ export function ProposalOwnerDetail({ proposalId, onBack }: ProposalOwnerDetailP
                   <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="w-4 h-4 mr-2 text-gray-500" />
                     <span className="font-medium">Created:</span>
-                    <span className="ml-2">{new Date().toLocaleDateString()}</span>
+                    <span className="ml-2">{new Date(tender.createdAt).toLocaleDateString()}</span>
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="w-4 h-4 mr-2 text-gray-500" />
@@ -914,8 +914,8 @@ function EditItemForm({
   onSave, 
   onCancel 
 }: { 
-  item: TenderItem; 
-  onSave: (item: Partial<TenderItem>) => void; 
+  item: ProposalItem; 
+  onSave: (item: Partial<ProposalItem>) => void; 
   onCancel: () => void; 
 }) {
   const [editedItem, setEditedItem] = useState(item);
