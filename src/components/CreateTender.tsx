@@ -12,6 +12,7 @@ import { Upload, FileText, Shield, Brain, CheckCircle, ArrowLeft, Plus, Trash2 }
 
 interface CreateTenderProps {
   onBack: () => void;
+  editTenderId?: string;
 }
 
 interface TenderItem {

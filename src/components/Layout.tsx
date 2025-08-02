@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { getCurrentUser, logoutUser } from '@/lib/mockData';
-import { FileText, Users, BarChart3, LogOut, Plus } from 'lucide-react';
+import { FileText, Users, BarChart3, LogOut, Plus, Globe, FolderOpen } from 'lucide-react';
 
 interface LayoutProps {
   children: ReactNode;
@@ -31,12 +31,20 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
               <h1 className="text-xl font-bold text-primary-foreground">TenderPlatform</h1>
               <nav className="hidden md:flex space-x-4">
                 <Button
-                  variant={currentPage === 'dashboard' ? 'secondary' : 'ghost'}
-                  onClick={() => onNavigate('dashboard')}
+                  variant={currentPage === 'all-tenders' ? 'secondary' : 'ghost'}
+                  onClick={() => onNavigate('all-tenders')}
                   className="text-primary-foreground hover:bg-white/10"
                 >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Tenders
+                  <Globe className="w-4 h-4 mr-2" />
+                  All Tenders
+                </Button>
+                <Button
+                  variant={currentPage === 'my-tenders' ? 'secondary' : 'ghost'}
+                  onClick={() => onNavigate('my-tenders')}
+                  className="text-primary-foreground hover:bg-white/10"
+                >
+                  <FolderOpen className="w-4 h-4 mr-2" />
+                  My Tenders
                 </Button>
                 <Button
                   variant={currentPage === 'proposals' ? 'secondary' : 'ghost'}
@@ -58,20 +66,15 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
             </div>
             
             <div className="flex items-center space-x-4">
-              <Button
-                onClick={() => onNavigate('create-tender')}
-                className="bg-white/10 text-primary-foreground hover:bg-white/20 border border-white/20"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Create Tender
-              </Button>
-              <div className="text-primary-foreground text-sm">
-                {user.name} ({user.company})
+              <div className="text-primary-foreground text-sm font-medium">
+                <span className="hidden md:inline">{user.name}</span>
+                <span className="inline md:hidden">{user.company}</span>
               </div>
               <Button
                 variant="ghost"
+                size="sm"
                 onClick={handleLogout}
-                className="text-primary-foreground hover:bg-white/10"
+                className="text-primary-foreground hover:bg-white/10 h-8 w-8 p-0 rounded-full"
               >
                 <LogOut className="w-4 h-4" />
               </Button>

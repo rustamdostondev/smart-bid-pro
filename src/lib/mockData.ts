@@ -313,6 +313,257 @@ export const mockTenders: Tender[] = [
       extraction: 'pending'
     },
     createdAt: '2024-02-15'
+  },
+  {
+    id: '9',
+    name: 'Cloud Infrastructure Migration',
+    description: 'Migration of legacy systems to cloud infrastructure with enhanced security and scalability',
+    deadline: '2024-07-30',
+    createdBy: '1',
+    status: 'published',
+    visibility: 'public',
+    items: [
+      {
+        id: '14',
+        name: 'Cloud Migration Services',
+        description: 'Complete migration of existing systems to cloud',
+        quantity: 1,
+        attributes: { platform: 'AWS/Azure', timeline: '6 months', support: '24/7', backup: 'Automated' }
+      },
+      {
+        id: '15',
+        name: 'Security Assessment',
+        description: 'Comprehensive security audit and implementation',
+        quantity: 1,
+        attributes: { compliance: 'ISO 27001', penetration_testing: 'Yes', monitoring: 'Real-time' }
+      }
+    ],
+    fileProcessing: {
+      parsing: 'completed',
+      signature: 'completed',
+      extraction: 'completed'
+    },
+    createdAt: '2024-02-20'
+  },
+  {
+    id: '10',
+    name: 'Digital Marketing Campaign 2024',
+    description: 'Comprehensive digital marketing strategy and execution for brand awareness',
+    deadline: '2024-04-15',
+    createdBy: '1',
+    status: 'draft',
+    visibility: 'private',
+    invitedUsers: ['2', '3'],
+    items: [
+      {
+        id: '16',
+        name: 'Social Media Management',
+        description: 'Complete social media strategy and content creation',
+        quantity: 12,
+        attributes: { platforms: 'Facebook, Instagram, LinkedIn', posts_per_week: '5', analytics: 'Monthly reports' }
+      },
+      {
+        id: '17',
+        name: 'SEO Optimization',
+        description: 'Search engine optimization and content marketing',
+        quantity: 1,
+        attributes: { keywords: '50+', content: 'Blog posts, landing pages', reporting: 'Weekly' }
+      }
+    ],
+    fileProcessing: {
+      parsing: 'pending',
+      signature: 'pending',
+      extraction: 'pending'
+    },
+    createdAt: '2024-02-25'
+  },
+  {
+    id: '11',
+    name: 'Office Renovation Project',
+    description: 'Complete renovation of headquarters including interior design and furniture',
+    deadline: '2024-01-10',
+    createdBy: '1',
+    status: 'closed',
+    visibility: 'public',
+    items: [
+      {
+        id: '18',
+        name: 'Interior Design Services',
+        description: 'Complete interior design and space planning',
+        quantity: 1,
+        attributes: { area: '5000 sq ft', style: 'Modern', timeline: '3 months', warranty: '2 years' }
+      },
+      {
+        id: '19',
+        name: 'Office Furniture',
+        description: 'Modern office furniture and fixtures',
+        quantity: 150,
+        attributes: { type: 'Modular', material: 'Eco-friendly', assembly: 'Included', maintenance: '1 year' }
+      }
+    ],
+    fileProcessing: {
+      parsing: 'completed',
+      signature: 'completed',
+      extraction: 'completed'
+    },
+    createdAt: '2023-11-15'
+  },
+  {
+    id: '12',
+    name: 'Mobile App Development',
+    description: 'Development of cross-platform mobile application for customer engagement',
+    deadline: '2024-08-20',
+    createdBy: '1',
+    status: 'published',
+    visibility: 'private',
+    invitedUsers: ['2', '4'],
+    items: [
+      {
+        id: '20',
+        name: 'Mobile App Development',
+        description: 'Cross-platform mobile application',
+        quantity: 1,
+        attributes: { platforms: 'iOS, Android', features: 'Push notifications, Analytics', timeline: '6 months' }
+      },
+      {
+        id: '21',
+        name: 'Backend API Development',
+        description: 'RESTful API and database design',
+        quantity: 1,
+        attributes: { technology: 'Node.js/Python', database: 'PostgreSQL', hosting: 'Cloud', documentation: 'Complete' }
+      }
+    ],
+    fileProcessing: {
+      parsing: 'progress',
+      signature: 'completed',
+      extraction: 'progress'
+    },
+    createdAt: '2024-03-01'
+  },
+  {
+    id: '13',
+    name: 'Annual Audit Services',
+    description: 'Comprehensive financial and compliance audit for fiscal year 2024',
+    deadline: '2024-12-31',
+    createdBy: '1',
+    status: 'published',
+    visibility: 'public',
+    items: [
+      {
+        id: '22',
+        name: 'Financial Audit',
+        description: 'Complete financial audit and reporting',
+        quantity: 1,
+        attributes: { scope: 'Full audit', standards: 'GAAP', timeline: '3 months', certification: 'CPA required' }
+      },
+      {
+        id: '23',
+        name: 'Compliance Review',
+        description: 'Regulatory compliance assessment',
+        quantity: 1,
+        attributes: { regulations: 'SOX, GDPR', documentation: 'Complete', recommendations: 'Detailed report' }
+      }
+    ],
+    fileProcessing: {
+      parsing: 'completed',
+      signature: 'completed',
+      extraction: 'completed'
+    },
+    createdAt: '2024-03-05'
+  },
+  {
+    id: '14',
+    name: 'Employee Wellness Program',
+    description: 'Comprehensive wellness program including fitness, mental health, and nutrition services',
+    deadline: '2024-06-01',
+    createdBy: '1',
+    status: 'draft',
+    visibility: 'public',
+    items: [
+      {
+        id: '24',
+        name: 'Fitness Program',
+        description: 'On-site fitness classes and gym membership',
+        quantity: 200,
+        attributes: { classes: 'Yoga, Pilates, Cardio', schedule: 'Daily', trainer: 'Certified', equipment: 'Provided' }
+      },
+      {
+        id: '25',
+        name: 'Mental Health Support',
+        description: 'Counseling and mental health services',
+        quantity: 1,
+        attributes: { counselors: 'Licensed', availability: '24/7', sessions: 'Individual/Group', confidentiality: 'Guaranteed' }
+      }
+    ],
+    fileProcessing: {
+      parsing: 'pending',
+      signature: 'pending',
+      extraction: 'pending'
+    },
+    createdAt: '2024-03-10'
+  },
+  {
+    id: '15',
+    name: 'Data Center Upgrade',
+    description: 'Modernization of data center infrastructure with latest technology and security measures',
+    deadline: '2024-09-15',
+    createdBy: '1',
+    status: 'published',
+    visibility: 'private',
+    invitedUsers: ['2', '3', '4'],
+    items: [
+      {
+        id: '26',
+        name: 'Server Hardware Upgrade',
+        description: 'Latest generation servers and storage systems',
+        quantity: 20,
+        attributes: { cpu: 'Latest Intel Xeon', ram: '128GB', storage: '10TB NVMe', redundancy: 'N+1' }
+      },
+      {
+        id: '27',
+        name: 'Network Infrastructure',
+        description: 'High-speed networking and security equipment',
+        quantity: 1,
+        attributes: { speed: '100Gbps', security: 'Next-gen firewall', monitoring: 'AI-powered', uptime: '99.99%' }
+      }
+    ],
+    fileProcessing: {
+      parsing: 'completed',
+      signature: 'progress',
+      extraction: 'completed'
+    },
+    createdAt: '2024-03-12'
+  },
+  {
+    id: '16',
+    name: 'Green Energy Initiative',
+    description: 'Implementation of renewable energy solutions including solar panels and energy storage',
+    deadline: '2024-10-30',
+    createdBy: '1',
+    status: 'published',
+    visibility: 'public',
+    items: [
+      {
+        id: '28',
+        name: 'Solar Panel Installation',
+        description: 'Commercial solar panel system installation',
+        quantity: 500,
+        attributes: { capacity: '1MW', efficiency: '22%', warranty: '25 years', monitoring: 'Real-time' }
+      },
+      {
+        id: '29',
+        name: 'Energy Storage System',
+        description: 'Battery storage system for energy management',
+        quantity: 1,
+        attributes: { capacity: '500kWh', technology: 'Lithium-ion', lifecycle: '10+ years', management: 'Smart grid' }
+      }
+    ],
+    fileProcessing: {
+      parsing: 'completed',
+      signature: 'completed',
+      extraction: 'completed'
+    },
+    createdAt: '2024-03-15'
   }
 ];
 
