@@ -5,29 +5,39 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
-  ArrowLeft,
   FileText,
+  Upload,
+  Check,
+  Clock,
+  AlertCircle,
+  Download,
+  Edit,
+  Trash2,
+  Plus,
+  Search,
+  X,
+  Save,
+  ArrowLeft,
+  Package,
+  Eye,
+  Award,
+  BarChart,
+  Building,
+  User,
+  Calendar,
+  Mail,
+  CheckCircle,
+  XCircle,
   Shield,
   Code,
-  Brain,
   Target,
-  Plus,
+  Brain,
   Edit2,
-  Trash2,
-  Save,
-  X,
   DollarSign,
-  Calendar,
-  User,
-  Building,
-  Mail,
   Phone,
   MapPin
 } from 'lucide-react';
-import { mockTenders, getCurrentUser, type TenderItem } from '@/lib/mockData';
+import { mockTenders, mockProposals, getCurrentUser, type TenderItem, type Proposal } from '@/lib/mockData';
 
 interface ProcessingStep {
   id: string;
@@ -801,22 +811,141 @@ export function TenderOwnerDetail({ tenderId, onBack }: TenderOwnerDetailProps) 
         </div>
 
         {/* Right Content Area */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  {currentStep && getStepIcon(currentStep)}
-                  <div>
-                    <CardTitle>{currentStep?.name}</CardTitle>
-                    <p className="text-gray-600 mt-1">{currentStep?.description}</p>
+        <div className="flex-1 overflow-y-auto bg-gray-50">
+          <div className="p-8 space-y-8">
+            
+            {/* Current Processing Step */}
+            <Card className="shadow-lg border-0 bg-white">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 bg-white rounded-full shadow-sm">
+                    {currentStep && getStepIcon(currentStep)}
                   </div>
+                  <div className="flex-1">
+                    <CardTitle className="text-xl text-gray-900">{currentStep?.name}</CardTitle>
+                    <p className="text-gray-600 mt-1 text-sm">{currentStep?.description}</p>
+                  </div>
+                  <Badge variant="outline" className="bg-white border-blue-200 text-blue-700">
+                    Step {steps.findIndex(s => s.id === selectedStep) + 1} of {steps.length}
+                  </Badge>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 {renderStepContent()}
               </CardContent>
             </Card>
+
+            {/* Received Proposals Section */}
+            {(() => {
+              const tenderProposals = mockProposals.filter(p => p.tenderIds === tenderId);
+              
+              const getProposalStatusVariant = (status: string) => {
+                switch (status) {
+                  case 'submitted': return 'bg-green-100 text-green-700';
+                  case 'draft': return 'bg-yellow-100 text-yellow-700';
+                  case 'accepted': return 'bg-blue-100 text-blue-700';
+                  case 'rejected': return 'bg-red-100 text-red-700';
+                  default: return 'bg-gray-100 text-gray-700';
+                }
+              };
+              
+              const getProposalStatusIcon = (status: string) => {
+                switch (status) {
+                  case 'submitted': return <CheckCircle className="w-4 h-4" />;
+                  case 'draft': return <Clock className="w-4 h-4" />;
+                  case 'accepted': return <Award className="w-4 h-4" />;
+                  case 'rejected': return <XCircle className="w-4 h-4" />;
+                  default: return null;
+                }
+              };
+              
+              return (
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Package className="w-5 h-5 text-blue-600" />
+                        <div>
+                          <CardTitle>Received Proposals</CardTitle>
+                          <p className="text-gray-600 text-sm mt-1">
+                            {tenderProposals.length} proposal{tenderProposals.length !== 1 ? 's' : ''} submitted
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {tenderProposals.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Package className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">No Proposals Yet</h3>
+                        <p className="text-gray-600">
+                          No proposals have been submitted for this tender yet.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        {tenderProposals.map((proposal) => {
+                          return (
+                            <Card key={proposal.id} className="border hover:shadow-md transition-shadow">
+                              <CardHeader className="pb-3">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <h3 className="font-semibold text-base">{proposal.name}</h3>
+                                  </div>
+                                  <Badge className={`${getProposalStatusVariant(proposal.status)} text-xs`}>
+                                    {getProposalStatusIcon(proposal.status)}
+                                    <span className="ml-1 capitalize">{proposal.status}</span>
+                                  </Badge>
+                                </div>
+                              </CardHeader>
+                              <CardContent className="space-y-3">
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div>
+                                    <div className="text-xs text-gray-500">Total Cost</div>
+                                    <div className="font-semibold text-green-600">
+                                      ${proposal.totalCost.toLocaleString()}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="text-xs text-gray-500">Items</div>
+                                    <div className="font-semibold">{proposal.items.length}</div>
+                                  </div>
+                                </div>
+                                
+                                <div className="pt-2 border-t">
+                                  <div className="text-xs text-gray-500 mb-2">Submitted by</div>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <Calendar className="w-4 h-4 text-gray-400" />
+                                    <span className="text-sm text-gray-600">
+                                      {new Date(proposal.submittedAt).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                
+                                
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="w-full"
+                                  onClick={() => window.open(`/proposals/${proposal.id}`, '_blank')}
+                                >
+                                  <Eye className="w-4 h-4 mr-2" />
+                                  View Details
+                                </Button>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })()}
+            
+            {/* Processing Steps Card */}
           </div>
         </div>
       </div>
