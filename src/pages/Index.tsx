@@ -10,8 +10,10 @@ import { MyProposals } from '@/components/MyProposals';
 import { ProposalDetail } from '@/components/ProposalDetail';
 import { ProposalDetailView } from '@/components/ProposalDetailView';
 import { CreateProposal } from '@/components/CreateProposal';
+import TenderAnalytics from '@/components/TenderAnalytics';
+import AnalyticsPage from '@/components/AnalyticsPage';
 import { authService, startTokenRefresh, stopTokenRefresh } from '@/lib/auth';
-import { setCurrentUser } from '@/lib/mockData';
+import { setCurrentUser, mockTenders, mockProposals } from '@/lib/mockData';
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState('landing');
@@ -130,6 +132,16 @@ const Index = () => {
     setCurrentPage('tender-detail'); // Go back specifically to tender detail
   };
 
+  const handleOpenAnalytics = (tenderId: string) => {
+    setPreviousPage(currentPage);
+    setSelectedTenderId(tenderId);
+    setCurrentPage('tender-analytics');
+  };
+
+  const handleBackFromAnalytics = () => {
+    setCurrentPage('tender-detail');
+  };
+
 
   // Show loading spinner while checking authentication
   if (isLoading) {
@@ -194,6 +206,7 @@ const Index = () => {
               handleBackToDashboard();
             }}
             onViewProposalDetail={handleViewProposalDetail}
+            onOpenAnalytics={handleOpenAnalytics}
           />
         ) : (
           <AllTenders
@@ -254,9 +267,28 @@ const Index = () => {
             onViewTender={handleViewTender}
           />
         );
-
+      case 'tender-analytics':
+        return selectedTenderId ? (() => {
+          const tender = mockTenders.find(t => t.id === selectedTenderId);
+          const relatedProposals = mockProposals.filter(p => p.tenderIds === selectedTenderId);
+          return tender ? (
+            <TenderAnalytics
+              tender={tender}
+              proposals={relatedProposals}
+              onBack={handleBackFromAnalytics}
+            />
+          ) : (
+            <AllTenders onViewTender={handleViewTender} />
+          );
+        })() : (
+          <AllTenders onViewTender={handleViewTender} />
+        );
       case 'analysis':
-        return <div>Analysis page coming soon...</div>;
+        return (
+          <AnalyticsPage
+            onOpenTenderAnalytics={handleOpenAnalytics}
+          />
+        );
       default:
         return (
           <AllTenders

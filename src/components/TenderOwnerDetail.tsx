@@ -51,9 +51,10 @@ interface TenderOwnerDetailProps {
   tenderId: string;
   onBack: () => void;
   onViewProposalDetail?: (proposalId: string) => void;
+  onOpenAnalytics?: (tenderId: string) => void;
 }
 
-export function TenderOwnerDetail({ tenderId, onBack, onViewProposalDetail }: TenderOwnerDetailProps) {
+export function TenderOwnerDetail({ tenderId, onBack, onViewProposalDetail, onOpenAnalytics }: TenderOwnerDetailProps) {
   const user = getCurrentUser();
   const tender = mockTenders.find(t => t.id === tenderId);
   const [selectedStep, setSelectedStep] = useState('file_processing');
@@ -65,6 +66,9 @@ export function TenderOwnerDetail({ tenderId, onBack, onViewProposalDetail }: Te
   const [filterByStatus, setFilterByStatus] = useState<'all' | 'completed' | 'pending'>('all');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // Get all proposals related to this tender
+  const relatedProposals = mockProposals.filter(p => p.tenderIds === tenderId);
 
   if (!tender) {
     return (
@@ -108,12 +112,13 @@ export function TenderOwnerDetail({ tenderId, onBack, onViewProposalDetail }: Te
       icon: Target
     },
     {
-      id: 'ai_insights',
+      id: 'proposal_analysis',
       name: 'AI Insights',
       description: 'Generate recommendations',
-      status: 'pending',
-      icon: Brain
-    }
+      status: 'completed',
+      icon: BarChart
+    },
+   
   ];
 
   const currentStep = steps.find(step => step.id === selectedStep);
@@ -694,6 +699,70 @@ export function TenderOwnerDetail({ tenderId, onBack, onViewProposalDetail }: Te
                 <p className="text-gray-700 mt-1">
                   AI insights will be generated after proposal matching is completed.
                 </p>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'proposal_analysis':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Proposal Analysis</h3>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                  <span className="text-green-800 font-medium">Analysis completed successfully</span>
+                </div>
+                <p className="text-green-700 mt-1">
+                  All proposals have been analyzed and compared. {relatedProposals.length} proposals found for this tender.
+                </p>
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="font-medium text-gray-900 mb-2">Analysis Summary</h4>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-600">Total Proposals:</span>
+                  <p className="font-medium">{relatedProposals.length}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Analysis Status:</span>
+                  <p className="font-medium text-green-600">Completed</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Best Match:</span>
+                  <p className="font-medium">{relatedProposals[0]?.company || 'N/A'}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Analysis Date:</span>
+                  <p className="font-medium">{new Date().toLocaleDateString()}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-blue-800">View Detailed Analysis</h4>
+                  <p className="text-blue-700 text-sm mt-1">
+                    Open the comprehensive analytics dashboard to compare proposals and select winners.
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => {
+                    if (onOpenAnalytics) {
+                      onOpenAnalytics(tenderId);
+                    } else {
+                      console.log('Navigate to analytics for tender:', tenderId);
+                    }
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <BarChart className="w-4 h-4 mr-2" />
+                  Open Analytics
+                </Button>
               </div>
             </div>
           </div>

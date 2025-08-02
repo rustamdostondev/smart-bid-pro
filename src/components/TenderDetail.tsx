@@ -41,10 +41,11 @@ interface TenderDetailProps {
   onDelete?: (tenderId: string) => void;
   onViewPipeline?: (tenderId: string) => void;
   onViewProposalDetail?: (proposalId: string) => void;
+  onOpenAnalytics?: (tenderId: string) => void;
   previousPage?: string;
 }
 
-export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipeline, onViewProposalDetail, previousPage = 'dashboard' }: TenderDetailProps) {
+export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipeline, onViewProposalDetail, onOpenAnalytics, previousPage = 'dashboard' }: TenderDetailProps) {
   const user = getCurrentUser();
   const tender = mockTenders.find(t => t.id === tenderId);
   
@@ -118,6 +119,7 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
         tenderId={tenderId}
         onBack={onBack}
         onViewProposalDetail={onViewProposalDetail}
+        onOpenAnalytics={onOpenAnalytics}
       />
     );
   }
