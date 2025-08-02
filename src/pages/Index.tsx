@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LoginForm } from '@/components/LoginForm';
+import { LandingPage } from '@/components/LandingPage';
 import { Layout } from '@/components/Layout';
 import { AllTenders } from '@/components/AllTenders';
 import { MyTenders } from '@/components/MyTenders';
@@ -10,22 +11,26 @@ import { CreateProposal } from '@/components/CreateProposal';
 import { getCurrentUser } from '@/lib/mockData';
 
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState('all-tenders');
-  const [previousPage, setPreviousPage] = useState('all-tenders');
+  const [currentPage, setCurrentPage] = useState('landing');
+  const [previousPage, setPreviousPage] = useState('landing');
   const [selectedTenderId, setSelectedTenderId] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const user = getCurrentUser();
     setIsAuthenticated(!!user);
-    if (!user) {
-      setCurrentPage('login');
+    if (user && currentPage === 'landing') {
+      setCurrentPage('all-tenders');
     }
   }, []);
 
   const handleLogin = () => {
     setIsAuthenticated(true);
-    setCurrentPage('dashboard');
+    setCurrentPage('all-tenders');
+  };
+
+  const handleGetStarted = () => {
+    setCurrentPage('login');
   };
 
   const handleNavigate = (page: string) => {
@@ -48,12 +53,19 @@ const Index = () => {
     setCurrentPage(previousPage); // Go back to the previous page
   };
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && currentPage === 'login') {
     return <LoginForm onLogin={handleLogin} />;
   }
 
   const renderPage = () => {
     switch (currentPage) {
+      case 'landing':
+        return (
+          <LandingPage
+            onGetStarted={handleGetStarted}
+            onLogin={() => setCurrentPage('login')}
+          />
+        );
       case 'all-tenders':
         return (
           <AllTenders
@@ -127,6 +139,12 @@ const Index = () => {
     }
   };
 
+  // For landing page and login, don't wrap with Layout
+  if (currentPage === 'landing' || currentPage === 'login') {
+    return renderPage();
+  }
+
+  // For authenticated pages, wrap with Layout
   return (
     <Layout currentPage={currentPage} onNavigate={handleNavigate}>
       {renderPage()}
