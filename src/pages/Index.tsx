@@ -139,7 +139,9 @@ const Index = () => {
   };
 
   const handleBackFromAnalytics = () => {
-    setCurrentPage('tender-detail');
+    // Keep the selectedTenderId when navigating back to tender-detail
+    // This ensures we return to the correct tender detail page
+    setCurrentPage(previousPage); // Go back to the previous page (usually tender-detail)
   };
 
 

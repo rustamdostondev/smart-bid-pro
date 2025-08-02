@@ -133,9 +133,17 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
-          <Button variant="outline" onClick={onBack}>
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              console.log('Back button clicked');
+              if (typeof onBack === 'function') {
+                onBack();
+              }
+            }}
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Analytics
+            Back to Tender
           </Button>
           <div>
             <h1 className="text-2xl font-bold">{tender.name}</h1>
