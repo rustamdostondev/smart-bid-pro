@@ -23,7 +23,8 @@ import {
   MoreHorizontal,
   FileText,
   TrendingUp,
-  AlertTriangle
+  AlertTriangle,
+  X
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
@@ -142,100 +143,99 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
         </Button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Statistics Dashboard */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5 mb-8">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <FileText className="w-4 h-4 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium">Total</p>
-                <p className="text-2xl font-bold">{stats.total}</p>
-              </div>
+        <Card className="shadow-soft">
+          <CardContent className="p-4 flex flex-col items-center justify-center">
+            <div className="rounded-full bg-primary/10 p-3 mb-2">
+              <FileText className="w-5 h-5 text-primary" />
             </div>
+            <p className="text-xs text-muted-foreground">Total</p>
+            <p className="text-2xl font-bold">{stats.total}</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="w-4 h-4 text-green-600" />
-              <div>
-                <p className="text-sm font-medium">Published</p>
-                <p className="text-2xl font-bold text-green-600">{stats.published}</p>
-              </div>
+        
+        <Card className="shadow-soft">
+          <CardContent className="p-4 flex flex-col items-center justify-center">
+            <div className="rounded-full bg-green-100 p-3 mb-2">
+              <CheckCircle className="w-5 h-5 text-green-600" />
             </div>
+            <p className="text-xs text-muted-foreground">Published</p>
+            <p className="text-2xl font-bold">{stats.published}</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Clock className="w-4 h-4 text-yellow-600" />
-              <div>
-                <p className="text-sm font-medium">Draft</p>
-                <p className="text-2xl font-bold text-yellow-600">{stats.draft}</p>
-              </div>
+        
+        <Card className="shadow-soft">
+          <CardContent className="p-4 flex flex-col items-center justify-center">
+            <div className="rounded-full bg-yellow-100 p-3 mb-2">
+              <Clock className="w-5 h-5 text-yellow-600" />
             </div>
+            <p className="text-xs text-muted-foreground">Draft</p>
+            <p className="text-2xl font-bold">{stats.draft}</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <XCircle className="w-4 h-4 text-red-600" />
-              <div>
-                <p className="text-sm font-medium">Closed</p>
-                <p className="text-2xl font-bold text-red-600">{stats.closed}</p>
-              </div>
+        
+        <Card className="shadow-soft">
+          <CardContent className="p-4 flex flex-col items-center justify-center">
+            <div className="rounded-full bg-gray-100 p-3 mb-2">
+              <XCircle className="w-5 h-5 text-gray-600" />
             </div>
+            <p className="text-xs text-muted-foreground">Closed</p>
+            <p className="text-2xl font-bold">{stats.closed}</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <AlertTriangle className="w-4 h-4 text-orange-600" />
-              <div>
-                <p className="text-sm font-medium">Expiring Soon</p>
-                <p className="text-2xl font-bold text-orange-600">{stats.expiringSoon}</p>
-              </div>
+        
+        <Card className="shadow-soft">
+          <CardContent className="p-4 flex flex-col items-center justify-center">
+            <div className="rounded-full bg-orange-100 p-3 mb-2">
+              <AlertTriangle className="w-5 h-5 text-orange-600" />
             </div>
+            <p className="text-xs text-muted-foreground">Expiring Soon</p>
+            <p className="text-2xl font-bold">{stats.expiringSoon}</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Search and Filter */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+      <Card className="p-6 mb-8 bg-white border border-gray-200 shadow-sm">
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-                placeholder="Search your tenders by name or description..."
+                placeholder="Search tenders by name or description..."
                 value={searchQuery}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-white h-11"
               />
             </div>
           </div>
           <div className="flex gap-3">
-            <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
-              <SelectTrigger className="w-[160px] border-gray-300 focus:border-blue-500 focus:ring-blue-500">
-                <SelectValue placeholder="Filter by status" />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-40 border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-white h-11">
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="published">Published</SelectItem>
                 <SelectItem value="draft">Draft</SelectItem>
                 <SelectItem value="closed">Closed</SelectItem>
+                <SelectItem value="expiring">Expiring Soon</SelectItem>
               </SelectContent>
             </Select>
             {(searchQuery || statusFilter !== 'all') && (
-              <Button variant="outline" onClick={clearFilters} className="border-gray-300 hover:bg-gray-50">
-                <Filter className="w-4 h-4 mr-2" />
-                Clear Filters
+              <Button 
+                variant="outline" 
+                onClick={clearFilters}
+                className="border-gray-300 hover:bg-gray-50 text-gray-700 h-11"
+              >
+                <X className="w-4 h-4 mr-2" />
+                Clear
               </Button>
             )}
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Results Summary & Items Per Page */}
     
@@ -386,7 +386,7 @@ export function MyTenders({ onCreateTender, onViewTender, onEditTender, onDelete
 
       {/* Enhanced Pagination */}
       {totalPages > 1 && (
-        <Card className="p-4 bg-gradient-to-r from-background to-muted/20">
+        <Card className="p-4 bg-gradient-to-r from-background to-muted/20 mt-7">
           <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
             {/* Page Statistics */}
             <div className="flex items-center gap-4 text-sm">

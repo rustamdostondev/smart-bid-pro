@@ -63,7 +63,7 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
               <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                 <FileText className="w-5 h-5" />
               </div>
-              <h1 className="text-lg font-bold">TenderPlatform</h1>
+              <h1 className="text-lg">TenderPlatform</h1>
             </div>
             <Button
               variant="ghost"
