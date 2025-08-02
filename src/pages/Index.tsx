@@ -5,13 +5,13 @@ import { Layout } from '@/components/Layout';
 import { AllTenders } from '@/components/AllTenders';
 import { MyTenders } from '@/components/MyTenders';
 import { TenderDetail } from '@/components/TenderDetail';
-
 import { CreateTender } from '@/components/CreateTender';
 import { MyProposals } from '@/components/MyProposals';
 import { ProposalDetail } from '@/components/ProposalDetail';
 import { ProposalDetailView } from '@/components/ProposalDetailView';
 import { CreateProposal } from '@/components/CreateProposal';
-import { getCurrentUser } from '@/lib/mockData';
+import { authService, startTokenRefresh, stopTokenRefresh } from '@/lib/auth';
+import { setCurrentUser } from '@/lib/mockData';
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState('landing');
@@ -21,18 +21,65 @@ const Index = () => {
   const [matchingProposalId, setMatchingProposalId] = useState<string | null>(null);
   const [matchingTenderId, setMatchingTenderId] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentUser, setCurrentUserState] = useState<any>(null);
 
+  // Check authentication status on app load
   useEffect(() => {
-    const user = getCurrentUser();
-    setIsAuthenticated(!!user);
-    if (user && currentPage === 'landing') {
-      setCurrentPage('all-tenders');
-    }
+    const checkAuth = () => {
+      const user = authService.validateToken();
+      if (user) {
+        setCurrentUserState(user);
+        setCurrentUser(user); // Update mock data
+        setIsAuthenticated(true);
+        startTokenRefresh();
+        
+        // If user is authenticated and on landing page, redirect to dashboard
+        if (currentPage === 'landing') {
+          setCurrentPage('all-tenders');
+        }
+      } else {
+        setIsAuthenticated(false);
+        setCurrentUserState(null);
+        setCurrentUser(null);
+        stopTokenRefresh();
+        
+        // If user is not authenticated and not on public pages, redirect to landing
+        if (currentPage !== 'landing' && currentPage !== 'login') {
+          setCurrentPage('landing');
+        }
+      }
+      setIsLoading(false);
+    };
+
+    checkAuth();
   }, []);
 
-  const handleLogin = () => {
+  // Handle browser refresh - restore page state from URL or localStorage if needed
+  useEffect(() => {
+    // You could implement URL-based routing here if needed
+    // For now, we'll just ensure proper authentication state
+  }, []);
+
+  const handleLogin = (user: any) => {
+    setCurrentUserState(user);
     setIsAuthenticated(true);
+    startTokenRefresh();
     setCurrentPage('all-tenders');
+  };
+
+  const handleLogout = () => {
+    authService.logout();
+    setCurrentUser(null);
+    setCurrentUserState(null);
+    setIsAuthenticated(false);
+    stopTokenRefresh();
+    setCurrentPage('landing');
+    // Clear all selected states
+    setSelectedTenderId(null);
+    setSelectedProposalId(null);
+    setMatchingProposalId(null);
+    setMatchingTenderId(null);
   };
 
   const handleGetStarted = () => {
@@ -47,7 +94,8 @@ const Index = () => {
     setMatchingProposalId(null); // Clear matching proposal when navigating
     setMatchingTenderId(null); // Clear matching tender when navigating
     if (page === 'login') {
-      setIsAuthenticated(false);
+      // Don't automatically set isAuthenticated to false here
+      // Let the actual logout handler do that
     }
   };
 
@@ -83,7 +131,20 @@ const Index = () => {
   };
 
 
-  if (!isAuthenticated && currentPage === 'login') {
+  // Show loading spinner while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login form when on login page
+  if (currentPage === 'login') {
     return <LoginForm onLogin={handleLogin} />;
   }
 
@@ -211,11 +272,16 @@ const Index = () => {
   }
 
   // For authenticated pages, wrap with Layout
-  return (
-    <Layout currentPage={currentPage} onNavigate={handleNavigate}>
-      {renderPage()}
-    </Layout>
-  );
+  if (isAuthenticated) {
+    return (
+      <Layout currentPage={currentPage} onNavigate={handleNavigate} onLogout={handleLogout}>
+        {renderPage()}
+      </Layout>
+    );
+  }
+
+  // For non-authenticated users, show landing page
+  return renderPage();
 };
 
 export default Index;

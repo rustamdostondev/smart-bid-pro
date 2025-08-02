@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
-import { getCurrentUser, logoutUser } from '@/lib/mockData';
+import { authService } from '@/lib/auth';
+import { setCurrentUser } from '@/lib/mockData';
 import { FileText, Users, BarChart3, LogOut, Plus, Globe, FolderOpen, Briefcase, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 
@@ -8,15 +9,21 @@ interface LayoutProps {
   children: ReactNode;
   currentPage: string;
   onNavigate: (page: string) => void;
+  onLogout?: () => void;
 }
 
-export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
-  const user = getCurrentUser();
+export function Layout({ children, currentPage, onNavigate, onLogout }: LayoutProps) {
+  const user = authService.getCurrentUser();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
-    logoutUser();
-    onNavigate('login');
+    authService.logout();
+    setCurrentUser(null);
+    if (onLogout) {
+      onLogout();
+    } else {
+      onNavigate('login');
+    }
   };
 
   if (!user) {

@@ -3,11 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { authenticateUser } from '@/lib/mockData';
+import { authService } from '@/lib/auth';
+import { setCurrentUser } from '@/lib/mockData';
 import { useToast } from '@/hooks/use-toast';
 
 interface LoginFormProps {
-  onLogin: () => void;
+  onLogin: (user: any) => void;
 }
 
 export function LoginForm({ onLogin }: LoginFormProps) {
@@ -20,21 +21,23 @@ export function LoginForm({ onLogin }: LoginFormProps) {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const user = authenticateUser(email, password);
-    
-    if (user) {
-      toast({
-        title: "Welcome back!",
-        description: `Logged in as ${user.name}`,
-      });
-      onLogin();
-    } else {
+    try {
+      const result = await authService.login(email, password);
+      
+      if (result) {
+        // Update mock data current user
+        setCurrentUser(result.user);
+        
+        toast({
+          title: "Welcome back!",
+          description: `Logged in as ${result.user.name}`,
+        });
+        onLogin(result.user);
+      }
+    } catch (error) {
       toast({
         title: "Login failed",
-        description: "Invalid email or password",
+        description: error instanceof Error ? error.message : "Invalid email or password",
         variant: "destructive",
       });
     }
@@ -47,16 +50,27 @@ export function LoginForm({ onLogin }: LoginFormProps) {
     setPassword('password');
     setIsLoading(true);
 
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    const user = authenticateUser(demoEmail, 'password');
-    if (user) {
+    try {
+      const result = await authService.login(demoEmail, 'password');
+      
+      if (result) {
+        // Update mock data current user
+        setCurrentUser(result.user);
+        
+        toast({
+          title: "Demo login successful!",
+          description: `Logged in as ${result.user.name}`,
+        });
+        onLogin(result.user);
+      }
+    } catch (error) {
       toast({
-        title: "Demo login successful!",
-        description: `Logged in as ${user.name}`,
+        title: "Login failed",
+        description: error instanceof Error ? error.message : "Demo login failed",
+        variant: "destructive",
       });
-      onLogin();
     }
+    
     setIsLoading(false);
   };
 
@@ -114,7 +128,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
               <Button
                 variant="outline"
                 className="w-full text-sm"
-                onClick={() => handleDemoLogin('admin@tender.com')}
+                onClick={() => handleDemoLogin('admin@smartbid.com')}
                 disabled={isLoading}
               >
                 Demo Admin (John Admin)
@@ -122,18 +136,18 @@ export function LoginForm({ onLogin }: LoginFormProps) {
               <Button
                 variant="outline"
                 className="w-full text-sm"
-                onClick={() => handleDemoLogin('supplier1@company.com')}
+                onClick={() => handleDemoLogin('user@company.com')}
                 disabled={isLoading}
               >
-                Demo Supplier (Alice Smith - Tech Solutions)
+                Demo User (Jane User - Tech Solutions)
               </Button>
               <Button
                 variant="outline"
                 className="w-full text-sm"
-                onClick={() => handleDemoLogin('supplier2@company.com')}
+                onClick={() => handleDemoLogin('contractor@build.com')}
                 disabled={isLoading}
               >
-                Demo Supplier (Bob Johnson - Office Supplies)
+                Demo Contractor (Mike Builder - BuildCorp)
               </Button>
             </div>
           </div>
