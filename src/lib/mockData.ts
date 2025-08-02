@@ -146,6 +146,173 @@ export const mockTenders: Tender[] = [
       extraction: 'completed'
     },
     createdAt: '2024-01-10'
+  },
+  {
+    id: '3',
+    name: 'IT Infrastructure Upgrade',
+    description: 'Complete overhaul of company IT infrastructure including servers, networking equipment, and security systems',
+    deadline: '2024-04-20',
+    createdBy: '1',
+    status: 'published',
+    visibility: 'public',
+    items: [
+      {
+        id: '5',
+        name: 'Server Hardware',
+        description: 'High-performance rack servers',
+        quantity: 5,
+        attributes: { cpu: 'Intel Xeon', ram: '64GB', storage: '2TB NVMe', redundancy: 'Hot-swappable' }
+      },
+      {
+        id: '6',
+        name: 'Network Switches',
+        description: 'Managed gigabit switches',
+        quantity: 10,
+        attributes: { ports: '24-48', speed: '1Gbps', management: 'Web-based', poe: 'PoE+' }
+      }
+    ],
+    fileProcessing: {
+      parsing: 'completed',
+      signature: 'completed',
+      extraction: 'completed'
+    },
+    createdAt: '2024-01-20'
+  },
+  {
+    id: '4',
+    name: 'Marketing Materials Design',
+    description: 'Creative design services for brochures, banners, and digital marketing materials',
+    deadline: '2024-03-01',
+    createdBy: '1',
+    status: 'draft',
+    visibility: 'private',
+    invitedUsers: ['2', '3'],
+    items: [
+      {
+        id: '7',
+        name: 'Brochure Design',
+        description: 'Tri-fold brochure design and printing',
+        quantity: 1000,
+        attributes: { size: 'A4', colors: 'Full color', paper: 'Glossy', sides: 'Double-sided' }
+      }
+    ],
+    fileProcessing: {
+      parsing: 'pending',
+      signature: 'pending',
+      extraction: 'pending'
+    },
+    createdAt: '2024-01-25'
+  },
+  {
+    id: '5',
+    name: 'Catering Services Contract',
+    description: 'Annual catering services for corporate events and meetings',
+    deadline: '2024-01-15',
+    createdBy: '1',
+    status: 'closed',
+    visibility: 'public',
+    items: [
+      {
+        id: '8',
+        name: 'Event Catering',
+        description: 'Full-service catering for corporate events',
+        quantity: 50,
+        attributes: { service: 'Full-service', cuisine: 'International', dietary: 'All restrictions', staff: 'Included' }
+      }
+    ],
+    fileProcessing: {
+      parsing: 'completed',
+      signature: 'completed',
+      extraction: 'completed'
+    },
+    createdAt: '2023-12-01'
+  },
+  {
+    id: '6',
+    name: 'Security System Installation',
+    description: 'Installation and maintenance of comprehensive security systems',
+    deadline: '2024-05-10',
+    createdBy: '1',
+    status: 'published',
+    visibility: 'public',
+    items: [
+      {
+        id: '9',
+        name: 'CCTV Cameras',
+        description: 'High-definition security cameras',
+        quantity: 25,
+        attributes: { resolution: '4K', night_vision: 'Yes', weather_proof: 'IP67', storage: 'Cloud + Local' }
+      },
+      {
+        id: '10',
+        name: 'Access Control System',
+        description: 'Card-based access control system',
+        quantity: 15,
+        attributes: { type: 'Card reader', integration: 'RFID', software: 'Included', backup: 'Battery' }
+      }
+    ],
+    fileProcessing: {
+      parsing: 'completed',
+      signature: 'completed',
+      extraction: 'completed'
+    },
+    createdAt: '2024-02-01'
+  },
+  {
+    id: '7',
+    name: 'Fleet Vehicle Procurement',
+    description: 'Purchase of company vehicles for sales and delivery teams',
+    deadline: '2024-06-15',
+    createdBy: '1',
+    status: 'published',
+    visibility: 'private',
+    invitedUsers: ['2', '3', '4'],
+    items: [
+      {
+        id: '11',
+        name: 'Delivery Vans',
+        description: 'Commercial delivery vehicles',
+        quantity: 8,
+        attributes: { type: 'Van', fuel: 'Diesel', capacity: '3.5 tons', warranty: '3 years' }
+      },
+      {
+        id: '12',
+        name: 'Sales Cars',
+        description: 'Executive cars for sales team',
+        quantity: 12,
+        attributes: { type: 'Sedan', fuel: 'Hybrid', features: 'GPS, AC, Leather', warranty: '5 years' }
+      }
+    ],
+    fileProcessing: {
+      parsing: 'progress',
+      signature: 'completed',
+      extraction: 'pending'
+    },
+    createdAt: '2024-02-10'
+  },
+  {
+    id: '8',
+    name: 'Training and Development Program',
+    description: 'Comprehensive employee training and skill development programs',
+    deadline: '2024-04-30',
+    createdBy: '1',
+    status: 'draft',
+    visibility: 'public',
+    items: [
+      {
+        id: '13',
+        name: 'Leadership Training',
+        description: 'Management and leadership development courses',
+        quantity: 50,
+        attributes: { duration: '3 months', format: 'Hybrid', certification: 'Yes', materials: 'Included' }
+      }
+    ],
+    fileProcessing: {
+      parsing: 'pending',
+      signature: 'pending',
+      extraction: 'pending'
+    },
+    createdAt: '2024-02-15'
   }
 ];
 
