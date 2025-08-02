@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TenderOwnerDetail } from '@/components/TenderOwnerDetail';
 import { mockTenders, getCurrentUser, type Tender } from '@/lib/mockData';
 import { 
   ArrowLeft, 
@@ -26,7 +27,11 @@ import {
   Download,
   Share2,
   Edit,
-  Trash2
+  Trash2,
+  Eye,
+  DollarSign,
+  Settings,
+  Zap
 } from 'lucide-react';
 
 interface TenderDetailProps {
@@ -34,10 +39,11 @@ interface TenderDetailProps {
   onBack: () => void;
   onEdit?: (tenderId: string) => void;
   onDelete?: (tenderId: string) => void;
+  onViewPipeline?: (tenderId: string) => void;
   previousPage?: string;
 }
 
-export function TenderDetail({ tenderId, onBack, onEdit, onDelete, previousPage = 'dashboard' }: TenderDetailProps) {
+export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipeline, previousPage = 'dashboard' }: TenderDetailProps) {
   const user = getCurrentUser();
   const tender = mockTenders.find(t => t.id === tenderId);
   
@@ -104,6 +110,16 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, previousPage 
   const deadlineNear = isDeadlineNear(tender.deadline);
   const deadlinePassed = isDeadlinePassed(tender.deadline);
 
+  // If user is the tender owner, show the owner detail view
+  if (canEdit && user?.id === tender.createdBy) {
+    return (
+      <TenderOwnerDetail
+        tenderId={tenderId}
+        onBack={onBack}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -125,6 +141,10 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, previousPage 
           </Button>
           {canEdit && (
             <>
+              <Button variant="outline" size="sm" onClick={() => onViewPipeline?.(tender.id)}>
+                <Settings className="w-4 h-4 mr-2" />
+                Processing Pipeline
+              </Button>
               <Button variant="outline" size="sm" onClick={() => onEdit?.(tender.id)}>
                 <Edit className="w-4 h-4 mr-2" />
                 Edit

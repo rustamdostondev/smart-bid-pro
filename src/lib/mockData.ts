@@ -11,12 +11,16 @@ export interface TenderItem {
   name: string;
   description: string;
   quantity: number;
+  unit?: string;
+  estimatedCost?: number;
+  specifications?: string;
   attributes: Record<string, string>;
 }
 
 export interface Tender {
   id: string;
   name: string;
+  title?: string;
   description: string;
   deadline: string;
   createdBy: string;
@@ -24,6 +28,11 @@ export interface Tender {
   visibility: "public" | "private";
   invitedUsers?: string[];
   items: TenderItem[];
+  budget?: number;
+  organization?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  location?: string;
   fileProcessing?: {
     parsing: "pending" | "progress" | "completed";
     signature: "pending" | "progress" | "completed";
@@ -111,18 +120,27 @@ export const mockTenders: Tender[] = [
   {
     id: "1",
     name: "Office Equipment Procurement 2024",
+    title: "Office Equipment Procurement 2024",
     description:
       "Annual procurement of office equipment including laptops, projectors, and furniture",
     deadline: "2025-08-15",
     createdBy: "1",
     status: "published",
     visibility: "public",
+    budget: 150000,
+    organization: "Tech Solutions Inc",
+    contactEmail: "procurement@techsolutions.com",
+    contactPhone: "+1 (555) 123-4567",
+    location: "San Francisco, CA",
     items: [
       {
         id: "1",
         name: "Laptop",
         description: "High-performance business laptop",
         quantity: 50,
+        unit: "pcs",
+        estimatedCost: 1200,
+        specifications: "Intel i7 processor, 16GB RAM, 512GB SSD, 14-15 inch display",
         attributes: {
           brand: "Dell or Lenovo",
           ram: "16GB",
@@ -135,6 +153,9 @@ export const mockTenders: Tender[] = [
         name: "Projector",
         description: "Conference room projector",
         quantity: 10,
+        unit: "pcs",
+        estimatedCost: 800,
+        specifications: "3000+ lumens brightness, 1080p resolution, HDMI connectivity",
         attributes: {
           brightness: "3000+ lumens",
           resolution: "1080p",

@@ -5,6 +5,7 @@ import { Layout } from '@/components/Layout';
 import { AllTenders } from '@/components/AllTenders';
 import { MyTenders } from '@/components/MyTenders';
 import { TenderDetail } from '@/components/TenderDetail';
+
 import { CreateTender } from '@/components/CreateTender';
 import { ProposalDashboard } from '@/components/ProposalDashboard';
 import { CreateProposal } from '@/components/CreateProposal';
@@ -52,6 +53,8 @@ const Index = () => {
     setSelectedTenderId(null);
     setCurrentPage(previousPage); // Go back to the previous page
   };
+
+
 
   if (!isAuthenticated && currentPage === 'login') {
     return <LoginForm onLogin={handleLogin} />;
