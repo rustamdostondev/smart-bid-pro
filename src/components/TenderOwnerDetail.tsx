@@ -50,6 +50,10 @@ export function TenderOwnerDetail({ tenderId, onBack }: TenderOwnerDetailProps) 
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [newItem, setNewItem] = useState<Partial<TenderItem>>({});
   const [isAddingItem, setIsAddingItem] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterByStatus, setFilterByStatus] = useState<'all' | 'completed' | 'pending'>('all');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   if (!tender) {
     return (
@@ -131,36 +135,93 @@ export function TenderOwnerDetail({ tenderId, onBack }: TenderOwnerDetailProps) 
     }
   };
 
-  const handleAddItem = () => {
-    if (newItem.name && newItem.description && newItem.quantity && newItem.estimatedCost) {
-      const item: TenderItem = {
-        id: `item_${Date.now()}`,
-        name: newItem.name,
-        description: newItem.description,
-        quantity: newItem.quantity,
-        unit: newItem.unit || 'pcs',
-        estimatedCost: newItem.estimatedCost,
-        specifications: newItem.specifications || '',
-        attributes: {}
-      };
-      setTenderItems([...tenderItems, item]);
-      setNewItem({});
-      setIsAddingItem(false);
+  const validateItem = (item: Partial<TenderItem>): Record<string, string> => {
+    const errors: Record<string, string> = {};
+    if (!item.name?.trim()) errors.name = 'Item name is required';
+    if (!item.description?.trim()) errors.description = 'Description is required';
+    if (!item.quantity || item.quantity <= 0) errors.quantity = 'Quantity must be greater than 0';
+    if (!item.estimatedCost || item.estimatedCost <= 0) errors.estimatedCost = 'Estimated cost must be greater than 0';
+    if (!item.unit?.trim()) errors.unit = 'Unit is required';
+    return errors;
+  };
+
+  const handleAddItem = async () => {
+    const validationErrors = validateItem(newItem);
+    setErrors(validationErrors);
+    
+    if (Object.keys(validationErrors).length === 0) {
+      setIsLoading(true);
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const item: TenderItem = {
+          id: `item_${Date.now()}`,
+          name: newItem.name!,
+          description: newItem.description!,
+          quantity: newItem.quantity!,
+          unit: newItem.unit || 'pcs',
+          estimatedCost: newItem.estimatedCost!,
+          specifications: newItem.specifications || '',
+          attributes: newItem.attributes || {}
+        };
+        setTenderItems([...tenderItems, item]);
+        setNewItem({});
+        setIsAddingItem(false);
+        setErrors({});
+      } catch (error) {
+        setErrors({ general: 'Failed to add item. Please try again.' });
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
-  const handleEditItem = (itemId: string, updatedItem: Partial<TenderItem>) => {
-    setTenderItems(items => 
-      items.map(item => 
-        item.id === itemId ? { ...item, ...updatedItem } : item
-      )
-    );
-    setEditingItem(null);
+  const handleEditItem = async (itemId: string, updatedItem: Partial<TenderItem>) => {
+    const validationErrors = validateItem(updatedItem);
+    if (Object.keys(validationErrors).length === 0) {
+      setIsLoading(true);
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        setTenderItems(items => 
+          items.map(item => 
+            item.id === itemId ? { ...item, ...updatedItem } : item
+          )
+        );
+        setEditingItem(null);
+      } catch (error) {
+        setErrors({ general: 'Failed to update item. Please try again.' });
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
-  const handleDeleteItem = (itemId: string) => {
-    setTenderItems(items => items.filter(item => item.id !== itemId));
+  const handleDeleteItem = async (itemId: string) => {
+    if (window.confirm('Are you sure you want to delete this item? This action cannot be undone.')) {
+      setIsLoading(true);
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 300));
+        setTenderItems(items => items.filter(item => item.id !== itemId));
+      } catch (error) {
+        setErrors({ general: 'Failed to delete item. Please try again.' });
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
+
+  // Filter and search items
+  const filteredItems = tenderItems.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         item.description.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSearch;
+  });
+
+  const totalEstimatedCost = tenderItems.reduce((sum, item) => sum + (item.estimatedCost || 0), 0);
 
   const renderStepContent = () => {
     switch (selectedStep) {
@@ -263,16 +324,43 @@ export function TenderOwnerDetail({ tenderId, onBack }: TenderOwnerDetailProps) 
             {/* Tender Items CRUD */}
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h4 className="font-medium text-gray-900">Tender Items ({tenderItems.length})</h4>
+                <div>
+                  <h4 className="font-medium text-gray-900">Tender Items ({tenderItems.length})</h4>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Total Estimated Cost: <span className="font-semibold text-green-600">${totalEstimatedCost.toLocaleString()}</span>
+                  </p>
+                </div>
                 <Button 
                   onClick={() => setIsAddingItem(true)}
                   size="sm"
                   className="flex items-center"
+                  disabled={isLoading}
                 >
                   <Plus className="w-4 h-4 mr-1" />
                   Add Item
                 </Button>
               </div>
+
+              {/* Search and Filter */}
+              {tenderItems.length > 0 && (
+                <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                  <div className="flex space-x-3">
+                    <Input
+                      placeholder="Search items by name or description..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Error Display */}
+              {errors.general && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-700 text-sm">{errors.general}</p>
+                </div>
+              )}
 
               {/* Add New Item Form */}
               {isAddingItem && (
@@ -282,46 +370,185 @@ export function TenderOwnerDetail({ tenderId, onBack }: TenderOwnerDetailProps) 
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
-                      <Input
-                        placeholder="Item name"
-                        value={newItem.name || ''}
-                        onChange={(e) => setNewItem({...newItem, name: e.target.value})}
+                      <div>
+                        <Input
+                          placeholder="Item name"
+                          value={newItem.name || ''}
+                          onChange={(e) => setNewItem({...newItem, name: e.target.value})}
+                          className={errors.name ? 'border-red-300' : ''}
+                        />
+                        {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                      </div>
+                      <div>
+                        <Input
+                          placeholder="Quantity"
+                          type="number"
+                          min="1"
+                          value={newItem.quantity || ''}
+                          onChange={(e) => setNewItem({...newItem, quantity: parseInt(e.target.value) || 0})}
+                          className={errors.quantity ? 'border-red-300' : ''}
+                        />
+                        {errors.quantity && <p className="text-red-500 text-xs mt-1">{errors.quantity}</p>}
+                      </div>
+                    </div>
+                    <div>
+                      <Textarea
+                        placeholder="Description"
+                        value={newItem.description || ''}
+                        onChange={(e) => setNewItem({...newItem, description: e.target.value})}
+                        rows={2}
+                        className={errors.description ? 'border-red-300' : ''}
                       />
-                      <Input
-                        placeholder="Quantity"
-                        type="number"
-                        value={newItem.quantity || ''}
-                        onChange={(e) => setNewItem({...newItem, quantity: parseInt(e.target.value)})}
+                      {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Input
+                          placeholder="Unit (e.g., pcs, kg)"
+                          value={newItem.unit || ''}
+                          onChange={(e) => setNewItem({...newItem, unit: e.target.value})}
+                          className={errors.unit ? 'border-red-300' : ''}
+                        />
+                        {errors.unit && <p className="text-red-500 text-xs mt-1">{errors.unit}</p>}
+                      </div>
+                      <div>
+                        <Input
+                          placeholder="Estimated cost"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={newItem.estimatedCost || ''}
+                          onChange={(e) => setNewItem({...newItem, estimatedCost: parseFloat(e.target.value) || 0})}
+                          className={errors.estimatedCost ? 'border-red-300' : ''}
+                        />
+                        {errors.estimatedCost && <p className="text-red-500 text-xs mt-1">{errors.estimatedCost}</p>}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-1 block text-gray-700">Specifications</label>
+                      <Textarea
+                        placeholder="Enter detailed specifications"
+                        value={newItem.specifications || ''}
+                        onChange={(e) => setNewItem({...newItem, specifications: e.target.value})}
+                        rows={3}
                       />
                     </div>
-                    <Textarea
-                      placeholder="Description"
-                      value={newItem.description || ''}
-                      onChange={(e) => setNewItem({...newItem, description: e.target.value})}
-                      rows={2}
-                    />
-                    <div className="grid grid-cols-2 gap-3">
-                      <Input
-                        placeholder="Unit (e.g., pcs, kg)"
-                        value={newItem.unit || ''}
-                        onChange={(e) => setNewItem({...newItem, unit: e.target.value})}
-                      />
-                      <Input
-                        placeholder="Estimated cost"
-                        type="number"
-                        value={newItem.estimatedCost || ''}
-                        onChange={(e) => setNewItem({...newItem, estimatedCost: parseFloat(e.target.value)})}
-                      />
+                    <div>
+                      <label className="text-sm font-medium mb-2 block text-gray-700">Custom Attributes</label>
+                      <div className="space-y-3">
+                        {/* Existing Attributes */}
+                        {newItem.attributes && Object.entries(newItem.attributes).map(([key, value], index) => (
+                          <div key={index} className="bg-gray-50 p-3 rounded-lg border">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-xs font-medium text-gray-500">Attribute #{index + 1}</span>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => {
+                                  const updatedAttributes = {...newItem.attributes};
+                                  delete updatedAttributes[key];
+                                  setNewItem({...newItem, attributes: updatedAttributes});
+                                }}
+                                className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <Input
+                                  placeholder="e.g., processor"
+                                  value={key}
+                                  onChange={(e) => {
+                                    const newKey = e.target.value;
+                                    const updatedAttributes = {...newItem.attributes};
+                                    delete updatedAttributes[key];
+                                    if (newKey.trim()) {
+                                      updatedAttributes[newKey] = value;
+                                    }
+                                    setNewItem({...newItem, attributes: updatedAttributes});
+                                  }}
+                                  className="text-sm"
+                                />
+                                <label className="text-xs text-gray-500 mt-1">Attribute Name</label>
+                              </div>
+                              <div>
+                                <Input
+                                  placeholder="e.g., Intel Core i9"
+                                  value={value}
+                                  onChange={(e) => {
+                                    const updatedAttributes = {...newItem.attributes};
+                                    updatedAttributes[key] = e.target.value;
+                                    setNewItem({...newItem, attributes: updatedAttributes});
+                                  }}
+                                  className="text-sm"
+                                />
+                                <label className="text-xs text-gray-500 mt-1">Value</label>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        
+                        {/* Add New Attribute Button */}
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            const updatedAttributes = {...(newItem.attributes || {})};
+                            const newKey = '';
+                            updatedAttributes[newKey] = '';
+                            setNewItem({...newItem, attributes: updatedAttributes});
+                          }}
+                          className="w-full border-dashed border-2 border-gray-300 hover:border-gray-400 py-3"
+                        >
+                          <Plus className="h-4 w-4 mr-2" /> 
+                          Add Custom Attribute
+                        </Button>
+                        
+                        {/* Quick Add Common Attributes */}
+                        <div className="mt-3">
+                          <p className="text-xs text-gray-500 mb-2">Quick add common attributes:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {['Brand', 'Model', 'Color', 'Material', 'Size', 'Weight', 'Warranty'].map((attr) => (
+                              <Button
+                                key={attr}
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  const updatedAttributes = {...(newItem.attributes || {})};
+                                  if (!updatedAttributes[attr.toLowerCase()]) {
+                                    updatedAttributes[attr.toLowerCase()] = '';
+                                    setNewItem({...newItem, attributes: updatedAttributes});
+                                  }
+                                }}
+                                className="text-xs h-6 px-2"
+                              >
+                                + {attr}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                     <div className="flex space-x-2">
-                      <Button onClick={handleAddItem} size="sm">
-                        <Save className="w-4 h-4 mr-1" />
-                        Save
+                      <Button 
+                        onClick={handleAddItem} 
+                        size="sm"
+                        disabled={isLoading}
+                        className="min-w-[80px]"
+                      >
+                        {isLoading ? (
+                          <Clock className="w-4 h-4 mr-1 animate-spin" />
+                        ) : (
+                          <Save className="w-4 h-4 mr-1" />
+                        )}
+                        {isLoading ? 'Saving...' : 'Save'}
                       </Button>
                       <Button 
                         variant="outline" 
-                        onClick={() => {setIsAddingItem(false); setNewItem({});}}
+                        onClick={() => {setIsAddingItem(false); setNewItem({}); setErrors({});}}
                         size="sm"
+                        disabled={isLoading}
                       >
                         <X className="w-4 h-4 mr-1" />
                         Cancel
@@ -333,7 +560,7 @@ export function TenderOwnerDetail({ tenderId, onBack }: TenderOwnerDetailProps) 
 
               {/* Items List */}
               <div className="space-y-3">
-                {tenderItems.map((item) => (
+                {filteredItems.map((item) => (
                   <Card key={item.id} className="border-gray-200">
                     <CardContent className="p-4">
                       {editingItem === item.id ? (
@@ -354,7 +581,26 @@ export function TenderOwnerDetail({ tenderId, onBack }: TenderOwnerDetailProps) 
                             </div>
                             <p className="text-sm text-gray-600 mb-2">{item.description}</p>
                             {item.specifications && (
-                              <p className="text-xs text-gray-500">Specs: {item.specifications}</p>
+                              <div className="mb-2">
+                                <p className="text-xs text-gray-500 mb-1">Specifications:</p>
+                                <p className="text-xs text-gray-700 bg-gray-50 p-2 rounded border">{item.specifications}</p>
+                              </div>
+                            )}
+                            {item.attributes && Object.keys(item.attributes).length > 0 && (
+                              <div className="mt-2">
+                                <p className="text-xs text-gray-500 mb-1">Attributes:</p>
+                                <div className="flex flex-wrap gap-1">
+                                  {Object.entries(item.attributes).map(([key, value]) => (
+                                    <Badge 
+                                      key={key} 
+                                      variant="secondary" 
+                                      className="text-xs bg-blue-50 text-blue-700 border-blue-200"
+                                    >
+                                      {key}: {value}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
                             )}
                           </div>
                           <div className="flex space-x-1 ml-4">
@@ -380,6 +626,21 @@ export function TenderOwnerDetail({ tenderId, onBack }: TenderOwnerDetailProps) 
                   </Card>
                 ))}
               </div>
+
+              {filteredItems.length === 0 && tenderItems.length > 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  <Code className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                  <p>No items match your search criteria.</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setSearchTerm('')}
+                    className="mt-2"
+                  >
+                    Clear Search
+                  </Button>
+                </div>
+              )}
 
               {tenderItems.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
@@ -574,42 +835,230 @@ function EditItemForm({
   onCancel: () => void; 
 }) {
   const [editedItem, setEditedItem] = useState(item);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
+
+  const validateItem = (item: Partial<TenderItem>): Record<string, string> => {
+    const errors: Record<string, string> = {};
+    if (!item.name?.trim()) errors.name = 'Item name is required';
+    if (!item.description?.trim()) errors.description = 'Description is required';
+    if (!item.quantity || item.quantity <= 0) errors.quantity = 'Quantity must be greater than 0';
+    if (!item.estimatedCost || item.estimatedCost <= 0) errors.estimatedCost = 'Estimated cost must be greater than 0';
+    if (!item.unit?.trim()) errors.unit = 'Unit is required';
+    return errors;
+  };
+
+  const handleSave = async () => {
+    const validationErrors = validateItem(editedItem);
+    setErrors(validationErrors);
+    
+    if (Object.keys(validationErrors).length === 0) {
+      setIsLoading(true);
+      try {
+        await onSave(editedItem);
+      } catch (error) {
+        setErrors({ general: 'Failed to update item. Please try again.' });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
 
   return (
     <div className="space-y-3">
+      {/* Error Display */}
+      {errors.general && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-700 text-sm">{errors.general}</p>
+        </div>
+      )}
+      
       <div className="grid grid-cols-2 gap-3">
-        <Input
-          value={editedItem.name}
-          onChange={(e) => setEditedItem({...editedItem, name: e.target.value})}
+        <div>
+          <Input
+            placeholder="Item name"
+            value={editedItem.name}
+            onChange={(e) => setEditedItem({...editedItem, name: e.target.value})}
+            className={errors.name ? 'border-red-300' : ''}
+          />
+          {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+        </div>
+        <div>
+          <Input
+            placeholder="Quantity"
+            type="number"
+            min="1"
+            value={editedItem.quantity}
+            onChange={(e) => setEditedItem({...editedItem, quantity: parseInt(e.target.value) || 0})}
+            className={errors.quantity ? 'border-red-300' : ''}
+          />
+          {errors.quantity && <p className="text-red-500 text-xs mt-1">{errors.quantity}</p>}
+        </div>
+      </div>
+      
+      <div>
+        <Textarea
+          placeholder="Description"
+          value={editedItem.description}
+          onChange={(e) => setEditedItem({...editedItem, description: e.target.value})}
+          rows={2}
+          className={errors.description ? 'border-red-300' : ''}
         />
-        <Input
-          type="number"
-          value={editedItem.quantity}
-          onChange={(e) => setEditedItem({...editedItem, quantity: parseInt(e.target.value)})}
+        {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+      </div>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Input
+            placeholder="Unit (e.g., pcs, kg)"
+            value={editedItem.unit}
+            onChange={(e) => setEditedItem({...editedItem, unit: e.target.value})}
+            className={errors.unit ? 'border-red-300' : ''}
+          />
+          {errors.unit && <p className="text-red-500 text-xs mt-1">{errors.unit}</p>}
+        </div>
+        <div>
+          <Input
+            placeholder="Estimated cost"
+            type="number"
+            min="0"
+            step="0.01"
+            value={editedItem.estimatedCost}
+            onChange={(e) => setEditedItem({...editedItem, estimatedCost: parseFloat(e.target.value) || 0})}
+            className={errors.estimatedCost ? 'border-red-300' : ''}
+          />
+          {errors.estimatedCost && <p className="text-red-500 text-xs mt-1">{errors.estimatedCost}</p>}
+        </div>
+      </div>
+      
+      <div>
+        <label className="text-sm font-medium mb-1 block text-gray-700">Specifications</label>
+        <Textarea
+          placeholder="Enter detailed specifications"
+          value={editedItem.specifications || ''}
+          onChange={(e) => setEditedItem({...editedItem, specifications: e.target.value})}
+          rows={3}
         />
       </div>
-      <Textarea
-        value={editedItem.description}
-        onChange={(e) => setEditedItem({...editedItem, description: e.target.value})}
-        rows={2}
-      />
-      <div className="grid grid-cols-2 gap-3">
-        <Input
-          value={editedItem.unit}
-          onChange={(e) => setEditedItem({...editedItem, unit: e.target.value})}
-        />
-        <Input
-          type="number"
-          value={editedItem.estimatedCost}
-          onChange={(e) => setEditedItem({...editedItem, estimatedCost: parseFloat(e.target.value)})}
-        />
+      
+      <div>
+        <label className="text-sm font-medium mb-2 block text-gray-700">Custom Attributes</label>
+        <div className="space-y-3">
+          {/* Existing Attributes */}
+          {editedItem.attributes && Object.entries(editedItem.attributes).map(([key, value], index) => (
+            <div key={index} className="bg-gray-50 p-3 rounded-lg border">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-gray-500">Attribute #{index + 1}</span>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => {
+                    const updatedAttributes = {...editedItem.attributes};
+                    delete updatedAttributes[key];
+                    setEditedItem({...editedItem, attributes: updatedAttributes});
+                  }}
+                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Input
+                    placeholder="e.g., processor"
+                    value={key}
+                    onChange={(e) => {
+                      const newKey = e.target.value;
+                      const updatedAttributes = {...editedItem.attributes};
+                      delete updatedAttributes[key];
+                      if (newKey.trim()) {
+                        updatedAttributes[newKey] = value;
+                      }
+                      setEditedItem({...editedItem, attributes: updatedAttributes});
+                    }}
+                    className="text-sm"
+                  />
+                  <label className="text-xs text-gray-500 mt-1">Attribute Name</label>
+                </div>
+                <div>
+                  <Input
+                    placeholder="e.g., Intel Core i9"
+                    value={value}
+                    onChange={(e) => {
+                      const updatedAttributes = {...editedItem.attributes};
+                      updatedAttributes[key] = e.target.value;
+                      setEditedItem({...editedItem, attributes: updatedAttributes});
+                    }}
+                    className="text-sm"
+                  />
+                  <label className="text-xs text-gray-500 mt-1">Value</label>
+                </div>
+              </div>
+            </div>
+          ))}
+          
+          {/* Add New Attribute Button */}
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              const updatedAttributes = {...(editedItem.attributes || {})};
+              const newKey = '';
+              updatedAttributes[newKey] = '';
+              setEditedItem({...editedItem, attributes: updatedAttributes});
+            }}
+            className="w-full border-dashed border-2 border-gray-300 hover:border-gray-400 py-3"
+          >
+            <Plus className="h-4 w-4 mr-2" /> 
+            Add Custom Attribute
+          </Button>
+          
+          {/* Quick Add Common Attributes */}
+          <div className="mt-3">
+            <p className="text-xs text-gray-500 mb-2">Quick add common attributes:</p>
+            <div className="flex flex-wrap gap-1">
+              {['Brand', 'Model', 'Color', 'Material', 'Size', 'Weight', 'Warranty'].map((attr) => (
+                <Button
+                  key={attr}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const updatedAttributes = {...(editedItem.attributes || {})};
+                    if (!updatedAttributes[attr.toLowerCase()]) {
+                      updatedAttributes[attr.toLowerCase()] = '';
+                      setEditedItem({...editedItem, attributes: updatedAttributes});
+                    }
+                  }}
+                  className="text-xs h-6 px-2"
+                >
+                  + {attr}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
+      
       <div className="flex space-x-2">
-        <Button onClick={() => onSave(editedItem)} size="sm">
-          <Save className="w-4 h-4 mr-1" />
-          Save
+        <Button 
+          onClick={handleSave} 
+          size="sm"
+          disabled={isLoading}
+          className="min-w-[80px]"
+        >
+          {isLoading ? (
+            <Clock className="w-4 h-4 mr-1 animate-spin" />
+          ) : (
+            <Save className="w-4 h-4 mr-1" />
+          )}
+          {isLoading ? 'Saving...' : 'Save'}
         </Button>
-        <Button variant="outline" onClick={onCancel} size="sm">
+        <Button 
+          variant="outline" 
+          onClick={onCancel} 
+          size="sm"
+          disabled={isLoading}
+        >
           <X className="w-4 h-4 mr-1" />
           Cancel
         </Button>
