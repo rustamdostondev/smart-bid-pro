@@ -53,6 +53,7 @@ export interface ProposalItem {
 }
 
 export interface Proposal {
+  companyName: string;
   id: string;
   tenderIds: string;
   name: string;
@@ -140,7 +141,8 @@ export const mockTenders: Tender[] = [
         quantity: 50,
         unit: "pcs",
         estimatedCost: 1200,
-        specifications: "Intel i7 processor, 16GB RAM, 512GB SSD, 14-15 inch display",
+        specifications:
+          "Intel i7 processor, 16GB RAM, 512GB SSD, 14-15 inch display",
         attributes: {
           brand: "Dell or Lenovo",
           ram: "16GB",
@@ -155,7 +157,8 @@ export const mockTenders: Tender[] = [
         quantity: 10,
         unit: "pcs",
         estimatedCost: 800,
-        specifications: "3000+ lumens brightness, 1080p resolution, HDMI connectivity",
+        specifications:
+          "3000+ lumens brightness, 1080p resolution, HDMI connectivity",
         attributes: {
           brightness: "3000+ lumens",
           resolution: "1080p",
@@ -890,7 +893,8 @@ export const mockProposals: Proposal[] = [
     id: "3",
     tenderIds: "1",
     name: "Premium Enterprise Solution",
-    description: "High-end proposal for enterprise-grade office equipment with advanced features",
+    description:
+      "High-end proposal for enterprise-grade office equipment with advanced features",
     submittedBy: "1", // Admin user
     company: "TenderCorp",
     status: "submitted",
@@ -908,7 +912,7 @@ export const mockProposals: Proposal[] = [
           ram: "32GB",
           storage: "1TB SSD",
           screen: "16 inch Retina",
-          processor: "M2 Pro"
+          processor: "M2 Pro",
         },
       },
       {
@@ -923,7 +927,7 @@ export const mockProposals: Proposal[] = [
           brightness: "6500 lumens",
           resolution: "4K",
           connectivity: "HDMI, USB-C, WiFi, Bluetooth",
-          technology: "Laser"
+          technology: "Laser",
         },
       },
       {
@@ -938,7 +942,7 @@ export const mockProposals: Proposal[] = [
           type: "Premium Ergonomic",
           material: "Pixelated Support",
           adjustable: "Height, Arms, Tilt, Lumbar",
-          warranty: "12 years"
+          warranty: "12 years",
         },
       },
     ],
