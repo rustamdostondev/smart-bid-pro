@@ -50,9 +50,10 @@ interface ProcessingStep {
 interface TenderOwnerDetailProps {
   tenderId: string;
   onBack: () => void;
+  onViewProposalDetail?: (proposalId: string) => void;
 }
 
-export function TenderOwnerDetail({ tenderId, onBack }: TenderOwnerDetailProps) {
+export function TenderOwnerDetail({ tenderId, onBack, onViewProposalDetail }: TenderOwnerDetailProps) {
   const user = getCurrentUser();
   const tender = mockTenders.find(t => t.id === tenderId);
   const [selectedStep, setSelectedStep] = useState('file_processing');
@@ -929,7 +930,7 @@ export function TenderOwnerDetail({ tenderId, onBack }: TenderOwnerDetailProps) 
                                   variant="outline" 
                                   size="sm" 
                                   className="w-full"
-                                  onClick={() => window.open(`/proposals/${proposal.id}`, '_blank')}
+                                  onClick={() => onViewProposalDetail?.(proposal.id)}
                                 >
                                   <Eye className="w-4 h-4 mr-2" />
                                   View Details

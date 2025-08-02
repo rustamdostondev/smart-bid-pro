@@ -9,6 +9,7 @@ import { TenderDetail } from '@/components/TenderDetail';
 import { CreateTender } from '@/components/CreateTender';
 import { MyProposals } from '@/components/MyProposals';
 import { ProposalDetail } from '@/components/ProposalDetail';
+import { ProposalDetailView } from '@/components/ProposalDetailView';
 import { CreateProposal } from '@/components/CreateProposal';
 import { getCurrentUser } from '@/lib/mockData';
 
@@ -70,6 +71,17 @@ const Index = () => {
     setCurrentPage('proposal-detail');
   };
 
+  const handleViewProposalDetail = (proposalId: string) => {
+    setPreviousPage(currentPage); // Store the current page as previous
+    setSelectedProposalId(proposalId);
+    setCurrentPage('proposal-detail-view');
+  };
+
+  const handleBackFromProposalDetail = () => {
+    setSelectedProposalId(null);
+    setCurrentPage('tender-detail'); // Go back specifically to tender detail
+  };
+
 
   if (!isAuthenticated && currentPage === 'login') {
     return <LoginForm onLogin={handleLogin} />;
@@ -120,6 +132,7 @@ const Index = () => {
               console.log('Delete tender:', id);
               handleBackToDashboard();
             }}
+            onViewProposalDetail={handleViewProposalDetail}
           />
         ) : (
           <AllTenders
@@ -167,6 +180,17 @@ const Index = () => {
             onCreateProposal={() => handleNavigate('create-proposal')}
             onViewProposal={handleViewProposal}
 
+          />
+        );
+      case 'proposal-detail-view':
+        return selectedProposalId ? (
+          <ProposalDetailView
+            proposalId={selectedProposalId}
+            onBack={handleBackFromProposalDetail}
+          />
+        ) : (
+          <AllTenders
+            onViewTender={handleViewTender}
           />
         );
 
