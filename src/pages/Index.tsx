@@ -11,6 +11,7 @@ import { getCurrentUser } from '@/lib/mockData';
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState('all-tenders');
+  const [previousPage, setPreviousPage] = useState('all-tenders');
   const [selectedTenderId, setSelectedTenderId] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -28,6 +29,7 @@ const Index = () => {
   };
 
   const handleNavigate = (page: string) => {
+    setPreviousPage(currentPage); // Store the current page as previous
     setCurrentPage(page);
     setSelectedTenderId(null); // Clear selected tender when navigating
     if (page === 'login') {
@@ -36,13 +38,14 @@ const Index = () => {
   };
 
   const handleViewTender = (tenderId: string) => {
+    setPreviousPage(currentPage); // Store the current page as previous
     setSelectedTenderId(tenderId);
     setCurrentPage('tender-detail');
   };
 
   const handleBackToDashboard = () => {
     setSelectedTenderId(null);
-    setCurrentPage('my-tenders');
+    setCurrentPage(previousPage); // Go back to the previous page
   };
 
   if (!isAuthenticated) {
@@ -77,6 +80,7 @@ const Index = () => {
           <TenderDetail
             tenderId={selectedTenderId}
             onBack={handleBackToDashboard}
+            previousPage={previousPage}
             onEdit={(id) => {
               setSelectedTenderId(id);
               setCurrentPage('edit-tender');

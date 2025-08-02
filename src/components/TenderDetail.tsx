@@ -34,9 +34,10 @@ interface TenderDetailProps {
   onBack: () => void;
   onEdit?: (tenderId: string) => void;
   onDelete?: (tenderId: string) => void;
+  previousPage?: string;
 }
 
-export function TenderDetail({ tenderId, onBack, onEdit, onDelete }: TenderDetailProps) {
+export function TenderDetail({ tenderId, onBack, onEdit, onDelete, previousPage = 'dashboard' }: TenderDetailProps) {
   const user = getCurrentUser();
   const tender = mockTenders.find(t => t.id === tenderId);
   
@@ -46,7 +47,7 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete }: TenderDetai
         <div className="flex items-center gap-4">
           <Button variant="outline" onClick={onBack}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
+            Back to {previousPage === 'all-tenders' ? 'All Tenders' : previousPage === 'my-tenders' ? 'My Tenders' : 'Dashboard'}
           </Button>
         </div>
         <Card className="text-center py-16">
@@ -110,7 +111,7 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete }: TenderDetai
         <div className="flex items-center gap-4">
           <Button variant="outline" onClick={onBack}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
+            Back to {previousPage === 'all-tenders' ? 'All Tenders' : previousPage === 'my-tenders' ? 'My Tenders' : 'Dashboard'}
           </Button>
         </div>
         <div className="flex gap-2">
