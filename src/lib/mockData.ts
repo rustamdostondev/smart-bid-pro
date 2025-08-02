@@ -113,7 +113,7 @@ export const mockTenders: Tender[] = [
     name: "Office Equipment Procurement 2024",
     description:
       "Annual procurement of office equipment including laptops, projectors, and furniture",
-    deadline: "2025-03-15",
+    deadline: "2025-08-15",
     createdBy: "1",
     status: "published",
     visibility: "public",
@@ -380,7 +380,7 @@ export const mockTenders: Tender[] = [
     name: "Training and Development Program",
     description:
       "Comprehensive employee training and skill development programs",
-    deadline: "2024-04-30",
+    deadline: "2025-08-30",
     createdBy: "1",
     status: "draft",
     visibility: "public",
