@@ -198,6 +198,7 @@ const Index = () => {
             tenderId={selectedTenderId}
             onBack={handleBackToDashboard}
             previousPage={previousPage}
+            showOwnerView={previousPage === 'my-tenders'}
             onEdit={(id) => {
               setSelectedTenderId(id);
               setCurrentPage('edit-tender');

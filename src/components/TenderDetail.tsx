@@ -1,23 +1,29 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TenderOwnerDetail } from '@/components/TenderOwnerDetail';
-import { mockTenders, getCurrentUser, type Tender } from '@/lib/mockData';
-import { 
-  ArrowLeft, 
-  Calendar, 
-  Users, 
-  Lock, 
-  Globe, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
-  FileText, 
-  Shield, 
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TenderOwnerDetail } from "@/components/TenderOwnerDetail";
+import { mockTenders, getCurrentUser, type Tender } from "@/lib/mockData";
+import {
+  ArrowLeft,
+  Calendar,
+  Users,
+  Lock,
+  Globe,
+  Clock,
+  CheckCircle,
+  XCircle,
+  FileText,
+  Shield,
   Brain,
   Package,
   Building,
@@ -31,8 +37,8 @@ import {
   Eye,
   DollarSign,
   Settings,
-  Zap
-} from 'lucide-react';
+  Zap,
+} from "lucide-react";
 
 interface TenderDetailProps {
   tenderId: string;
@@ -43,26 +49,43 @@ interface TenderDetailProps {
   onViewProposalDetail?: (proposalId: string) => void;
   onOpenAnalytics?: (tenderId: string) => void;
   previousPage?: string;
+  showOwnerView?: boolean; // Controls whether to show owner detail view
 }
 
-export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipeline, onViewProposalDetail, onOpenAnalytics, previousPage = 'dashboard' }: TenderDetailProps) {
+export function TenderDetail({
+  tenderId,
+  onBack,
+  onEdit,
+  onDelete,
+  onViewPipeline,
+  onViewProposalDetail,
+  onOpenAnalytics,
+  previousPage = "dashboard",
+  showOwnerView = true,
+}: TenderDetailProps) {
   const user = getCurrentUser();
-  const tender = mockTenders.find(t => t.id === tenderId);
-  
+  const tender = mockTenders.find((t) => t.id === tenderId);
+
   if (!tender) {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
           <Button variant="outline" onClick={onBack}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to {previousPage === 'all-tenders' ? 'All Tenders' : previousPage === 'my-tenders' ? 'My Tenders' : 'Dashboard'}
+            Back to{" "}
+            {previousPage === "all-tenders"
+              ? "All Tenders"
+              : previousPage === "my-tenders"
+              ? "My Tenders"
+              : "Dashboard"}
           </Button>
         </div>
         <Card className="text-center py-16">
           <CardContent>
             <h3 className="text-lg font-semibold mb-2">Tender Not Found</h3>
             <p className="text-muted-foreground">
-              The tender you're looking for doesn't exist or you don't have permission to view it.
+              The tender you're looking for doesn't exist or you don't have
+              permission to view it.
             </p>
           </CardContent>
         </Card>
@@ -72,25 +95,35 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
 
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case 'published': return 'default';
-      case 'draft': return 'secondary';
-      case 'closed': return 'destructive';
-      default: return 'outline';
+      case "published":
+        return "default";
+      case "draft":
+        return "secondary";
+      case "closed":
+        return "destructive";
+      default:
+        return "outline";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'published': return <CheckCircle className="w-4 h-4" />;
-      case 'draft': return <Clock className="w-4 h-4" />;
-      case 'closed': return <XCircle className="w-4 h-4" />;
-      default: return null;
+      case "published":
+        return <CheckCircle className="w-4 h-4" />;
+      case "draft":
+        return <Clock className="w-4 h-4" />;
+      case "closed":
+        return <XCircle className="w-4 h-4" />;
+      default:
+        return null;
     }
   };
 
   const getProcessingProgress = (processing: any) => {
-    const steps = ['parsing', 'signature', 'extraction'];
-    const completed = steps.filter(step => processing?.[step] === 'completed').length;
+    const steps = ["parsing", "signature", "extraction"];
+    const completed = steps.filter(
+      (step) => processing?.[step] === "completed"
+    ).length;
     return (completed / steps.length) * 100;
   };
 
@@ -108,12 +141,12 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
     return deadlineDate < today;
   };
 
-  const canEdit = user?.id === tender.createdBy || user?.role === 'admin';
+  const canEdit = user?.id === tender.createdBy || user?.role === "admin";
   const deadlineNear = isDeadlineNear(tender.deadline);
   const deadlinePassed = isDeadlinePassed(tender.deadline);
 
-  // If user is the tender owner, show the owner detail view
-  if (canEdit && user?.id === tender.createdBy) {
+  // If user is the tender owner and showOwnerView is true, show the owner detail view
+  if (canEdit && user?.id === tender.createdBy && showOwnerView) {
     return (
       <TenderOwnerDetail
         tenderId={tenderId}
@@ -129,9 +162,18 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-8">
         <div className="flex items-center gap-4">
-          <Button variant="outline" onClick={onBack} className="border-gray-300 hover:bg-gray-50">
+          <Button
+            variant="outline"
+            onClick={onBack}
+            className="border-gray-300 hover:bg-gray-50"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to {previousPage === 'all-tenders' ? 'All Tenders' : previousPage === 'my-tenders' ? 'My Tenders' : 'Dashboard'}
+            Back to{" "}
+            {previousPage === "all-tenders"
+              ? "All Tenders"
+              : previousPage === "my-tenders"
+              ? "My Tenders"
+              : "Dashboard"}
           </Button>
         </div>
         <div className="flex gap-2">
@@ -145,15 +187,27 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
           </Button>
           {canEdit && (
             <>
-              <Button variant="outline" size="sm" onClick={() => onViewPipeline?.(tender.id)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onViewPipeline?.(tender.id)}
+              >
                 <Settings className="w-4 h-4 mr-2" />
                 Processing Pipeline
               </Button>
-              <Button variant="outline" size="sm" onClick={() => onEdit?.(tender.id)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onEdit?.(tender.id)}
+              >
                 <Edit className="w-4 h-4 mr-2" />
                 Edit
               </Button>
-              <Button variant="destructive" size="sm" onClick={() => onDelete?.(tender.id)}>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => onDelete?.(tender.id)}
+              >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Delete
               </Button>
@@ -163,19 +217,26 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
       </div>
 
       {/* Tender Header Card */}
-      <Card className={`border-l-4 ${
-        deadlinePassed ? 'border-l-red-500' : 
-        deadlineNear ? 'border-l-yellow-500' : 
-        tender.status === 'published' ? 'border-l-green-500' : 'border-l-gray-300'
-      }`}>
+      <Card
+        className={`border-l-4 ${
+          deadlinePassed
+            ? "border-l-red-500"
+            : deadlineNear
+            ? "border-l-yellow-500"
+            : tender.status === "published"
+            ? "border-l-green-500"
+            : "border-l-gray-300"
+        }`}
+      >
         <CardHeader>
-          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 ">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                {tender.visibility === 'public' ? 
-                  <Globe className="w-5 h-5 text-muted-foreground" /> : 
+                {tender.visibility === "public" ? (
+                  <Globe className="w-5 h-5 text-muted-foreground" />
+                ) : (
                   <Lock className="w-5 h-5 text-muted-foreground" />
-                }
+                )}
                 <CardTitle className="text-2xl">{tender.name}</CardTitle>
               </div>
               <CardDescription className="text-base mb-4">
@@ -188,7 +249,9 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  <span>Created: {new Date(tender.createdAt).toLocaleDateString()}</span>
+                  <span>
+                    Created: {new Date(tender.createdAt).toLocaleDateString()}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Package className="w-4 h-4" />
@@ -197,20 +260,28 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
               </div>
             </div>
             <div className="flex flex-col gap-3">
-              <Badge variant={getStatusVariant(tender.status)} className="flex items-center gap-1 w-fit">
+              <Badge
+                variant={getStatusVariant(tender.status)}
+                className="flex items-center gap-1 w-fit"
+              >
                 {getStatusIcon(tender.status)}
                 {tender.status.toUpperCase()}
               </Badge>
-              <div className={`text-sm font-medium ${
-                deadlinePassed ? 'text-red-600' : 
-                deadlineNear ? 'text-yellow-600' : 'text-muted-foreground'
-              }`}>
+              <div
+                className={`text-sm font-medium ${
+                  deadlinePassed
+                    ? "text-red-600"
+                    : deadlineNear
+                    ? "text-yellow-600"
+                    : "text-muted-foreground"
+                }`}
+              >
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4" />
                   <span>
                     Deadline: {new Date(tender.deadline).toLocaleDateString()}
-                    {deadlineNear && !deadlinePassed && ' (Soon)'}
-                    {deadlinePassed && ' (Expired)'}
+                    {deadlineNear && !deadlinePassed && " (Soon)"}
+                    {deadlinePassed && " (Expired)"}
                   </span>
                 </div>
               </div>
@@ -220,7 +291,7 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
       </Card>
 
       {/* Main Content Tabs */}
-      <Tabs defaultValue="overview" className="space-y-6">
+      <Tabs defaultValue="overview" className="space-y-6 mt-1">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="items">Items ({tender.items.length})</TabsTrigger>
@@ -243,7 +314,10 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
                 <div className="grid gap-3">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Status:</span>
-                    <Badge variant={getStatusVariant(tender.status)} className="flex items-center gap-1">
+                    <Badge
+                      variant={getStatusVariant(tender.status)}
+                      className="flex items-center gap-1"
+                    >
                       {getStatusIcon(tender.status)}
                       {tender.status}
                     </Badge>
@@ -251,16 +325,25 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Visibility:</span>
                     <div className="flex items-center gap-1">
-                      {tender.visibility === 'public' ? 
-                        <Globe className="w-4 h-4" /> : 
+                      {tender.visibility === "public" ? (
+                        <Globe className="w-4 h-4" />
+                      ) : (
                         <Lock className="w-4 h-4" />
-                      }
+                      )}
                       <span className="capitalize">{tender.visibility}</span>
                     </div>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Deadline:</span>
-                    <span className={deadlinePassed ? 'text-red-600' : deadlineNear ? 'text-yellow-600' : ''}>
+                    <span
+                      className={
+                        deadlinePassed
+                          ? "text-red-600"
+                          : deadlineNear
+                          ? "text-yellow-600"
+                          : ""
+                      }
+                    >
                       {new Date(tender.deadline).toLocaleDateString()}
                     </span>
                   </div>
@@ -270,7 +353,9 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Created:</span>
-                    <span>{new Date(tender.createdAt).toLocaleDateString()}</span>
+                    <span>
+                      {new Date(tender.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -290,12 +375,17 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
                     <span className="text-muted-foreground">Visibility:</span>
                     <span className="capitalize">{tender.visibility}</span>
                   </div>
-                  {tender.visibility === 'private' && tender.invitedUsers && (
+                  {tender.visibility === "private" && tender.invitedUsers && (
                     <div>
-                      <span className="text-muted-foreground">Invited Users:</span>
+                      <span className="text-muted-foreground">
+                        Invited Users:
+                      </span>
                       <div className="mt-2 space-y-1">
                         {tender.invitedUsers.map((userId) => (
-                          <div key={userId} className="flex items-center gap-2 text-sm">
+                          <div
+                            key={userId}
+                            className="flex items-center gap-2 text-sm"
+                          >
                             <Users className="w-3 h-3" />
                             <span>User {userId}</span>
                           </div>
@@ -305,7 +395,7 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
                   )}
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Can Edit:</span>
-                    <span>{canEdit ? 'Yes' : 'No'}</span>
+                    <span>{canEdit ? "Yes" : "No"}</span>
                   </div>
                 </div>
               </CardContent>
@@ -333,8 +423,13 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
                       <h4 className="font-medium mb-2">Specifications:</h4>
                       <div className="grid gap-2 md:grid-cols-2">
                         {Object.entries(item.attributes).map(([key, value]) => (
-                          <div key={key} className="flex justify-between text-sm">
-                            <span className="text-muted-foreground capitalize">{key.replace('_', ' ')}:</span>
+                          <div
+                            key={key}
+                            className="flex justify-between text-sm"
+                          >
+                            <span className="text-muted-foreground capitalize">
+                              {key.replace("_", " ")}:
+                            </span>
                             <span>{value}</span>
                           </div>
                         ))}
@@ -363,35 +458,68 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium">Overall Progress</span>
+                    <span className="text-sm font-medium">
+                      Overall Progress
+                    </span>
                     <span className="text-sm text-muted-foreground">
-                      {Math.round(getProcessingProgress(tender.fileProcessing))}%
+                      {Math.round(getProcessingProgress(tender.fileProcessing))}
+                      %
                     </span>
                   </div>
-                  <Progress value={getProcessingProgress(tender.fileProcessing)} className="h-2" />
+                  <Progress
+                    value={getProcessingProgress(tender.fileProcessing)}
+                    className="h-2"
+                  />
                 </div>
-                
+
                 <Separator />
-                
+
                 <div className="space-y-3">
                   {[
-                    { key: 'parsing', label: 'Document Parsing', icon: FileText },
-                    { key: 'signature', label: 'Signature Verification', icon: Shield },
-                    { key: 'extraction', label: 'Data Extraction', icon: Brain }
+                    {
+                      key: "parsing",
+                      label: "Document Parsing",
+                      icon: FileText,
+                    },
+                    {
+                      key: "signature",
+                      label: "Signature Verification",
+                      icon: Shield,
+                    },
+                    {
+                      key: "extraction",
+                      label: "Data Extraction",
+                      icon: Brain,
+                    },
                   ].map(({ key, label, icon: Icon }) => {
-                    const status = tender.fileProcessing?.[key as keyof typeof tender.fileProcessing] || 'pending';
+                    const status =
+                      tender.fileProcessing?.[
+                        key as keyof typeof tender.fileProcessing
+                      ] || "pending";
                     return (
-                      <div key={key} className="flex items-center justify-between">
+                      <div
+                        key={key}
+                        className="flex items-center justify-between"
+                      >
                         <div className="flex items-center gap-3">
                           <Icon className="w-4 h-4 text-muted-foreground" />
                           <span className="text-sm">{label}</span>
                         </div>
-                        <Badge variant={
-                          status === 'completed' ? 'default' : 
-                          status === 'progress' ? 'secondary' : 'outline'
-                        }>
-                          {status === 'completed' && <CheckCircle className="w-3 h-3 mr-1" />}
-                          {status === 'progress' && <Clock className="w-3 h-3 mr-1" />}
+                        <Badge
+                          variant={
+                            status === "completed"
+                              ? "default"
+                              : status === "progress"
+                              ? "secondary"
+                              : "outline"
+                          }
+                        >
+                          {status === "completed" && (
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                          )}
+                          {status === "progress" && (
+                            <Clock className="w-3 h-3 mr-1" />
+                          )}
                           {status}
                         </Badge>
                       </div>
@@ -419,11 +547,12 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
                   <div className="flex-1">
                     <p className="text-sm font-medium">Tender created</p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(tender.createdAt).toLocaleDateString()} - Created by Admin
+                      {new Date(tender.createdAt).toLocaleDateString()} -
+                      Created by Admin
                     </p>
                   </div>
                 </div>
-                {tender.status === 'published' && (
+                {tender.status === "published" && (
                   <div className="flex gap-3">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                     <div className="flex-1">
@@ -434,11 +563,13 @@ export function TenderDetail({ tenderId, onBack, onEdit, onDelete, onViewPipelin
                     </div>
                   </div>
                 )}
-                {tender.fileProcessing?.parsing === 'completed' && (
+                {tender.fileProcessing?.parsing === "completed" && (
                   <div className="flex gap-3">
                     <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium">Document processing completed</p>
+                      <p className="text-sm font-medium">
+                        Document processing completed
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         AI analysis and extraction finished
                       </p>
