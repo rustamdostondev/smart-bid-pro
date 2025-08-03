@@ -176,44 +176,6 @@ export function TenderDetail({
               : "Dashboard"}
           </Button>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Share2 className="w-4 h-4 mr-2" />
-            Share
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
-          {canEdit && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onViewPipeline?.(tender.id)}
-              >
-                <Settings className="w-4 h-4 mr-2" />
-                Processing Pipeline
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onEdit?.(tender.id)}
-              >
-                <Edit className="w-4 h-4 mr-2" />
-                Edit
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => onDelete?.(tender.id)}
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete
-              </Button>
-            </>
-          )}
-        </div>
       </div>
 
       {/* Tender Header Card */}
