@@ -1,0 +1,358 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // or "mysql", "sqlite", etc.
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  company   String?
+  role      UserRole @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  createdTenders Tender[]   @relation("TenderCreator")
+  proposals      Proposal[] @relation("ProposalSubmitter")
+  invitations    TenderInvitation[]
+  sessions       UserSession[]
+  activities     UserActivity[]
+
+  @@map("users")
+}
+
+model UserSession {
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  refreshToken String?  @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_sessions")
+}
+
+model UserActivity {
+  id          String       @id @default(cuid())
+  userId      String
+  action      String
+  entityType  String
+  entityId    String?
+  description String?
+  metadata    Json?
+  createdAt   DateTime     @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_activities")
+}
+
+// Tender Management
+model Tender {
+  id           String           @id @default(cuid())
+  name         String
+  title        String?
+  description  String
+  deadline     DateTime
+  createdBy    String
+  status       TenderStatus     @default(DRAFT)
+  visibility   TenderVisibility @default(PUBLIC)
+  budget       Decimal?         @db.Decimal(15, 2)
+  organization String?
+  contactEmail String?
+  contactPhone String?
+  location     String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  // Relations
+  creator     User               @relation("TenderCreator", fields: [createdBy], references: [id])
+  items       TenderItem[]
+  proposals   Proposal[]
+  invitations TenderInvitation[]
+  processing  TenderProcessing?
+  analytics   TenderAnalytics[]
+
+  @@map("tenders")
+}
+
+model TenderItem {
+  id             String  @id @default(cuid())
+  tenderId       String
+  name           String
+  description    String
+  quantity       Int
+  unit           String?
+  estimatedCost  Decimal? @db.Decimal(15, 2)
+  specifications String?
+  attributes     Json    @default("{}")
+  sortOrder      Int     @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  tender        Tender         @relation(fields: [tenderId], references: [id], onDelete: Cascade)
+  proposalItems ProposalItem[]
+  analytics     TenderAnalytics[]
+
+  @@map("tender_items")
+}
+
+model TenderInvitation {
+  id       String            @id @default(cuid())
+  tenderId String
+  userId   String
+  status   InvitationStatus  @default(PENDING)
+  sentAt   DateTime          @default(now())
+  respondedAt DateTime?
+
+  // Relations
+  tender Tender @relation(fields: [tenderId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenderId, userId])
+  @@map("tender_invitations")
+}
+
+model TenderProcessing {
+  id         String           @id @default(cuid())
+  tenderId   String           @unique
+  parsing    ProcessingStatus @default(PENDING)
+  signature  ProcessingStatus @default(PENDING)
+  extraction ProcessingStatus @default(PENDING)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  // Relations
+  tender Tender @relation(fields: [tenderId], references: [id], onDelete: Cascade)
+
+  @@map("tender_processing")
+}
+
+// Proposal Management
+model Proposal {
+  id          String         @id @default(cuid())
+  tenderId    String
+  name        String
+  description String
+  submittedBy String
+  company     String
+  companyName String?
+  status      ProposalStatus @default(DRAFT)
+  totalCost   Decimal        @db.Decimal(15, 2)
+  submittedAt DateTime       @default(now())
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  // Relations
+  tender     Tender             @relation(fields: [tenderId], references: [id], onDelete: Cascade)
+  submitter  User               @relation("ProposalSubmitter", fields: [submittedBy], references: [id])
+  items      ProposalItem[]
+  processing ProposalProcessing?
+  analytics  TenderAnalytics[]
+
+  @@map("proposals")
+}
+
+model ProposalItem {
+  id               String  @id @default(cuid())
+  proposalId       String
+  tenderItemId     String?
+  name             String
+  description      String
+  cost             Decimal @db.Decimal(15, 2)
+  quantity         Int
+  matchPercentage  Float?
+  attributes       Json    @default("{}")
+  sortOrder        Int     @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  proposal   Proposal    @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  tenderItem TenderItem? @relation(fields: [tenderItemId], references: [id])
+  analytics  TenderAnalytics[]
+
+  @@map("proposal_items")
+}
+
+model ProposalProcessing {
+  id         String           @id @default(cuid())
+  proposalId String           @unique
+  parsing    ProcessingStatus @default(PENDING)
+  signature  ProcessingStatus @default(PENDING)
+  matching   ProcessingStatus @default(PENDING)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  // Relations
+  proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@map("proposal_processing")
+}
+
+// Analytics and Matching
+model TenderAnalytics {
+  id               String  @id @default(cuid())
+  tenderId         String
+  tenderItemId     String
+  proposalId       String
+  proposalItemId   String
+  matchPercentage  Float
+  cost             Decimal @db.Decimal(15, 2)
+  reason           String?
+  isWinner         Boolean @default(false)
+  analysisData     Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  tender       Tender       @relation(fields: [tenderId], references: [id], onDelete: Cascade)
+  tenderItem   TenderItem   @relation(fields: [tenderItemId], references: [id], onDelete: Cascade)
+  proposal     Proposal     @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  proposalItem ProposalItem @relation(fields: [proposalItemId], references: [id], onDelete: Cascade)
+
+  @@unique([tenderId, tenderItemId, proposalId, proposalItemId])
+  @@map("tender_analytics")
+}
+
+// File Management
+model FileUpload {
+  id           String     @id @default(cuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  path         String
+  entityType   String     // "tender" or "proposal"
+  entityId     String
+  uploadedBy   String
+  status       FileStatus @default(PENDING)
+  metadata     Json?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@map("file_uploads")
+}
+
+// Notifications
+model Notification {
+  id          String             @id @default(cuid())
+  userId      String
+  title       String
+  message     String
+  type        NotificationType
+  entityType  String?
+  entityId    String?
+  isRead      Boolean            @default(false)
+  readAt      DateTime?
+  createdAt   DateTime           @default(now())
+
+  @@map("notifications")
+}
+
+// System Configuration
+model SystemConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  type      String   @default("string") // "string", "number", "boolean", "json"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("system_config")
+}
+
+// Audit Trail
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  action      String
+  entityType  String
+  entityId    String
+  oldValues   Json?
+  newValues   Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+// Enums
+enum UserRole {
+  ADMIN
+  USER
+  CONTRACTOR
+  VIEWER
+}
+
+enum TenderStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+  CANCELLED
+  ARCHIVED
+}
+
+enum TenderVisibility {
+  PUBLIC
+  PRIVATE
+  INVITED_ONLY
+}
+
+enum ProposalStatus {
+  DRAFT
+  SUBMITTED
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+  UNDER_REVIEW
+}
+
+enum ProcessingStatus {
+  PENDING
+  PROGRESS
+  COMPLETED
+  FAILED
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+enum FileStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum NotificationType {
+  TENDER_CREATED
+  TENDER_UPDATED
+  TENDER_CLOSED
+  PROPOSAL_SUBMITTED
+  PROPOSAL_ACCEPTED
+  PROPOSAL_REJECTED
+  INVITATION_RECEIVED
+  DEADLINE_REMINDER
+  SYSTEM_ALERT
+}
