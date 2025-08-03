@@ -1,15 +1,15 @@
-import React, { useState, useMemo } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { 
-  Search, 
-  Filter, 
-  BarChart3, 
-  TrendingUp, 
-  Users, 
-  DollarSign, 
+import React, { useState, useMemo } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Search,
+  Filter,
+  BarChart3,
+  TrendingUp,
+  Users,
+  DollarSign,
   Calendar,
   Clock,
   CheckCircle,
@@ -18,44 +18,73 @@ import {
   FileText,
   Target,
   Award,
-  ChevronDown
-} from 'lucide-react';
-import { mockTenders, mockProposals, getCurrentUser, type Tender } from '@/lib/mockData';
+  ChevronDown,
+} from "lucide-react";
+import {
+  mockTenders,
+  mockProposals,
+  getCurrentUser,
+  type Tender,
+} from "@/lib/mockData";
 
 interface AnalyticsPageProps {
   onOpenTenderAnalytics: (tenderId: string) => void;
 }
 
-const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onOpenTenderAnalytics }) => {
+const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
+  onOpenTenderAnalytics,
+}) => {
   const user = getCurrentUser();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'closed' | 'draft'>('all');
-  const [sortBy, setSortBy] = useState<'date' | 'proposals' | 'name'>('date');
-  
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "active" | "closed" | "draft"
+  >("all");
+  const [sortBy, setSortBy] = useState<"date" | "proposals" | "name">("date");
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6; // Number of tenders to show per page
 
   // Get user's tenders with proposal counts
   const userTendersWithAnalytics = useMemo(() => {
-    const userTenders = mockTenders.filter(tender => tender.createdBy === user?.id);
-    
-    return userTenders.map(tender => {
-      const relatedProposals = mockProposals.filter(p => p.tenderIds === tender.id);
+    const userTenders = mockTenders
+      .filter((tender) => tender.createdBy === user?.id)
+      .slice(0, 3);
+
+    return userTenders.map((tender) => {
+      const relatedProposals = mockProposals.filter(
+        (p) => p.tenderIds === tender.id
+      );
       const isActive = new Date(tender.deadline) > new Date();
-      const status = tender.status || (isActive ? 'active' : 'closed');
-      
+      const status = tender.status || (isActive ? "active" : "closed");
+
       // Calculate analytics summary
       const totalProposals = relatedProposals.length;
-      const avgMatchScore = totalProposals > 0 
-        ? Math.round(relatedProposals.reduce((sum, p) => sum + (75 + Math.random() * 20), 0) / totalProposals)
-        : 0;
-      const lowestBid = totalProposals > 0 
-        ? Math.min(...relatedProposals.map(p => p.items.reduce((sum, item) => sum + (item.cost || 0), 0)))
-        : 0;
-      const highestBid = totalProposals > 0 
-        ? Math.max(...relatedProposals.map(p => p.items.reduce((sum, item) => sum + (item.cost || 0), 0)))
-        : 0;
+      const avgMatchScore =
+        totalProposals > 0
+          ? Math.round(
+              relatedProposals.reduce(
+                (sum, p) => sum + (75 + Math.random() * 20),
+                0
+              ) / totalProposals
+            )
+          : 0;
+      const lowestBid =
+        totalProposals > 0
+          ? Math.min(
+              ...relatedProposals.map((p) =>
+                p.items.reduce((sum, item) => sum + (item.cost || 0), 0)
+              )
+            )
+          : 0;
+      const highestBid =
+        totalProposals > 0
+          ? Math.max(
+              ...relatedProposals.map((p) =>
+                p.items.reduce((sum, item) => sum + (item.cost || 0), 0)
+              )
+            )
+          : 0;
 
       return {
         ...tender,
@@ -66,8 +95,8 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onOpenTenderAnalytics }) 
           avgMatchScore,
           lowestBid,
           highestBid,
-          hasAnalysis: totalProposals > 0
-        }
+          hasAnalysis: totalProposals > 0,
+        },
       };
     });
   }, [user?.id]);
@@ -78,25 +107,28 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onOpenTenderAnalytics }) 
 
     // Search filter
     if (searchTerm) {
-      filtered = filtered.filter(tender =>
-        tender.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        tender.description.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (tender) =>
+          tender.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          tender.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(tender => tender.status === statusFilter);
+    if (statusFilter !== "all") {
+      filtered = filtered.filter((tender) => tender.status === statusFilter);
     }
 
     // Sort
     filtered.sort((a, b) => {
       switch (sortBy) {
-        case 'date':
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        case 'proposals':
+        case "date":
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+        case "proposals":
           return b.analytics.totalProposals - a.analytics.totalProposals;
-        case 'name':
+        case "name":
           return a.name.localeCompare(b.name);
         default:
           return 0;
@@ -110,15 +142,17 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onOpenTenderAnalytics }) 
   const totalPages = Math.ceil(filteredTenders.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, filteredTenders.length);
-  const paginatedTenders = filteredTenders.slice(startIndex, endIndex);
-  
+  const paginatedTenders = filteredTenders
+    .slice(startIndex, endIndex)
+    .filter((tender) => tender.analytics.hasAnalysis);
+
   // Handle page change
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     // Scroll to top of the page
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  
+
   // Reset pagination when filters change
   React.useEffect(() => {
     setCurrentPage(1);
@@ -127,32 +161,43 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onOpenTenderAnalytics }) 
   // Summary statistics
   const summaryStats = useMemo(() => {
     const totalTenders = userTendersWithAnalytics.length;
-    const totalProposals = userTendersWithAnalytics.reduce((sum, t) => sum + t.analytics.totalProposals, 0);
-    const activeTenders = userTendersWithAnalytics.filter(t => t.isActive).length;
-    const tendersWithProposals = userTendersWithAnalytics.filter(t => t.analytics.totalProposals > 0).length;
+    const totalProposals = userTendersWithAnalytics.reduce(
+      (sum, t) => sum + t.analytics.totalProposals,
+      0
+    );
+    const activeTenders = userTendersWithAnalytics.filter(
+      (t) => t.isActive
+    ).length;
+    const tendersWithProposals = userTendersWithAnalytics.filter(
+      (t) => t.analytics.totalProposals > 0
+    ).length;
 
     return {
       totalTenders,
       totalProposals,
       activeTenders,
-      tendersWithProposals
+      tendersWithProposals,
     };
   }, [userTendersWithAnalytics]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800 border-green-200';
-      case 'closed': return 'bg-gray-100 text-gray-800 border-gray-200';
-      case 'draft': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      default: return 'bg-blue-100 text-blue-800 border-blue-200';
+      case "active":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "closed":
+        return "bg-gray-100 text-gray-800 border-gray-200";
+      case "draft":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      default:
+        return "bg-blue-100 text-blue-800 border-blue-200";
     }
   };
 
   const getMatchScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600 bg-green-50';
-    if (score >= 80) return 'text-blue-600 bg-blue-50';
-    if (score >= 70) return 'text-yellow-600 bg-yellow-50';
-    return 'text-red-600 bg-red-50';
+    if (score >= 90) return "text-green-600 bg-green-50";
+    if (score >= 80) return "text-blue-600 bg-blue-50";
+    if (score >= 70) return "text-yellow-600 bg-yellow-50";
+    return "text-red-600 bg-red-50";
   };
 
   return (
@@ -160,7 +205,9 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onOpenTenderAnalytics }) 
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Analytics Dashboard
+          </h1>
           <p className="text-gray-600 mt-1">
             Analyze proposal performance across all your tenders
           </p>
@@ -183,7 +230,9 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onOpenTenderAnalytics }) 
             <Users className="w-8 h-8 text-green-600 mr-3" />
             <div>
               <p className="text-sm text-gray-600">Total Proposals</p>
-              <p className="text-2xl font-bold">{summaryStats.totalProposals}</p>
+              <p className="text-2xl font-bold">
+                {summaryStats.totalProposals}
+              </p>
             </div>
           </div>
         </Card>
@@ -201,7 +250,9 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onOpenTenderAnalytics }) 
             <Award className="w-8 h-8 text-orange-600 mr-3" />
             <div>
               <p className="text-sm text-gray-600">Ready for Analysis</p>
-              <p className="text-2xl font-bold">{summaryStats.tendersWithProposals}</p>
+              <p className="text-2xl font-bold">
+                {summaryStats.tendersWithProposals}
+              </p>
             </div>
           </div>
         </Card>
@@ -250,28 +301,33 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onOpenTenderAnalytics }) 
         {filteredTenders.length === 0 ? (
           <Card className="p-12 text-center">
             <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No tenders found</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No tenders found
+            </h3>
             <p className="text-gray-600">
-              {searchTerm || statusFilter !== 'all' 
-                ? 'Try adjusting your search or filter criteria'
-                : 'Create your first tender to start analyzing proposals'
-              }
+              {searchTerm || statusFilter !== "all"
+                ? "Try adjusting your search or filter criteria"
+                : "Create your first tender to start analyzing proposals"}
             </p>
           </Card>
         ) : (
           paginatedTenders.map((tender) => (
-            <Card key={tender.id} className="p-6 hover:shadow-md transition-shadow">
+            <Card
+              key={tender.id}
+              className="p-6 hover:shadow-md transition-shadow"
+            >
               <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                 {/* Tender Info */}
                 <div className="flex-1">
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">{tender.name}</h3>
-                    <Badge className={`${getStatusColor(tender.status)} ml-2`}>
-                      {tender.status}
-                    </Badge>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {tender.name}
+                    </h3>
                   </div>
-                  <p className="text-gray-600 mb-3 line-clamp-2">{tender.description}</p>
-                  
+                  <p className="text-gray-600 mb-3 line-clamp-2">
+                    {tender.description}
+                  </p>
+
                   <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                     <div className="flex items-center">
                       <Calendar className="w-4 h-4 mr-1" />
@@ -292,33 +348,7 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onOpenTenderAnalytics }) 
                 <div className="lg:w-80">
                   {tender.analytics.hasAnalysis ? (
                     <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                      <h4 className="font-medium text-gray-900 flex items-center">
-                        <BarChart3 className="w-4 h-4 mr-2" />
-                        Analysis Summary
-                      </h4>
-                      
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div>
-                          <span className="text-gray-600">Avg Match:</span>
-                          <div className={`inline-block ml-2 px-2 py-1 rounded text-xs font-medium ${getMatchScoreColor(tender.analytics.avgMatchScore)}`}>
-                            {tender.analytics.avgMatchScore}%
-                          </div>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Proposals:</span>
-                          <span className="ml-2 font-medium">{tender.analytics.totalProposals}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Lowest Bid:</span>
-                          <span className="ml-2 font-medium">${tender.analytics.lowestBid.toLocaleString()}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Highest Bid:</span>
-                          <span className="ml-2 font-medium">${tender.analytics.highestBid.toLocaleString()}</span>
-                        </div>
-                      </div>
-
-                      <Button 
+                      <Button
                         onClick={() => onOpenTenderAnalytics(tender.id)}
                         className="w-full bg-blue-600 hover:bg-blue-700"
                         size="sm"
@@ -327,22 +357,7 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onOpenTenderAnalytics }) 
                         Open Analytics
                       </Button>
                     </div>
-                  ) : (
-                    <div className="bg-gray-50 rounded-lg p-4 text-center">
-                      <AlertCircle className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-600 mb-3">
-                        No proposals received yet
-                      </p>
-                      <Button 
-                        disabled
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                      >
-                        Analytics Unavailable
-                      </Button>
-                    </div>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </Card>
@@ -374,7 +389,9 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onOpenTenderAnalytics }) 
               </div>
               <div className="hidden md:flex items-center gap-2 text-muted-foreground">
                 <span>•</span>
-                <span>Showing {startIndex + 1}-{endIndex}</span>
+                <span>
+                  Showing {startIndex + 1}-{endIndex}
+                </span>
               </div>
             </div>
 
@@ -503,9 +520,12 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onOpenTenderAnalytics }) 
       {userTendersWithAnalytics.length === 0 && (
         <Card className="p-12 text-center">
           <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-medium text-gray-900 mb-2">Welcome to Analytics</h3>
+          <h3 className="text-xl font-medium text-gray-900 mb-2">
+            Welcome to Analytics
+          </h3>
           <p className="text-gray-600 mb-6">
-            Create tenders and receive proposals to start analyzing performance data.
+            Create tenders and receive proposals to start analyzing performance
+            data.
           </p>
           <Button className="bg-blue-600 hover:bg-blue-700">
             Create Your First Tender

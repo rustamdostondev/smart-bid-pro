@@ -1,12 +1,40 @@
-import { useState, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from '@/components/ui/pagination';
-import { mockTenders, getCurrentUser } from '@/lib/mockData';
-import { Calendar, Eye, Users, Globe, Search, Filter, Building2 } from 'lucide-react';
+import { useState, useMemo } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
+import { mockTenders, getCurrentUser } from "@/lib/mockData";
+import {
+  Calendar,
+  Eye,
+  Users,
+  Globe,
+  Search,
+  Filter,
+  Building2,
+} from "lucide-react";
 
 interface AllTendersProps {
   onViewTender: (tenderId: string) => void;
@@ -14,8 +42,8 @@ interface AllTendersProps {
 
 export function AllTenders({ onViewTender }: AllTendersProps) {
   const user = getCurrentUser();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('published');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("published");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
 
@@ -34,24 +62,25 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
   };
 
   const filteredTenders = useMemo(() => {
-    let tenders = mockTenders.filter(tender => {
+    let tenders = mockTenders.filter((tender) => {
       // Show only public tenders or private tenders user is invited to
-      if (tender.visibility === 'public') return true;
-      if (tender.invitedUsers?.includes(user?.id || '')) return true;
+      if (tender.visibility === "public") return true;
+      if (tender.invitedUsers?.includes(user?.id || "")) return true;
       return false;
     });
 
     // Search filter
     if (searchQuery) {
-      tenders = tenders.filter(tender => 
-        tender.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        tender.description.toLowerCase().includes(searchQuery.toLowerCase())
+      tenders = tenders.filter(
+        (tender) =>
+          tender.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          tender.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     // Status filter
-    if (statusFilter !== 'all') {
-      tenders = tenders.filter(tender => tender.status === statusFilter);
+    if (statusFilter !== "all") {
+      tenders = tenders.filter((tender) => tender.status === statusFilter);
     }
 
     return tenders;
@@ -59,16 +88,19 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
 
   const totalPages = Math.ceil(filteredTenders.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedTenders = filteredTenders.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedTenders = filteredTenders.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const clearFilters = () => {
-    setSearchQuery('');
-    setStatusFilter('published');
+    setSearchQuery("");
+    setStatusFilter("published");
     setCurrentPage(1);
   };
 
@@ -89,20 +121,13 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Available Tenders</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Available Tenders
+            </h1>
             <p className="text-gray-600 mt-1">
-              Browse and discover tender opportunities that match your expertise.
+              Browse and discover tender opportunities that match your
+              expertise.
             </p>
-          </div>
-          <div className="flex items-center gap-6 text-sm text-gray-500">
-            <span className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border">
-              <Globe className="w-4 h-4 text-blue-500" />
-              {filteredTenders.filter(t => t.visibility === 'public').length} Public
-            </span>
-            <span className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border">
-              <Building2 className="w-4 h-4 text-green-500" />
-              {filteredTenders.length} Total
-            </span>
           </div>
         </div>
       </div>
@@ -122,7 +147,10 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
             </div>
           </div>
           <div className="flex gap-3">
-            <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
+            <Select
+              value={statusFilter}
+              onValueChange={handleStatusFilterChange}
+            >
               <SelectTrigger className="w-[160px] h-11 border-gray-200">
                 <SelectValue />
               </SelectTrigger>
@@ -133,8 +161,12 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
                 <SelectItem value="closed">Closed</SelectItem>
               </SelectContent>
             </Select>
-            {(searchQuery || statusFilter !== 'published') && (
-              <Button variant="outline" onClick={clearFilters} className="h-11 px-4">
+            {(searchQuery || statusFilter !== "published") && (
+              <Button
+                variant="outline"
+                onClick={clearFilters}
+                className="h-11 px-4"
+              >
                 <Filter className="w-4 h-4 mr-2" />
                 Clear Filters
               </Button>
@@ -143,23 +175,30 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
         </div>
       </div>
 
-   
-
       {/* Tender Grid */}
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {paginatedTenders.map((tender) => {
           const deadlineNear = isDeadlineNear(tender.deadline);
           const deadlinePassed = isDeadlinePassed(tender.deadline);
-          
+
           return (
-            <Card key={tender.id} className="group hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+            <Card
+              key={tender.id}
+              className="group hover:shadow-lg transition-all duration-300 relative overflow-hidden"
+            >
               {/* Status indicator */}
-              <div className={`absolute top-0 left-0 w-full h-1 ${
-                deadlinePassed ? 'bg-red-500' : 
-                deadlineNear ? 'bg-yellow-500' : 
-                tender.status === 'published' ? 'bg-green-500' : 'bg-gray-300'
-              }`} />
-              
+              <div
+                className={`absolute top-0 left-0 w-full h-1 ${
+                  deadlinePassed
+                    ? "bg-red-500"
+                    : deadlineNear
+                    ? "bg-yellow-500"
+                    : tender.status === "published"
+                    ? "bg-green-500"
+                    : "bg-gray-300"
+                }`}
+              />
+
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
@@ -170,32 +209,42 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
                       {tender.description}
                     </CardDescription>
                   </div>
-                  <Badge variant={tender.status === 'published' ? 'default' : 'secondary'} className="ml-2 shrink-0">
+                  <Badge
+                    variant={
+                      tender.status === "published" ? "default" : "secondary"
+                    }
+                    className="ml-2 shrink-0"
+                  >
                     {tender.status}
                   </Badge>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <div className={`flex items-center text-sm ${
-                    deadlinePassed ? 'text-red-600' : 
-                    deadlineNear ? 'text-yellow-600' : 'text-muted-foreground'
-                  }`}>
+                  <div
+                    className={`flex items-center text-sm ${
+                      deadlinePassed
+                        ? "text-red-600"
+                        : deadlineNear
+                        ? "text-yellow-600"
+                        : "text-muted-foreground"
+                    }`}
+                  >
                     <Calendar className="w-4 h-4 mr-2" />
                     <span>
                       {new Date(tender.deadline).toLocaleDateString()}
-                      {deadlineNear && !deadlinePassed && ' (Soon)'}
-                      {deadlinePassed && ' (Expired)'}
+                      {deadlineNear && !deadlinePassed && " (Soon)"}
+                      {deadlinePassed && " (Expired)"}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Users className="w-4 h-4 mr-2" />
                     <span>{tender.items.length} items required</span>
                   </div>
 
-                  {tender.visibility === 'public' && (
+                  {tender.visibility === "public" && (
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Globe className="w-4 h-4 mr-2" />
                       <span>Public tender</span>
@@ -203,14 +252,16 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
                   )}
                 </div>
 
-                <Button 
+                <Button
                   onClick={() => onViewTender(tender.id)}
                   className="w-full"
                   variant={deadlinePassed ? "outline" : "default"}
-                  disabled={deadlinePassed && tender.status === 'closed'}
+                  disabled={deadlinePassed && tender.status === "closed"}
                 >
                   <Eye className="w-4 h-4 mr-2" />
-                  {deadlinePassed && tender.status === 'closed' ? 'View (Closed)' : 'View Details'}
+                  {deadlinePassed && tender.status === "closed"
+                    ? "View (Closed)"
+                    : "View Details"}
                 </Button>
               </CardContent>
             </Card>
@@ -227,19 +278,17 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
             </div>
             <div>
               <h3 className="text-lg font-semibold mb-2">
-                {searchQuery || statusFilter !== 'published' 
-                  ? 'No tenders match your criteria' 
-                  : 'No tenders available'
-                }
+                {searchQuery || statusFilter !== "published"
+                  ? "No tenders match your criteria"
+                  : "No tenders available"}
               </h3>
               <p className="text-muted-foreground mb-4">
-                {searchQuery || statusFilter !== 'published'
-                  ? 'Try adjusting your search or filters'
-                  : 'Check back later for new opportunities'
-                }
+                {searchQuery || statusFilter !== "published"
+                  ? "Try adjusting your search or filters"
+                  : "Check back later for new opportunities"}
               </p>
             </div>
-            {(searchQuery || statusFilter !== 'published') && (
+            {(searchQuery || statusFilter !== "published") && (
               <Button variant="outline" onClick={clearFilters}>
                 Clear Filters
               </Button>
@@ -254,11 +303,16 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             {/* Page Info */}
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Page <span className="font-medium">{currentPage}</span> of <span className="font-medium">{totalPages}</span></span>
+              <span>
+                Page <span className="font-medium">{currentPage}</span> of{" "}
+                <span className="font-medium">{totalPages}</span>
+              </span>
               <span className="hidden sm:inline">•</span>
-              <span className="hidden sm:inline">{filteredTenders.length} total results</span>
+              <span className="hidden sm:inline">
+                {filteredTenders.length} total results
+              </span>
             </div>
-            
+
             {/* Pagination Controls */}
             <div className="flex items-center gap-2">
               {/* First Page */}
@@ -271,7 +325,7 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
               >
                 ««
               </Button>
-              
+
               {/* Previous Page */}
               <Button
                 variant="outline"
@@ -282,42 +336,48 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
               >
                 ‹
               </Button>
-              
+
               {/* Page Numbers */}
               <div className="flex items-center gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                  // Always show first page, last page, current page, and adjacent pages
-                  if (
-                    page === 1 ||
-                    page === totalPages ||
-                    (page >= currentPage - 1 && page <= currentPage + 1)
-                  ) {
-                    return (
-                      <Button
-                        key={page}
-                        variant={currentPage === page ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handlePageChange(page)}
-                        className={`h-8 w-8 p-0 ${currentPage === page ? 'bg-primary text-primary-foreground' : ''}`}
-                      >
-                        {page}
-                      </Button>
-                    );
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => {
+                    // Always show first page, last page, current page, and adjacent pages
+                    if (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1)
+                    ) {
+                      return (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(page)}
+                          className={`h-8 w-8 p-0 ${
+                            currentPage === page
+                              ? "bg-primary text-primary-foreground"
+                              : ""
+                          }`}
+                        >
+                          {page}
+                        </Button>
+                      );
+                    }
+
+                    // Show ellipsis for gaps
+                    if (page === currentPage - 2 || page === currentPage + 2) {
+                      return (
+                        <span key={page} className="px-2 text-muted-foreground">
+                          …
+                        </span>
+                      );
+                    }
+
+                    return null;
                   }
-                  
-                  // Show ellipsis for gaps
-                  if (page === currentPage - 2 || page === currentPage + 2) {
-                    return (
-                      <span key={page} className="px-2 text-muted-foreground">
-                        …
-                      </span>
-                    );
-                  }
-                  
-                  return null;
-                })}
+                )}
               </div>
-              
+
               {/* Next Page */}
               <Button
                 variant="outline"
@@ -328,7 +388,7 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
               >
                 ›
               </Button>
-              
+
               {/* Last Page */}
               <Button
                 variant="outline"
@@ -340,10 +400,12 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
                 »»
               </Button>
             </div>
-            
+
             {/* Quick Jump */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground hidden sm:inline">Go to:</span>
+              <span className="text-sm text-muted-foreground hidden sm:inline">
+                Go to:
+              </span>
               <Input
                 type="number"
                 min={1}
@@ -361,8 +423,6 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
           </div>
         </Card>
       )}
-
-      
     </div>
   );
 }

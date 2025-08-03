@@ -45,6 +45,7 @@ import {
   TrendingUp,
   AlertTriangle,
   X,
+  Building2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -181,13 +182,16 @@ export function MyTenders({
             Manage and track your tender publications
           </p>
         </div>
-        <Button
-          onClick={onCreateTender}
-          className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Create New Tender
-        </Button>
+        <div className="flex items-center gap-6 text-sm text-gray-500">
+          <span className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border">
+            <Globe className="w-4 h-4 text-blue-500" />
+            {myTenders.filter((t) => t.visibility === "public").length} Public
+          </span>
+          <span className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border">
+            <Building2 className="w-4 h-4 text-green-500" />
+            {myTenders.length} Total
+          </span>
+        </div>
       </div>
 
       {/* Statistics Dashboard */}
