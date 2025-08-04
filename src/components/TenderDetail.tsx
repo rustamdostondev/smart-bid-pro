@@ -377,7 +377,7 @@ export function TenderDetail({
                 <CardContent>
                   <div className="space-y-3">
                     <div>
-                      <h4 className="font-medium mb-2">Specifications:</h4>
+                      <h4 className="font-medium mb-2">Attributes:</h4>
                       <div className="grid gap-2 md:grid-cols-2">
                         {Object.entries(item.attributes).map(([key, value]) => (
                           <div
