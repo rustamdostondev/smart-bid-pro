@@ -908,18 +908,11 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
           {/* Winners Grid */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {getSelectedWinnersList().map((winner, index) => {
-              // Find the proposal details for this winner
-              const winnerProposal = proposals.find(
-                (p) =>
-                  p.id ===
-                  selectedWinners[
-                    tender.items.find(
-                      (item) => item.name === winner.elementName
-                    )?.id || ""
-                  ]
-              );
               const tenderElement = tender.items.find(
                 (item) => item.name === winner.elementName
+              );
+              const winnerProposal = proposals.find(
+                (p) => p.id === selectedWinners[tenderElement?.id || ""]
               );
               const proposalItem = winnerProposal?.items.find(
                 (item) =>
@@ -930,75 +923,70 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
                     .toLowerCase()
                     .includes(item.name.toLowerCase())
               );
+              const savings = (tenderElement?.estimatedCost || 0) - (proposalItem?.cost || 0);
 
               return (
-                <div
-                  key={index}
-                  className="bg-white rounded-2xl p-6 border-2 border-green-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                >
+                <div key={index} className="bg-white rounded-xl p-5 border border-green-200 shadow-md hover:shadow-lg transition-shadow">
                   {/* Winner Header */}
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                        <Crown className="w-5 h-5 text-white" />
+                      </div>
                       <div>
-                        <h4 className="font-bold text-gray-900 text-lg">
-                          {"Eduplus Mchj"}
-                        </h4>
+                        <h4 className="font-bold text-gray-900">{winner.company}</h4>
+                        <Badge className="bg-green-100 text-green-800 text-xs">WINNER</Badge>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Element tenders */}
-                  <div className="mb-4">
-                    <h5 className="font-semibold text-gray-800 mb-2 flex items-center">
-                      <Package className="w-4 h-4 mr-2 text-green-600" />
-                      {winner.elementName}
-                    </h5>
-                    <div className="text-sm text-gray-600 mb-3">
-                      {tenderElement?.description ||
-                        "Tender element description"}
-                    </div>
-                  </div>
-
-                  {/* Proposal Details */}
-                  <div className="mb-4">
-                    <h5 className="font-semibold text-gray-800 mb-2 flex items-center">
-                      <Package className="w-4 h-4 mr-2 text-green-600" />
-                      {winner.elementName}
-                    </h5>
-                    <div className="text-sm text-gray-600 mb-3">
-                      {tenderElement?.description ||
-                        "Tender element description"}
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 mt-4">
                     <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() =>
-                        onViewProposalDetail?.(
-                          selectedWinners[tenderElement?.id || ""]
-                        )
-                      }
-                      className="flex-1 border-green-300 text-green-700 hover:bg-green-50 text-xs"
-                    >
-                      <ExternalLink className="w-3 h-3 mr-1" />
-                      View Details
-                    </Button>
-                    <Button
+                      variant="ghost"
                       size="sm"
                       onClick={() => {
-                        // Remove winner selection
                         if (tenderElement?.id) {
                           const newWinners = { ...selectedWinners };
                           delete newWinners[tenderElement.id];
                           setSelectedWinners(newWinners);
                         }
                       }}
-                      className="bg-red-100 text-red-600 hover:bg-red-200 border-red-200 text-xs"
+                      className="text-gray-400 hover:text-red-500"
                     >
-                      <X className="w-3 h-3" />
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  {/* Essential Info */}
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-sm text-gray-600">Element:</span>
+                      <div className="font-semibold text-gray-900">{tenderElement?.name}</div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <span className="text-sm text-gray-600">Bid Price:</span>
+                        <div className="font-bold text-lg text-gray-900">
+                          ${proposalItem?.cost?.toLocaleString() || '0'}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-600">Savings:</span>
+                        <div className={`font-bold text-lg ${
+                          savings >= 0 ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {savings >= 0 ? '+' : ''}${savings.toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <div className="mt-4">
+                    <Button
+                      onClick={() => onViewProposalDetail?.(selectedWinners[tenderElement?.id || ""])}
+                      className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                      size="sm"
+                    >
+                      View Details
                     </Button>
                   </div>
                 </div>
