@@ -1,9 +1,20 @@
-import { ReactNode } from 'react';
-import { Button } from '@/components/ui/button';
-import { authService } from '@/lib/auth';
-import { setCurrentUser } from '@/lib/mockData';
-import { FileText, Users, BarChart3, LogOut, Plus, Globe, FolderOpen, Briefcase, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { authService } from "@/lib/auth";
+import { setCurrentUser } from "@/lib/mockData";
+import {
+  FileText,
+  Users,
+  BarChart3,
+  LogOut,
+  Plus,
+  Globe,
+  FolderOpen,
+  Briefcase,
+  Menu,
+  X,
+} from "lucide-react";
+import { useState } from "react";
 
 interface LayoutProps {
   children: ReactNode;
@@ -12,7 +23,12 @@ interface LayoutProps {
   onLogout?: () => void;
 }
 
-export function Layout({ children, currentPage, onNavigate, onLogout }: LayoutProps) {
+export function Layout({
+  children,
+  currentPage,
+  onNavigate,
+  onLogout,
+}: LayoutProps) {
   const user = authService.getCurrentUser();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -22,7 +38,7 @@ export function Layout({ children, currentPage, onNavigate, onLogout }: LayoutPr
     if (onLogout) {
       onLogout();
     } else {
-      onNavigate('login');
+      onNavigate("login");
     }
   };
 
@@ -32,37 +48,43 @@ export function Layout({ children, currentPage, onNavigate, onLogout }: LayoutPr
 
   const navigationItems = [
     {
-      id: 'all-tenders',
-      name: 'All Tenders',
+      id: "all-tenders",
+      name: "All Tenders",
       icon: Globe,
-      description: 'Browse available tenders'
+      description: "Browse available tenders",
+      roles: ["admin", "user"],
     },
     {
-      id: 'my-tenders',
-      name: 'My Tenders',
+      id: "my-tenders",
+      name: "My Tenders",
       icon: FolderOpen,
-      description: 'Manage your tenders'
+      description: "Manage your tenders",
+      roles: ["admin"],
     },
     {
-      id: 'proposals',
-      name: 'Proposals',
+      id: "proposals",
+      name: "Proposals",
       icon: Briefcase,
-      description: 'View and manage proposals'
+      description: "View and manage proposals",
+      roles: ["user"],
     },
     {
-      id: 'analysis',
-      name: 'Analysis',
+      id: "analysis",
+      name: "Analysis",
       icon: BarChart3,
-      description: 'Analytics and insights'
-    }
+      description: "Analytics and insights",
+      roles: ["admin"],
+    },
   ];
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Left Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}>
+      <div
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
+      >
         <div className="flex flex-col h-full">
           {/* Sidebar Header */}
           <div className="flex items-center justify-between h-16 px-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
@@ -84,33 +106,44 @@ export function Layout({ children, currentPage, onNavigate, onLogout }: LayoutPr
 
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-2">
-            {navigationItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = currentPage === item.id;
-              return (
-                <Button
-                  key={item.id}
-                  variant="ghost"
-                  onClick={() => {
-                    onNavigate(item.id);
-                    setSidebarOpen(false);
-                  }}
-                  className={`w-full justify-start h-12 px-4 rounded-lg transition-all duration-200 ${
-                    isActive 
-                      ? 'bg-blue-50 text-blue-700 border border-blue-200 shadow-sm' 
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                >
-                  <Icon className={`w-5 h-5 mr-3 ${
-                    isActive ? 'text-blue-600' : 'text-gray-400'
-                  }`} />
-                  <div className="flex flex-col items-start">
-                    <span className="font-medium">{item.name}</span>
-                    <span className="text-xs text-gray-500 mt-0.5">{item.description}</span>
-                  </div>
-                </Button>
-              );
-            })}
+            {navigationItems
+              .filter((item) => item.roles.includes(user.role))
+              .map((item) => {
+                const Icon = item.icon;
+                const isActive = currentPage === item.id;
+                const isAllowed = item.roles.includes(user.role);
+                return (
+                  <Button
+                    key={item.id}
+                    variant="ghost"
+                    onClick={() => {
+                      if (!isAllowed) {
+                        return;
+                      }
+                      onNavigate(item.id);
+                      setSidebarOpen(false);
+                    }}
+                    className={`w-full justify-start h-12 px-4 rounded-lg transition-all duration-200 ${
+                      isActive
+                        ? "bg-blue-50 text-blue-700 border border-blue-200 shadow-sm"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    }`}
+                  >
+                    <Icon
+                      className={`w-5 h-5 mr-3 ${
+                        isActive ? "text-blue-600" : "text-gray-400"
+                      }`}
+                    />
+
+                    <div className="flex flex-col items-start">
+                      <span className="font-medium">{item.name}</span>
+                      <span className="text-xs text-gray-500 mt-0.5">
+                        {item.description}
+                      </span>
+                    </div>
+                  </Button>
+                );
+              })}
           </nav>
 
           {/* User Profile & Logout */}
@@ -120,7 +153,9 @@ export function Layout({ children, currentPage, onNavigate, onLogout }: LayoutPr
                 <Users className="w-5 h-5 text-blue-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {user.name}
+                </p>
                 <p className="text-xs text-gray-500 truncate">{user.company}</p>
               </div>
             </div>
@@ -138,7 +173,7 @@ export function Layout({ children, currentPage, onNavigate, onLogout }: LayoutPr
 
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
@@ -157,16 +192,16 @@ export function Layout({ children, currentPage, onNavigate, onLogout }: LayoutPr
             >
               <Menu className="w-5 h-5" />
             </Button>
-            <h1 className="text-lg font-semibold text-gray-900">TenderPlatform</h1>
+            <h1 className="text-lg font-semibold text-gray-900">
+              TenderPlatform
+            </h1>
             <div className="w-10" /> {/* Spacer for centering */}
           </div>
         </header>
 
         {/* Main Content */}
         <main className="flex-1 overflow-auto">
-          <div className="p-6">
-            {children}
-          </div>
+          <div className="p-6">{children}</div>
         </main>
       </div>
     </div>

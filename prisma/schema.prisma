@@ -21,8 +21,8 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  createdTenders Tender[]   @relation("TenderCreator")
-  proposals      Proposal[] @relation("ProposalSubmitter")
+  createdTenders Tender[]           @relation("TenderCreator")
+  proposals      Proposal[]         @relation("ProposalSubmitter")
   invitations    TenderInvitation[]
   sessions       UserSession[]
   activities     UserActivity[]
@@ -46,14 +46,14 @@ model UserSession {
 }
 
 model UserActivity {
-  id          String       @id @default(cuid())
+  id          String   @id @default(cuid())
   userId      String
   action      String
   entityType  String
   entityId    String?
   description String?
   metadata    Json?
-  createdAt   DateTime     @default(now())
+  createdAt   DateTime @default(now())
 
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -91,7 +91,7 @@ model Tender {
 }
 
 model TenderItem {
-  id             String  @id @default(cuid())
+  id             String   @id @default(cuid())
   tenderId       String
   name           String
   description    String
@@ -99,13 +99,13 @@ model TenderItem {
   unit           String?
   estimatedCost  Decimal? @db.Decimal(15, 2)
   specifications String?
-  attributes     Json    @default("{}")
-  sortOrder      Int     @default(0)
+  attributes     Json     @default("{}")
+  sortOrder      Int      @default(0)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   // Relations
-  tender        Tender         @relation(fields: [tenderId], references: [id], onDelete: Cascade)
+  tender        Tender            @relation(fields: [tenderId], references: [id], onDelete: Cascade)
   proposalItems ProposalItem[]
   analytics     TenderAnalytics[]
 
@@ -113,11 +113,11 @@ model TenderItem {
 }
 
 model TenderInvitation {
-  id       String            @id @default(cuid())
-  tenderId String
-  userId   String
-  status   InvitationStatus  @default(PENDING)
-  sentAt   DateTime          @default(now())
+  id          String           @id @default(cuid())
+  tenderId    String
+  userId      String
+  status      InvitationStatus @default(PENDING)
+  sentAt      DateTime         @default(now())
   respondedAt DateTime?
 
   // Relations
@@ -159,8 +159,8 @@ model Proposal {
   updatedAt   DateTime       @updatedAt
 
   // Relations
-  tender     Tender             @relation(fields: [tenderId], references: [id], onDelete: Cascade)
-  submitter  User               @relation("ProposalSubmitter", fields: [submittedBy], references: [id])
+  tender     Tender              @relation(fields: [tenderId], references: [id], onDelete: Cascade)
+  submitter  User                @relation("ProposalSubmitter", fields: [submittedBy], references: [id])
   items      ProposalItem[]
   processing ProposalProcessing?
   analytics  TenderAnalytics[]
@@ -169,22 +169,22 @@ model Proposal {
 }
 
 model ProposalItem {
-  id               String  @id @default(cuid())
-  proposalId       String
-  tenderItemId     String?
-  name             String
-  description      String
-  cost             Decimal @db.Decimal(15, 2)
-  quantity         Int
-  matchPercentage  Float?
-  attributes       Json    @default("{}")
-  sortOrder        Int     @default(0)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id              String   @id @default(cuid())
+  proposalId      String
+  tenderItemId    String?
+  name            String
+  description     String
+  cost            Decimal  @db.Decimal(15, 2)
+  quantity        Int
+  matchPercentage Float?
+  attributes      Json     @default("{}")
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   // Relations
-  proposal   Proposal    @relation(fields: [proposalId], references: [id], onDelete: Cascade)
-  tenderItem TenderItem? @relation(fields: [tenderItemId], references: [id])
+  proposal   Proposal          @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  tenderItem TenderItem?       @relation(fields: [tenderItemId], references: [id])
   analytics  TenderAnalytics[]
 
   @@map("proposal_items")
@@ -207,18 +207,18 @@ model ProposalProcessing {
 
 // Analytics and Matching
 model TenderAnalytics {
-  id               String  @id @default(cuid())
-  tenderId         String
-  tenderItemId     String
-  proposalId       String
-  proposalItemId   String
-  matchPercentage  Float
-  cost             Decimal @db.Decimal(15, 2)
-  reason           String?
-  isWinner         Boolean @default(false)
-  analysisData     Json?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id              String   @id @default(cuid())
+  tenderId        String
+  tenderItemId    String
+  proposalId      String
+  proposalItemId  String
+  matchPercentage Float
+  cost            Decimal  @db.Decimal(15, 2)
+  reason          String?
+  isWinner        Boolean  @default(false)
+  analysisData    Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   // Relations
   tender       Tender       @relation(fields: [tenderId], references: [id], onDelete: Cascade)
@@ -238,7 +238,7 @@ model FileUpload {
   mimeType     String
   size         Int
   path         String
-  entityType   String     // "tender" or "proposal"
+  entityType   String // "tender" or "proposal"
   entityId     String
   uploadedBy   String
   status       FileStatus @default(PENDING)
@@ -251,16 +251,16 @@ model FileUpload {
 
 // Notifications
 model Notification {
-  id          String             @id @default(cuid())
-  userId      String
-  title       String
-  message     String
-  type        NotificationType
-  entityType  String?
-  entityId    String?
-  isRead      Boolean            @default(false)
-  readAt      DateTime?
-  createdAt   DateTime           @default(now())
+  id         String           @id @default(cuid())
+  userId     String
+  title      String
+  message    String
+  type       NotificationType
+  entityType String?
+  entityId   String?
+  isRead     Boolean          @default(false)
+  readAt     DateTime?
+  createdAt  DateTime         @default(now())
 
   @@map("notifications")
 }
@@ -279,16 +279,16 @@ model SystemConfig {
 
 // Audit Trail
 model AuditLog {
-  id          String   @id @default(cuid())
-  userId      String?
-  action      String
-  entityType  String
-  entityId    String
-  oldValues   Json?
-  newValues   Json?
-  ipAddress   String?
-  userAgent   String?
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String
+  oldValues  Json?
+  newValues  Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
 
   @@map("audit_logs")
 }
