@@ -230,12 +230,10 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
                       {deadlinePassed && " (Expired)"}
                     </span>
                   </div>
-
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Users className="w-4 h-4 mr-2" />
                     <span>{tender.items.length} proposals</span>
                   </div>
-
                   {tender.visibility === "public" && (
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Globe className="w-4 h-4 mr-2" />
