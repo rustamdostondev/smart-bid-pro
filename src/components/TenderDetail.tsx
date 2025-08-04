@@ -8,44 +8,25 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TenderOwnerDetail } from "@/components/TenderOwnerDetail";
 import { mockTenders, getCurrentUser, type Tender } from "@/lib/mockData";
 import {
   ArrowLeft,
   Calendar,
-  Users,
   Lock,
   Globe,
   Clock,
   CheckCircle,
   XCircle,
   FileText,
-  Shield,
-  Brain,
   Package,
   Building,
-  Mail,
-  Phone,
-  MapPin,
-  Download,
-  Share2,
-  Edit,
-  Trash2,
-  Eye,
-  DollarSign,
-  Settings,
-  Zap,
 } from "lucide-react";
 
 interface TenderDetailProps {
   tenderId: string;
   onBack: () => void;
-  onEdit?: (tenderId: string) => void;
-  onDelete?: (tenderId: string) => void;
-  onViewPipeline?: (tenderId: string) => void;
   onViewProposalDetail?: (proposalId: string) => void;
   onOpenAnalytics?: (tenderId: string) => void;
   previousPage?: string;
@@ -55,9 +36,6 @@ interface TenderDetailProps {
 export function TenderDetail({
   tenderId,
   onBack,
-  onEdit,
-  onDelete,
-  onViewPipeline,
   onViewProposalDetail,
   onOpenAnalytics,
   previousPage = "dashboard",
@@ -221,49 +199,20 @@ export function TenderDetail({
                 </div>
               </div>
             </div>
-            <div className="flex flex-col gap-3">
-              <Badge
-                variant={getStatusVariant(tender.status)}
-                className="flex items-center gap-1 w-fit"
-              >
-                {getStatusIcon(tender.status)}
-                {tender.status.toUpperCase()}
-              </Badge>
-              <div
-                className={`text-sm font-medium ${
-                  deadlinePassed
-                    ? "text-red-600"
-                    : deadlineNear
-                    ? "text-yellow-600"
-                    : "text-muted-foreground"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  <span>
-                    Deadline: {new Date(tender.deadline).toLocaleDateString()}
-                    {deadlineNear && !deadlinePassed && " (Soon)"}
-                    {deadlinePassed && " (Expired)"}
-                  </span>
-                </div>
-              </div>
-            </div>
           </div>
         </CardHeader>
       </Card>
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="overview" className="space-y-6 mt-1">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="items">Items ({tender.items.length})</TabsTrigger>
-          <TabsTrigger value="processing">Processing</TabsTrigger>
-          <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-1">
             {/* Tender Information */}
             <Card>
               <CardHeader>
@@ -323,41 +272,87 @@ export function TenderDetail({
               </CardContent>
             </Card>
 
-            {/* Access & Permissions */}
-            <Card>
+            {/* File Management Section */}
+            <Card className="mt-6">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="w-5 h-5" />
-                  Access & Permissions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-3">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Visibility:</span>
-                    <span className="capitalize">{tender.visibility}</span>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="w-5 h-5" />
+                      Original tender file
+                    </CardTitle>
                   </div>
-                  {tender.visibility === "private" && tender.invitedUsers && (
-                    <div>
-                      <span className="text-muted-foreground">
-                        Invited Users:
-                      </span>
-                      <div className="mt-2 space-y-1">
-                        {tender.invitedUsers.map((userId) => (
-                          <div
-                            key={userId}
-                            className="flex items-center gap-2 text-sm"
-                          >
-                            <Users className="w-3 h-3" />
-                            <span>User {userId}</span>
-                          </div>
-                        ))}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* File Upload Status */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-green-100 rounded-full">
+                        <FileText className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-green-800">
+                          {tender.name
+                            .replace(/[^a-zA-Z0-9]/g, "_")
+                            .toLowerCase()}
+                          _tender.pdf
+                        </h4>
+                        <p className="text-sm text-green-600">
+                          Uploaded on{" "}
+                          {new Date(tender.createdAt).toLocaleDateString()}
+                        </p>
                       </div>
                     </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Can Edit:</span>
-                    <span>{canEdit ? "Yes" : "No"}</span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-green-600 font-medium">
+                        2.4 MB
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-green-200 text-green-700 hover:bg-green-50"
+                      >
+                        <FileText className="w-4 h-4 mr-1" />
+                        Download
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-green-100 rounded-full">
+                        <FileText className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-green-800">
+                          {tender.name
+                            .replace(/[^a-zA-Z0-9]/g, "_")
+                            .toLowerCase()}
+                          _tender.pdf
+                        </h4>
+                        <p className="text-sm text-green-600">
+                          Uploaded on{" "}
+                          {new Date(tender.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-green-600 font-medium">
+                        2.4 MB
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-green-200 text-green-700 hover:bg-green-50"
+                      >
+                        <FileText className="w-4 h-4 mr-1" />
+                        Download
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -402,145 +397,6 @@ export function TenderDetail({
               </Card>
             ))}
           </div>
-        </TabsContent>
-
-        {/* Processing Tab */}
-        <TabsContent value="processing" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Brain className="w-5 h-5" />
-                File Processing Status
-              </CardTitle>
-              <CardDescription>
-                AI-powered document processing and analysis
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium">
-                      Overall Progress
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      {Math.round(getProcessingProgress(tender.fileProcessing))}
-                      %
-                    </span>
-                  </div>
-                  <Progress
-                    value={getProcessingProgress(tender.fileProcessing)}
-                    className="h-2"
-                  />
-                </div>
-
-                <Separator />
-
-                <div className="space-y-3">
-                  {[
-                    {
-                      key: "parsing",
-                      label: "Document Parsing",
-                      icon: FileText,
-                    },
-                    {
-                      key: "signature",
-                      label: "Signature Verification",
-                      icon: Shield,
-                    },
-                    {
-                      key: "extraction",
-                      label: "Data Extraction",
-                      icon: Brain,
-                    },
-                  ].map(({ key, label, icon: Icon }) => {
-                    const status =
-                      tender.fileProcessing?.[
-                        key as keyof typeof tender.fileProcessing
-                      ] || "pending";
-                    return (
-                      <div
-                        key={key}
-                        className="flex items-center justify-between"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Icon className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">{label}</span>
-                        </div>
-                        <Badge
-                          variant={
-                            status === "completed"
-                              ? "default"
-                              : status === "progress"
-                              ? "secondary"
-                              : "outline"
-                          }
-                        >
-                          {status === "completed" && (
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                          )}
-                          {status === "progress" && (
-                            <Clock className="w-3 h-3 mr-1" />
-                          )}
-                          {status}
-                        </Badge>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Activity Tab */}
-        <TabsContent value="activity" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>
-                Timeline of actions and updates for this tender
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex gap-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Tender created</p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(tender.createdAt).toLocaleDateString()} -
-                      Created by Admin
-                    </p>
-                  </div>
-                </div>
-                {tender.status === "published" && (
-                  <div className="flex gap-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">Tender published</p>
-                      <p className="text-xs text-muted-foreground">
-                        Made available for proposals
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {tender.fileProcessing?.parsing === "completed" && (
-                  <div className="flex gap-3">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">
-                        Document processing completed
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        AI analysis and extraction finished
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>

@@ -209,14 +209,6 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
                       {tender.description}
                     </CardDescription>
                   </div>
-                  <Badge
-                    variant={
-                      tender.status === "published" ? "default" : "secondary"
-                    }
-                    className="ml-2 shrink-0"
-                  >
-                    {tender.status}
-                  </Badge>
                 </div>
               </CardHeader>
 
@@ -241,7 +233,7 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
 
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Users className="w-4 h-4 mr-2" />
-                    <span>{tender.items.length} items required</span>
+                    <span>{tender.items.length} proposals</span>
                   </div>
 
                   {tender.visibility === "public" && (
