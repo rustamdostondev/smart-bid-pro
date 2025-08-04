@@ -347,7 +347,7 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
                 {/* Analytics Summary */}
                 <div className="lg:w-80">
                   {tender.analytics.hasAnalysis ? (
-                    <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                    <div className="rounded-lg p-4 space-y-3">
                       <Button
                         onClick={() => onOpenTenderAnalytics(tender.id)}
                         className="w-full bg-blue-600 hover:bg-blue-700"
