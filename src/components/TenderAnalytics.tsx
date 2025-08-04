@@ -10,6 +10,9 @@ import {
   CheckCircle2,
   Crown,
   AlertTriangle,
+  Package,
+  X,
+  Download,
 } from "lucide-react";
 import { Tender, Proposal } from "@/lib/mockData";
 
@@ -51,20 +54,22 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5; // Number of tender elements to show per page
-  
+
   // Calculate pagination values
   const totalItems = tender.items.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
-  
+
   // Handle page change
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     // Reset expanded elements when changing pages
     setExpandedElements(new Set());
     // Scroll to top of the analysis section
-    document.getElementById('analysis-section')?.scrollIntoView({ behavior: 'smooth' });
+    document
+      .getElementById("analysis-section")
+      ?.scrollIntoView({ behavior: "smooth" });
   };
 
   // Generate comprehensive analysis results
@@ -152,11 +157,11 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => {
-              console.log('Back button clicked');
-              if (typeof onBack === 'function') {
+              console.log("Back button clicked");
+              if (typeof onBack === "function") {
                 onBack();
               }
             }}
@@ -170,7 +175,7 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center space-x-4">
+        {/* <div className="flex items-center space-x-4">
           <Button
             onClick={() => setShowWinnersList(!showWinnersList)}
             variant={showWinnersList ? "default" : "outline"}
@@ -179,695 +184,591 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
             {showWinnersList ? "Hide Winners" : "Show Winners"} (
             {Object.keys(selectedWinners).length})
           </Button>
-        </div>
+        </div> */}
       </div>
-
-      {/* Winners List */}
-      {showWinnersList && Object.keys(selectedWinners).length > 0 && (
-        <Card className="p-6 mb-6 bg-green-50 border-green-200">
-          <h3 className="text-lg font-semibold text-green-800 mb-4 flex items-center">
-            <Crown className="w-5 h-5 mr-2" />
-            Selected Winners
-          </h3>
-          <div className="space-y-3">
-            {getSelectedWinnersList().map((winner, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between bg-white rounded-lg p-3 border border-green-200"
-              >
-                <div>
-                  <h4 className="font-medium text-gray-900">
-                    {winner.elementName}
-                  </h4>
-                  <p className="text-sm text-gray-600">
-                    Winner: {winner.company}
-                  </p>
-                </div>
-                <Badge className="bg-green-100 text-green-800">Selected</Badge>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
 
       {/* Element-by-Element Analysis */}
       <div id="analysis-section" className="space-y-4">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold">Element-by-Element Analysis</h3>
           <div className="text-sm text-gray-600">
-            Showing {startIndex + 1}-{endIndex} of {tender.items.length} tender elements
+            Showing {startIndex + 1}-{endIndex} of {tender.items.length} tender
+            elements
           </div>
         </div>
 
         {/* Element-by-Element Collapsible Sections */}
         <div className="space-y-3">
-          {tender.items.slice(startIndex, endIndex).map((tenderItem, paginatedIndex) => {
-            const itemIndex = startIndex + paginatedIndex; // Calculate the actual index in the full array
-            // Get all proposal responses for this tender item
-            const proposalResponses = analysisResults
-              .map((result) => {
-                const match = result.itemMatches[itemIndex];
-                const proposalItem = proposals.find(
-                  (p) => p.id === result.proposalId
-                )?.items[itemIndex];
-                return {
-                  company: result.company,
-                  proposalId: result.proposalId,
-                  rank: result.rank,
-                  matchPercentage: match?.matchPercentage || 0,
-                  proposalItemName:
-                    match?.proposalItemName || "No matching item",
-                  proposalItem: proposalItem,
-                  reasoning: match?.reasoning || "No analysis available",
-                  costDifference: match?.costDifference || 0,
-                  overallMatch: result.overallMatch,
-                };
-              })
-              .sort((a, b) => b.matchPercentage - a.matchPercentage);
+          {tender.items
+            .slice(startIndex, endIndex)
+            .map((tenderItem, paginatedIndex) => {
+              const itemIndex = startIndex + paginatedIndex; // Calculate the actual index in the full array
+              // Get all proposal responses for this tender item
+              const proposalResponses = analysisResults
+                .map((result) => {
+                  const match = result.itemMatches[itemIndex];
+                  const proposalItem = proposals.find(
+                    (p) => p.id === result.proposalId
+                  )?.items[itemIndex];
+                  return {
+                    company: result.company,
+                    proposalId: result.proposalId,
+                    rank: result.rank,
+                    matchPercentage: match?.matchPercentage || 0,
+                    proposalItemName:
+                      match?.proposalItemName || "No matching item",
+                    proposalItem: proposalItem,
+                    reasoning: match?.reasoning || "No analysis available",
+                    costDifference: match?.costDifference || 0,
+                    overallMatch: result.overallMatch,
+                  };
+                })
+                .sort((a, b) => b.matchPercentage - a.matchPercentage);
 
-            // Group proposals by category with simplified color scheme
-            const highMatchProposals = proposalResponses.filter(
-              (r) => r.matchPercentage >= 85
-            ); // Green
-            const mediumMatchProposals = proposalResponses.filter(
-              (r) => r.matchPercentage >= 70 && r.matchPercentage < 85
-            ); // Orange
-            const lowMatchProposals = proposalResponses.filter(
-              (r) => r.matchPercentage < 70
-            ); // Red
+              // Group proposals by category with simplified color scheme
+              const highMatchProposals = proposalResponses.filter(
+                (r) => r.matchPercentage >= 85
+              ); // Green
+              const mediumMatchProposals = proposalResponses.filter(
+                (r) => r.matchPercentage >= 70 && r.matchPercentage < 85
+              ); // Orange
+              const lowMatchProposals = proposalResponses.filter(
+                (r) => r.matchPercentage < 70
+              ); // Red
 
-            const isExpanded = expandedElements.has(tenderItem.id);
-            const selectedWinner = selectedWinners[tenderItem.id];
+              const isExpanded = expandedElements.has(tenderItem.id);
+              const selectedWinner = selectedWinners[tenderItem.id];
 
-            return (
-              <div
-                key={tenderItem.id}
-                className="border border-gray-200 rounded-lg"
-              >
-                {/* Collapsible Header */}
-                <button
-                  onClick={() => toggleElement(tenderItem.id)}
-                  className="w-full px-6 py-4 text-left hover:bg-gray-50 flex items-center justify-between"
+              return (
+                <div
+                  key={tenderItem.id}
+                  className="border border-gray-200 rounded-lg"
                 >
-                  <div className="flex-1">
-                    <h4 className="text-lg font-semibold text-gray-900 mb-1">
-                      {tenderItem.name}
-                      {selectedWinner && (
-                        <Badge className="ml-2 bg-green-100 text-green-800">
-                          Winner Selected
-                        </Badge>
-                      )}
-                    </h4>
-                    <p className="text-sm text-gray-600">
-                      {proposalResponses.length} proposals • Budget: $
-                      {(tenderItem.estimatedCost || 0).toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="text-right">
-                      <div className="text-sm text-gray-500">Best Match</div>
-                      <div
-                        className={`px-2 py-1 rounded text-sm font-bold ${getMatchColor(
-                          proposalResponses[0]?.matchPercentage || 0
-                        )}`}
-                      >
-                        {proposalResponses[0]?.matchPercentage || 0}%
-                      </div>
-                    </div>
-                    <ChevronDown
-                      className={`w-5 h-5 text-gray-400 transition-transform ${
-                        isExpanded ? "rotate-180" : ""
-                      }`}
-                    />
-                  </div>
-                </button>
-                {/* Expanded Content */}
-                {isExpanded && (
-                  <div className="px-6 pb-6 border-t border-gray-100">
-                    {/* Tender Element Details */}
-                    <div className="mb-6 pt-4">
-                      <p className="text-gray-700 mb-3">
-                        {tenderItem.description}
+                  {/* Collapsible Header */}
+                  <button
+                    onClick={() => toggleElement(tenderItem.id)}
+                    className="w-full px-6 py-4 text-left hover:bg-gray-50 flex items-center justify-between"
+                  >
+                    <div className="flex-1">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-1">
+                        {tenderItem.name}
+                        {selectedWinner && (
+                          <Badge className="ml-2 bg-green-100 text-green-800">
+                            Winner Selected
+                          </Badge>
+                        )}
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        {proposalResponses.length} proposals • Budget: $
+                        {(tenderItem.estimatedCost || 0).toLocaleString()}
                       </p>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-500">Quantity:</span>
-                          <p className="font-medium">
-                            {tenderItem.quantity} {tenderItem.unit}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">Budget:</span>
-                          <p className="font-medium">
-                            ${(tenderItem.estimatedCost || 0).toLocaleString()}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">Unit:</span>
-                          <p className="font-medium">
-                            {tenderItem.unit || "units"}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">Specifications:</span>
-                          <p className="font-medium">
-                            {Object.keys(tenderItem.attributes || {}).length}{" "}
-                            attributes
-                          </p>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="text-right">
+                        <div className="text-sm text-gray-500">Best Match</div>
+                        <div
+                          className={`px-2 py-1 rounded text-sm font-bold ${getMatchColor(
+                            proposalResponses[0]?.matchPercentage || 0
+                          )}`}
+                        >
+                          {proposalResponses[0]?.matchPercentage || 0}%
                         </div>
                       </div>
-
-                      {/* Required Specifications */}
-                      {Object.keys(tenderItem.attributes || {}).length > 0 && (
-                        <div className="mt-3">
-                          <span className="text-gray-500 text-sm">
-                            Required Specifications:
-                          </span>
-                          <div className="flex flex-wrap gap-2 mt-1">
-                            {Object.entries(tenderItem.attributes || {}).map(
-                              ([key, value]) => (
-                                <span
-                                  key={key}
-                                  className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs"
-                                >
-                                  {key}: {value}
-                                </span>
-                              )
-                            )}
+                      <ChevronDown
+                        className={`w-5 h-5 text-gray-400 transition-transform ${
+                          isExpanded ? "rotate-180" : ""
+                        }`}
+                      />
+                    </div>
+                  </button>
+                  {/* Expanded Content */}
+                  {isExpanded && (
+                    <div className="px-6 pb-6 border-t border-gray-100">
+                      {/* Tender Element Details */}
+                      <div className="mb-6 pt-4">
+                        <p className="text-gray-700 mb-3">
+                          {tenderItem.description}
+                        </p>
+                        <div className="grid grid-cols-3 md:grid-cols-3 gap-3 text-sm">
+                          <div>
+                            <span className="text-gray-500">Quantity:</span>
+                            <p className="font-medium">
+                              {tenderItem.quantity} {tenderItem.unit}
+                            </p>
                           </div>
+                          <div>
+                            <span className="text-gray-500">Budget:</span>
+                            <p className="font-medium">
+                              $
+                              {(tenderItem.estimatedCost || 0).toLocaleString()}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Unit:</span>
+                            <p className="font-medium">
+                              {tenderItem.unit || "units"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Required Specifications */}
+                        {Object.keys(tenderItem.attributes || {}).length >
+                          0 && (
+                          <div className="mt-3">
+                            <span className="text-gray-500 text-sm">
+                              Required Specifications:
+                            </span>
+                            <div className="flex flex-wrap gap-2 mt-1">
+                              {Object.entries(tenderItem.attributes || {}).map(
+                                ([key, value]) => (
+                                  <span
+                                    key={key}
+                                    className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs"
+                                  >
+                                    {key}: {value}
+                                  </span>
+                                )
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* High Match Proposals - Green Theme */}
+                      {highMatchProposals.length > 0 && (
+                        <div className="mb-8">
+                          {highMatchProposals.map((response, idx) => {
+                            const proposal = proposals.find(
+                              (p) => p.id === response.proposalId
+                            );
+                            return (
+                              <div
+                                key={response.proposalId}
+                                className="bg-white border-2 border-green-300 rounded-2xl p-6 mb-6 shadow-lg hover:shadow-xl transition-all duration-300"
+                              >
+                                {/* Header with Company and Match Score */}
+                                <div className="flex items-center justify-between mb-6">
+                                  <div className="flex items-center space-x-4">
+                                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                                      <Crown className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div>
+                                      <h6 className="text-xl font-bold text-gray-900 mb-1">
+                                        {response.company}
+                                      </h6>
+                                      <div className="flex items-center space-x-3">
+                                        <div className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                                          {response.matchPercentage}% Match
+                                        </div>
+                                        <Badge className="bg-green-100 text-green-800 border border-green-200">
+                                          Rank #{response.rank}
+                                        </Badge>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center space-x-3">
+                                    <Button
+                                      size="sm"
+                                      onClick={() =>
+                                        selectWinner(
+                                          tenderItem.id,
+                                          response.proposalId
+                                        )
+                                      }
+                                      className={
+                                        selectedWinner === response.proposalId
+                                          ? "bg-green-600 hover:bg-green-700 text-white shadow-md"
+                                          : "bg-white border-2 border-green-500 text-green-600 hover:bg-green-50"
+                                      }
+                                    >
+                                      {selectedWinner ===
+                                      response.proposalId ? (
+                                        <>
+                                          <CheckCircle2 className="w-4 h-4 mr-2" />
+                                          Winner Selected
+                                        </>
+                                      ) : (
+                                        "Select as Winner"
+                                      )}
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() =>
+                                        onViewProposalDetail?.(
+                                          response.proposalId
+                                        )
+                                      }
+                                      className="border-green-300 text-green-700 hover:bg-green-50"
+                                    >
+                                      <ExternalLink className="w-4 h-4 mr-2" />
+                                      View Details
+                                    </Button>
+                                  </div>
+                                </div>
+
+                                {/* Key Information Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                  <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                                    <div className="text-sm text-green-600 font-medium mb-1">
+                                      Product
+                                    </div>
+                                    <div className="font-semibold text-gray-900">
+                                      {response.proposalItem?.name || "N/A"}
+                                    </div>
+                                  </div>
+                                  <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                                    <div className="text-sm text-green-600 font-medium mb-1">
+                                      Quantity
+                                    </div>
+                                    <div className="font-semibold text-gray-900">
+                                      {response.proposalItem?.quantity || 0}{" "}
+                                      units
+                                    </div>
+                                  </div>
+                                  <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                                    <div className="text-sm text-green-600 font-medium mb-1">
+                                      Total Price
+                                    </div>
+                                    <div className="font-bold text-green-700 text-lg">
+                                      $
+                                      {(
+                                        response.proposalItem?.cost || 0
+                                      ).toLocaleString()}
+                                    </div>
+                                  </div>
+                                  <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                                    <div className="text-sm text-green-600 font-medium mb-1">
+                                      Budget Difference
+                                    </div>
+                                    <div
+                                      className={`font-bold text-lg ${
+                                        response.costDifference > 0
+                                          ? "text-red-600"
+                                          : "text-green-600"
+                                      }`}
+                                    >
+                                      {response.costDifference > 0 ? "+" : ""}$
+                                      {response.costDifference.toLocaleString()}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Analysis Reasoning */}
+                                <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-5 border border-green-200">
+                                  <h6 className="font-semibold text-green-800 mb-3 flex items-center">
+                                    <div className="w-5 h-5 bg-green-500 rounded-full mr-2 flex items-center justify-center">
+                                      <span className="text-white text-xs font-bold">
+                                        ✓
+                                      </span>
+                                    </div>
+                                    Why This is Excellent
+                                  </h6>
+                                  <p className="text-sm text-green-700 leading-relaxed mb-4">
+                                    {response.reasoning}
+                                  </p>
+
+                                  {/* Technical Specifications */}
+                                  {response.proposalItem?.attributes &&
+                                    Object.keys(
+                                      response.proposalItem.attributes
+                                    ).length > 0 && (
+                                      <div>
+                                        <div className="text-sm text-green-600 font-medium mb-2">
+                                          Technical Specifications:
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                          {Object.entries(
+                                            response.proposalItem.attributes
+                                          ).map(([key, value]) => (
+                                            <span
+                                              key={key}
+                                              className="bg-white text-green-800 px-3 py-1 rounded-full text-xs border border-green-300 font-medium"
+                                            >
+                                              {key}: {value}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {/* Medium Match Proposals - Orange Theme */}
+                      {mediumMatchProposals.length > 0 && (
+                        <div className="mb-8">
+                          {mediumMatchProposals.map((response, idx) => {
+                            const proposal = proposals.find(
+                              (p) => p.id === response.proposalId
+                            );
+                            return (
+                              <div
+                                key={response.proposalId}
+                                className="bg-white border-2 border-orange-300 rounded-2xl p-5 mb-5 shadow-md hover:shadow-lg transition-all duration-300"
+                              >
+                                {/* Header with Company and Match Score */}
+                                <div className="flex items-center justify-between mb-5">
+                                  <div className="flex items-center space-x-4">
+                                    <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-md">
+                                      <Trophy className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                      <h6 className="text-lg font-bold text-gray-900 mb-1">
+                                        {response.company}
+                                      </h6>
+                                      <div className="flex items-center space-x-3">
+                                        <div className="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                                          {response.matchPercentage}% Match
+                                        </div>
+                                        <Badge className="bg-orange-100 text-orange-800 border border-orange-200">
+                                          Rank #{response.rank}
+                                        </Badge>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center space-x-3">
+                                    <Button
+                                      size="sm"
+                                      onClick={() =>
+                                        selectWinner(
+                                          tenderItem.id,
+                                          response.proposalId
+                                        )
+                                      }
+                                      className={
+                                        selectedWinner === response.proposalId
+                                          ? "bg-orange-600 hover:bg-orange-700 text-white shadow-md"
+                                          : "bg-white border-2 border-orange-500 text-orange-600 hover:bg-orange-50"
+                                      }
+                                    >
+                                      {selectedWinner ===
+                                      response.proposalId ? (
+                                        <>
+                                          <CheckCircle2 className="w-4 h-4 mr-2" />
+                                          Winner Selected
+                                        </>
+                                      ) : (
+                                        "Select as Winner"
+                                      )}
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() =>
+                                        onViewProposalDetail?.(
+                                          response.proposalId
+                                        )
+                                      }
+                                      className="border-orange-300 text-orange-700 hover:bg-orange-50"
+                                    >
+                                      <ExternalLink className="w-4 h-4 mr-2" />
+                                      View Details
+                                    </Button>
+                                  </div>
+                                </div>
+
+                                {/* Key Information Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                                  <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
+                                    <div className="text-sm text-orange-600 font-medium mb-1">
+                                      Product
+                                    </div>
+                                    <div className="font-semibold text-gray-900">
+                                      {response.proposalItem?.name || "N/A"}
+                                    </div>
+                                  </div>
+                                  <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
+                                    <div className="text-sm text-orange-600 font-medium mb-1">
+                                      Total Price
+                                    </div>
+                                    <div className="font-bold text-orange-700 text-lg">
+                                      $
+                                      {(
+                                        response.proposalItem?.cost || 0
+                                      ).toLocaleString()}
+                                    </div>
+                                  </div>
+                                  <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
+                                    <div className="text-sm text-orange-600 font-medium mb-1">
+                                      Budget Difference
+                                    </div>
+                                    <div
+                                      className={`font-bold text-lg ${
+                                        response.costDifference > 0
+                                          ? "text-red-600"
+                                          : "text-green-600"
+                                      }`}
+                                    >
+                                      {response.costDifference > 0 ? "+" : ""}$
+                                      {response.costDifference.toLocaleString()}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Analysis Reasoning */}
+                                <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-200">
+                                  <h6 className="font-semibold text-orange-800 mb-2 flex items-center">
+                                    <div className="w-5 h-5 bg-orange-500 rounded-full mr-2 flex items-center justify-center">
+                                      <span className="text-white text-xs font-bold">
+                                        !
+                                      </span>
+                                    </div>
+                                    Analysis Summary
+                                  </h6>
+                                  <p className="text-sm text-orange-700 leading-relaxed">
+                                    {response.reasoning}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {/* Low Match Proposals - Red Theme */}
+                      {lowMatchProposals.length > 0 && (
+                        <div className="mb-8">
+                          {lowMatchProposals.map((response, idx) => {
+                            const proposal = proposals.find(
+                              (p) => p.id === response.proposalId
+                            );
+                            return (
+                              <div
+                                key={response.proposalId}
+                                className="bg-white border-2 border-red-300 rounded-2xl p-5 mb-5 shadow-md hover:shadow-lg transition-all duration-300"
+                              >
+                                {/* Header with Company and Match Score */}
+                                <div className="flex items-center justify-between mb-5">
+                                  <div className="flex items-center space-x-4">
+                                    <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-md">
+                                      <AlertTriangle className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                      <h6 className="text-lg font-bold text-gray-900 mb-1">
+                                        {response.company}
+                                      </h6>
+                                      <div className="flex items-center space-x-3">
+                                        <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                                          {response.matchPercentage}% Match
+                                        </div>
+                                        <Badge className="bg-red-100 text-red-800 border border-red-200">
+                                          Rank #{response.rank}
+                                        </Badge>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center space-x-3">
+                                    <Button
+                                      size="sm"
+                                      onClick={() =>
+                                        selectWinner(
+                                          tenderItem.id,
+                                          response.proposalId
+                                        )
+                                      }
+                                      className={
+                                        selectedWinner === response.proposalId
+                                          ? "bg-red-600 hover:bg-red-700 text-white shadow-md"
+                                          : "bg-white border-2 border-red-500 text-red-600 hover:bg-red-50"
+                                      }
+                                    >
+                                      {selectedWinner ===
+                                      response.proposalId ? (
+                                        <>
+                                          <CheckCircle2 className="w-4 h-4 mr-2" />
+                                          Winner Selected
+                                        </>
+                                      ) : (
+                                        "Select as Winner"
+                                      )}
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() =>
+                                        onViewProposalDetail?.(
+                                          response.proposalId
+                                        )
+                                      }
+                                      className="border-red-300 text-red-700 hover:bg-red-50"
+                                    >
+                                      <ExternalLink className="w-4 h-4 mr-2" />
+                                      View Details
+                                    </Button>
+                                  </div>
+                                </div>
+
+                                {/* Key Information Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                                  <div className="bg-red-50 rounded-xl p-4 border border-red-200">
+                                    <div className="text-sm text-red-600 font-medium mb-1">
+                                      Product
+                                    </div>
+                                    <div className="font-semibold text-gray-900">
+                                      {response.proposalItem?.name || "N/A"}
+                                    </div>
+                                  </div>
+                                  <div className="bg-red-50 rounded-xl p-4 border border-red-200">
+                                    <div className="text-sm text-red-600 font-medium mb-1">
+                                      Total Price
+                                    </div>
+                                    <div className="font-bold text-red-700 text-lg">
+                                      $
+                                      {(
+                                        response.proposalItem?.cost || 0
+                                      ).toLocaleString()}
+                                    </div>
+                                  </div>
+                                  <div className="bg-red-50 rounded-xl p-4 border border-red-200">
+                                    <div className="text-sm text-red-600 font-medium mb-1">
+                                      Budget Difference
+                                    </div>
+                                    <div
+                                      className={`font-bold text-lg ${
+                                        response.costDifference > 0
+                                          ? "text-red-600"
+                                          : "text-green-600"
+                                      }`}
+                                    >
+                                      {response.costDifference > 0 ? "+" : ""}$
+                                      {response.costDifference.toLocaleString()}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Analysis Reasoning */}
+                                <div className="bg-gradient-to-r from-red-50 to-rose-50 rounded-xl p-4 border border-red-200">
+                                  <h6 className="font-semibold text-red-800 mb-2 flex items-center">
+                                    <div className="w-5 h-5 bg-red-500 rounded-full mr-2 flex items-center justify-center">
+                                      <span className="text-white text-xs font-bold">
+                                        !
+                                      </span>
+                                    </div>
+                                    Analysis Summary
+                                  </h6>
+                                  <p className="text-sm text-red-700 leading-relaxed">
+                                    {response.reasoning}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
                     </div>
-
-                    {/* High Match Proposals - Green Theme */}
-                    {highMatchProposals.length > 0 && (
-                      <div className="mb-8">
-                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6 mb-6 shadow-sm">
-                          <div className="flex items-center mb-3">
-                            <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mr-4">
-                              <Crown className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                              <h5 className="text-xl font-bold text-green-800 mb-1">
-                                High Match Proposals
-                              </h5>
-                              <p className="text-sm text-green-600 font-medium">
-                                85%+ Match • Excellent Quality
-                              </p>
-                            </div>
-                            <div className="ml-auto">
-                              <Badge className="bg-green-500 text-white px-3 py-1 text-sm font-semibold">
-                                {highMatchProposals.length} Proposal
-                                {highMatchProposals.length !== 1 ? "s" : ""}
-                              </Badge>
-                            </div>
-                          </div>
-                          <p className="text-sm text-green-700 leading-relaxed">
-                            These proposals demonstrate exceptional alignment
-                            with tender requirements, offering the best value,
-                            quality, and compliance.
-                          </p>
-                        </div>
-
-                        {highMatchProposals.map((response, idx) => {
-                          const proposal = proposals.find(
-                            (p) => p.id === response.proposalId
-                          );
-                          return (
-                            <div
-                              key={response.proposalId}
-                              className="bg-white border-2 border-green-300 rounded-2xl p-6 mb-6 shadow-lg hover:shadow-xl transition-all duration-300"
-                            >
-                              {/* Header with Company and Match Score */}
-                              <div className="flex items-center justify-between mb-6">
-                                <div className="flex items-center space-x-4">
-                                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-                                    <Crown className="w-6 h-6 text-white" />
-                                  </div>
-                                  <div>
-                                    <h6 className="text-xl font-bold text-gray-900 mb-1">
-                                      {response.company}
-                                    </h6>
-                                    <div className="flex items-center space-x-3">
-                                      <div className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                                        {response.matchPercentage}% Match
-                                      </div>
-                                      <Badge className="bg-green-100 text-green-800 border border-green-200">
-                                        Rank #{response.rank}
-                                      </Badge>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center space-x-3">
-                                  <Button
-                                    size="sm"
-                                    onClick={() =>
-                                      selectWinner(
-                                        tenderItem.id,
-                                        response.proposalId
-                                      )
-                                    }
-                                    className={
-                                      selectedWinner === response.proposalId
-                                        ? "bg-green-600 hover:bg-green-700 text-white shadow-md"
-                                        : "bg-white border-2 border-green-500 text-green-600 hover:bg-green-50"
-                                    }
-                                  >
-                                    {selectedWinner === response.proposalId ? (
-                                      <>
-                                        <CheckCircle2 className="w-4 h-4 mr-2" />
-                                        Winner Selected
-                                      </>
-                                    ) : (
-                                      "Select as Winner"
-                                    )}
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() =>
-                                      onViewProposalDetail?.(
-                                        response.proposalId
-                                      )
-                                    }
-                                    className="border-green-300 text-green-700 hover:bg-green-50"
-                                  >
-                                    <ExternalLink className="w-4 h-4 mr-2" />
-                                    View Details
-                                  </Button>
-                                </div>
-                              </div>
-
-                              {/* Key Information Cards */}
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                                <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-                                  <div className="text-sm text-green-600 font-medium mb-1">
-                                    Product
-                                  </div>
-                                  <div className="font-semibold text-gray-900">
-                                    {response.proposalItem?.name || "N/A"}
-                                  </div>
-                                </div>
-                                <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-                                  <div className="text-sm text-green-600 font-medium mb-1">
-                                    Quantity
-                                  </div>
-                                  <div className="font-semibold text-gray-900">
-                                    {response.proposalItem?.quantity || 0} units
-                                  </div>
-                                </div>
-                                <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-                                  <div className="text-sm text-green-600 font-medium mb-1">
-                                    Total Price
-                                  </div>
-                                  <div className="font-bold text-green-700 text-lg">
-                                    $
-                                    {(
-                                      response.proposalItem?.cost || 0
-                                    ).toLocaleString()}
-                                  </div>
-                                </div>
-                                <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-                                  <div className="text-sm text-green-600 font-medium mb-1">
-                                    Budget Difference
-                                  </div>
-                                  <div
-                                    className={`font-bold text-lg ${
-                                      response.costDifference > 0
-                                        ? "text-red-600"
-                                        : "text-green-600"
-                                    }`}
-                                  >
-                                    {response.costDifference > 0 ? "+" : ""}$
-                                    {response.costDifference.toLocaleString()}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Analysis Reasoning */}
-                              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-5 border border-green-200">
-                                <h6 className="font-semibold text-green-800 mb-3 flex items-center">
-                                  <div className="w-5 h-5 bg-green-500 rounded-full mr-2 flex items-center justify-center">
-                                    <span className="text-white text-xs font-bold">
-                                      ✓
-                                    </span>
-                                  </div>
-                                  Why This is Excellent
-                                </h6>
-                                <p className="text-sm text-green-700 leading-relaxed mb-4">
-                                  {response.reasoning}
-                                </p>
-
-                                {/* Technical Specifications */}
-                                {response.proposalItem?.attributes &&
-                                  Object.keys(response.proposalItem.attributes)
-                                    .length > 0 && (
-                                    <div>
-                                      <div className="text-sm text-green-600 font-medium mb-2">
-                                        Technical Specifications:
-                                      </div>
-                                      <div className="flex flex-wrap gap-2">
-                                        {Object.entries(
-                                          response.proposalItem.attributes
-                                        ).map(([key, value]) => (
-                                          <span
-                                            key={key}
-                                            className="bg-white text-green-800 px-3 py-1 rounded-full text-xs border border-green-300 font-medium"
-                                          >
-                                            {key}: {value}
-                                          </span>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {/* Medium Match Proposals - Orange Theme */}
-                    {mediumMatchProposals.length > 0 && (
-                      <div className="mb-8">
-                        <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 rounded-xl p-6 mb-6 shadow-sm">
-                          <div className="flex items-center mb-3">
-                            <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center mr-4">
-                              <Trophy className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                              <h5 className="text-xl font-bold text-orange-800 mb-1">
-                                Medium Match Proposals
-                              </h5>
-                              <p className="text-sm text-orange-600 font-medium">
-                                70-84% Match • Good Quality
-                              </p>
-                            </div>
-                            <div className="ml-auto">
-                              <Badge className="bg-orange-500 text-white px-3 py-1 text-sm font-semibold">
-                                {mediumMatchProposals.length} Proposal
-                                {mediumMatchProposals.length !== 1 ? "s" : ""}
-                              </Badge>
-                            </div>
-                          </div>
-                          <p className="text-sm text-orange-700 leading-relaxed">
-                            These proposals meet most requirements with good
-                            value and acceptable compliance levels.
-                          </p>
-                        </div>
-
-                        {mediumMatchProposals.map((response, idx) => {
-                          const proposal = proposals.find(
-                            (p) => p.id === response.proposalId
-                          );
-                          return (
-                            <div
-                              key={response.proposalId}
-                              className="bg-white border-2 border-orange-300 rounded-2xl p-5 mb-5 shadow-md hover:shadow-lg transition-all duration-300"
-                            >
-                              {/* Header with Company and Match Score */}
-                              <div className="flex items-center justify-between mb-5">
-                                <div className="flex items-center space-x-4">
-                                  <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-md">
-                                    <Trophy className="w-5 h-5 text-white" />
-                                  </div>
-                                  <div>
-                                    <h6 className="text-lg font-bold text-gray-900 mb-1">
-                                      {response.company}
-                                    </h6>
-                                    <div className="flex items-center space-x-3">
-                                      <div className="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                                        {response.matchPercentage}% Match
-                                      </div>
-                                      <Badge className="bg-orange-100 text-orange-800 border border-orange-200">
-                                        Rank #{response.rank}
-                                      </Badge>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center space-x-3">
-                                  <Button
-                                    size="sm"
-                                    onClick={() =>
-                                      selectWinner(
-                                        tenderItem.id,
-                                        response.proposalId
-                                      )
-                                    }
-                                    className={
-                                      selectedWinner === response.proposalId
-                                        ? "bg-orange-600 hover:bg-orange-700 text-white shadow-md"
-                                        : "bg-white border-2 border-orange-500 text-orange-600 hover:bg-orange-50"
-                                    }
-                                  >
-                                    {selectedWinner === response.proposalId ? (
-                                      <>
-                                        <CheckCircle2 className="w-4 h-4 mr-2" />
-                                        Winner Selected
-                                      </>
-                                    ) : (
-                                      "Select as Winner"
-                                    )}
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() =>
-                                      onViewProposalDetail?.(
-                                        response.proposalId
-                                      )
-                                    }
-                                    className="border-orange-300 text-orange-700 hover:bg-orange-50"
-                                  >
-                                    <ExternalLink className="w-4 h-4 mr-2" />
-                                    View Details
-                                  </Button>
-                                </div>
-                              </div>
-
-                              {/* Key Information Cards */}
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-                                <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
-                                  <div className="text-sm text-orange-600 font-medium mb-1">
-                                    Product
-                                  </div>
-                                  <div className="font-semibold text-gray-900">
-                                    {response.proposalItem?.name || "N/A"}
-                                  </div>
-                                </div>
-                                <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
-                                  <div className="text-sm text-orange-600 font-medium mb-1">
-                                    Total Price
-                                  </div>
-                                  <div className="font-bold text-orange-700 text-lg">
-                                    $
-                                    {(
-                                      response.proposalItem?.cost || 0
-                                    ).toLocaleString()}
-                                  </div>
-                                </div>
-                                <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
-                                  <div className="text-sm text-orange-600 font-medium mb-1">
-                                    Budget Difference
-                                  </div>
-                                  <div
-                                    className={`font-bold text-lg ${
-                                      response.costDifference > 0
-                                        ? "text-red-600"
-                                        : "text-green-600"
-                                    }`}
-                                  >
-                                    {response.costDifference > 0 ? "+" : ""}$
-                                    {response.costDifference.toLocaleString()}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Analysis Reasoning */}
-                              <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-200">
-                                <h6 className="font-semibold text-orange-800 mb-2 flex items-center">
-                                  <div className="w-5 h-5 bg-orange-500 rounded-full mr-2 flex items-center justify-center">
-                                    <span className="text-white text-xs font-bold">
-                                      !
-                                    </span>
-                                  </div>
-                                  Analysis Summary
-                                </h6>
-                                <p className="text-sm text-orange-700 leading-relaxed">
-                                  {response.reasoning}
-                                </p>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {/* Low Match Proposals - Red Theme */}
-                    {lowMatchProposals.length > 0 && (
-                      <div className="mb-8">
-                        <div className="bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 rounded-xl p-6 mb-6 shadow-sm">
-                          <div className="flex items-center mb-3">
-                            <div className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center mr-4">
-                              <AlertTriangle className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                              <h5 className="text-xl font-bold text-red-800 mb-1">
-                                Low Match Proposals
-                              </h5>
-                              <p className="text-sm text-red-600 font-medium">
-                                &lt;70% Match • Requires Review
-                              </p>
-                            </div>
-                            <div className="ml-auto">
-                              <Badge className="bg-red-500 text-white px-3 py-1 text-sm font-semibold">
-                                {lowMatchProposals.length} Proposal
-                                {lowMatchProposals.length !== 1 ? "s" : ""}
-                              </Badge>
-                            </div>
-                          </div>
-                          <p className="text-sm text-red-700 leading-relaxed">
-                            These proposals have significant gaps or issues that
-                            may require careful consideration.
-                          </p>
-                        </div>
-
-                        {lowMatchProposals.map((response, idx) => {
-                          const proposal = proposals.find(
-                            (p) => p.id === response.proposalId
-                          );
-                          return (
-                            <div
-                              key={response.proposalId}
-                              className="bg-white border-2 border-red-300 rounded-2xl p-5 mb-5 shadow-md hover:shadow-lg transition-all duration-300"
-                            >
-                              {/* Header with Company and Match Score */}
-                              <div className="flex items-center justify-between mb-5">
-                                <div className="flex items-center space-x-4">
-                                  <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-md">
-                                    <AlertTriangle className="w-5 h-5 text-white" />
-                                  </div>
-                                  <div>
-                                    <h6 className="text-lg font-bold text-gray-900 mb-1">
-                                      {response.company}
-                                    </h6>
-                                    <div className="flex items-center space-x-3">
-                                      <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                                        {response.matchPercentage}% Match
-                                      </div>
-                                      <Badge className="bg-red-100 text-red-800 border border-red-200">
-                                        Rank #{response.rank}
-                                      </Badge>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center space-x-3">
-                                  <Button
-                                    size="sm"
-                                    onClick={() =>
-                                      selectWinner(
-                                        tenderItem.id,
-                                        response.proposalId
-                                      )
-                                    }
-                                    className={
-                                      selectedWinner === response.proposalId
-                                        ? "bg-red-600 hover:bg-red-700 text-white shadow-md"
-                                        : "bg-white border-2 border-red-500 text-red-600 hover:bg-red-50"
-                                    }
-                                  >
-                                    {selectedWinner === response.proposalId ? (
-                                      <>
-                                        <CheckCircle2 className="w-4 h-4 mr-2" />
-                                        Winner Selected
-                                      </>
-                                    ) : (
-                                      "Select as Winner"
-                                    )}
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() =>
-                                      onViewProposalDetail?.(
-                                        response.proposalId
-                                      )
-                                    }
-                                    className="border-red-300 text-red-700 hover:bg-red-50"
-                                  >
-                                    <ExternalLink className="w-4 h-4 mr-2" />
-                                    View Details
-                                  </Button>
-                                </div>
-                              </div>
-
-                              {/* Key Information Cards */}
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-                                <div className="bg-red-50 rounded-xl p-4 border border-red-200">
-                                  <div className="text-sm text-red-600 font-medium mb-1">
-                                    Product
-                                  </div>
-                                  <div className="font-semibold text-gray-900">
-                                    {response.proposalItem?.name || "N/A"}
-                                  </div>
-                                </div>
-                                <div className="bg-red-50 rounded-xl p-4 border border-red-200">
-                                  <div className="text-sm text-red-600 font-medium mb-1">
-                                    Total Price
-                                  </div>
-                                  <div className="font-bold text-red-700 text-lg">
-                                    $
-                                    {(
-                                      response.proposalItem?.cost || 0
-                                    ).toLocaleString()}
-                                  </div>
-                                </div>
-                                <div className="bg-red-50 rounded-xl p-4 border border-red-200">
-                                  <div className="text-sm text-red-600 font-medium mb-1">
-                                    Budget Difference
-                                  </div>
-                                  <div
-                                    className={`font-bold text-lg ${
-                                      response.costDifference > 0
-                                        ? "text-red-600"
-                                        : "text-green-600"
-                                    }`}
-                                  >
-                                    {response.costDifference > 0 ? "+" : ""}$
-                                    {response.costDifference.toLocaleString()}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Analysis Reasoning */}
-                              <div className="bg-gradient-to-r from-red-50 to-rose-50 rounded-xl p-4 border border-red-200">
-                                <h6 className="font-semibold text-red-800 mb-2 flex items-center">
-                                  <div className="w-5 h-5 bg-red-500 rounded-full mr-2 flex items-center justify-center">
-                                    <span className="text-white text-xs font-bold">
-                                      !
-                                    </span>
-                                  </div>
-                                  Analysis Summary
-                                </h6>
-                                <p className="text-sm text-red-700 leading-relaxed">
-                                  {response.reasoning}
-                                </p>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                  )}
+                </div>
+              );
+            })}
         </div>
-        
+
         {/* Pagination Controls */}
         {totalPages > 1 && (
           <div className="mt-8 flex flex-col items-center justify-center space-y-4">
@@ -882,7 +783,7 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
                 <span className="sr-only">First Page</span>
                 <ChevronDown className="h-4 w-4 rotate-90" />
               </Button>
-              
+
               <Button
                 variant="outline"
                 size="sm"
@@ -893,19 +794,25 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
                 <span className="sr-only">Previous Page</span>
                 <ChevronDown className="h-4 w-4 -rotate-90" />
               </Button>
-              
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <Button
-                  key={page}
-                  variant={currentPage === page ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handlePageChange(page)}
-                  className={`h-8 w-8 p-0 ${currentPage === page ? "bg-blue-600 hover:bg-blue-700" : ""}`}
-                >
-                  {page}
-                </Button>
-              ))}
-              
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handlePageChange(page)}
+                    className={`h-8 w-8 p-0 ${
+                      currentPage === page
+                        ? "bg-blue-600 hover:bg-blue-700"
+                        : ""
+                    }`}
+                  >
+                    {page}
+                  </Button>
+                )
+              )}
+
               <Button
                 variant="outline"
                 size="sm"
@@ -916,7 +823,7 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
                 <span className="sr-only">Next Page</span>
                 <ChevronDown className="h-4 w-4 rotate-90" />
               </Button>
-              
+
               <Button
                 variant="outline"
                 size="sm"
@@ -928,13 +835,259 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
                 <ChevronDown className="h-4 w-4 -rotate-90" />
               </Button>
             </div>
-            
+
             <div className="text-sm text-gray-600">
-              Page {currentPage} of {totalPages} • {tender.items.length} total elements
+              Page {currentPage} of {totalPages} • {tender.items.length} total
+              elements
             </div>
           </div>
         )}
       </div>
+
+      <div className="flex items-center justify-between mb-6 mt-10">
+        <h3 className="text-lg font-semibold">Selected Winners</h3>
+        <div className="text-sm text-gray-600">
+          Showing {Object.keys(selectedWinners).length} of {tender.items.length}
+          tender elements
+        </div>
+      </div>
+
+      {/* Enhanced Winners Summary */}
+      {Object.keys(selectedWinners).length > 0 ? (
+        <div className="bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 border-2 border-green-200 rounded-2xl p-8 shadow-lg">
+          {/* Header Section */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center space-x-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Crown className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-green-800 mb-1">
+                  Selected Winners
+                </h3>
+                <p className="text-green-600 font-medium">
+                  {Object.keys(selectedWinners).length} of {tender.items.length} elements have winners selected
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="bg-white rounded-xl p-4 border border-green-200 shadow-sm">
+                <div className="text-sm text-green-600 font-medium mb-1">
+                  Completion Rate
+                </div>
+                <div className="text-2xl font-bold text-green-700">
+                  {Math.round((Object.keys(selectedWinners).length / tender.items.length) * 100)}%
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-green-700">
+                Selection Progress
+              </span>
+              <span className="text-sm text-green-600">
+                {Object.keys(selectedWinners).length} / {tender.items.length} completed
+              </span>
+            </div>
+            <div className="w-full bg-green-200 rounded-full h-3 shadow-inner">
+              <div 
+                className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-500 shadow-sm"
+                style={{ width: `${(Object.keys(selectedWinners).length / tender.items.length) * 100}%` }}
+              ></div>
+            </div>
+          </div>
+
+          {/* Winners Grid */}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {getSelectedWinnersList().map((winner, index) => {
+              // Find the proposal details for this winner
+              const winnerProposal = proposals.find(p => p.id === selectedWinners[tender.items.find(item => item.name === winner.elementName)?.id || '']);
+              const tenderElement = tender.items.find(item => item.name === winner.elementName);
+              const proposalItem = winnerProposal?.items.find(item => 
+                item.name.toLowerCase().includes(winner.elementName.toLowerCase()) ||
+                winner.elementName.toLowerCase().includes(item.name.toLowerCase())
+              );
+              
+              return (
+                <div
+                  key={index}
+                  className="bg-white rounded-2xl p-6 border-2 border-green-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                >
+                  {/* Winner Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-md">
+                        <Crown className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 text-lg">
+                          {winner.company}
+                        </h4>
+                        <Badge className="bg-green-500 text-white px-2 py-1 text-xs font-semibold">
+                          WINNER
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Element Details */}
+                  <div className="mb-4">
+                    <h5 className="font-semibold text-gray-800 mb-2 flex items-center">
+                      <Package className="w-4 h-4 mr-2 text-green-600" />
+                      {winner.elementName}
+                    </h5>
+                    <div className="text-sm text-gray-600 mb-3">
+                      {tenderElement?.description || 'Tender element description'}
+                    </div>
+                  </div>
+
+                  {/* Key Metrics Grid */}
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="bg-green-50 rounded-lg p-3 border border-green-100">
+                      <div className="text-xs text-green-600 font-medium mb-1">
+                        Winning Bid
+                      </div>
+                      <div className="font-bold text-green-700">
+                        ${(proposalItem?.cost || 0).toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="bg-green-50 rounded-lg p-3 border border-green-100">
+                      <div className="text-xs text-green-600 font-medium mb-1">
+                        Budget
+                      </div>
+                      <div className="font-bold text-gray-700">
+                        ${(tenderElement?.estimatedCost || 0).toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="bg-green-50 rounded-lg p-3 border border-green-100">
+                      <div className="text-xs text-green-600 font-medium mb-1">
+                        Quantity
+                      </div>
+                      <div className="font-bold text-gray-700">
+                        {proposalItem?.quantity || tenderElement?.quantity || 0} {tenderElement?.unit || 'units'}
+                      </div>
+                    </div>
+                    <div className="bg-green-50 rounded-lg p-3 border border-green-100">
+                      <div className="text-xs text-green-600 font-medium mb-1">
+                        Savings
+                      </div>
+                      <div className={`font-bold ${
+                        (tenderElement?.estimatedCost || 0) - (proposalItem?.cost || 0) > 0 
+                          ? 'text-green-600' 
+                          : 'text-red-600'
+                      }`}>
+                        {(tenderElement?.estimatedCost || 0) - (proposalItem?.cost || 0) > 0 ? '+' : ''}$
+                        {((tenderElement?.estimatedCost || 0) - (proposalItem?.cost || 0)).toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Product Information */}
+                  {proposalItem && (
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 border border-green-200">
+                      <div className="text-xs text-green-600 font-medium mb-1">
+                        Selected Product
+                      </div>
+                      <div className="font-semibold text-gray-800 text-sm">
+                        {proposalItem.name}
+                      </div>
+                      {proposalItem.description && (
+                        <div className="text-xs text-gray-600 mt-1 line-clamp-2">
+                          {proposalItem.description}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 mt-4">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onViewProposalDetail?.(selectedWinners[tenderElement?.id || ''])}
+                      className="flex-1 border-green-300 text-green-700 hover:bg-green-50 text-xs"
+                    >
+                      <ExternalLink className="w-3 h-3 mr-1" />
+                      View Details
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        // Remove winner selection
+                        if (tenderElement?.id) {
+                          const newWinners = { ...selectedWinners };
+                          delete newWinners[tenderElement.id];
+                          setSelectedWinners(newWinners);
+                        }
+                      }}
+                      className="bg-red-100 text-red-600 hover:bg-red-200 border-red-200 text-xs"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Summary Actions */}
+          <div className="mt-8 pt-6 border-t border-green-200">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-green-700">
+                <span className="font-medium">
+                  Total Selected Value: 
+                </span>
+                <span className="font-bold text-lg text-green-800">
+                  ${getSelectedWinnersList().reduce((total, winner) => {
+                    const tenderElement = tender.items.find(item => item.name === winner.elementName);
+                    const winnerProposal = proposals.find(p => p.id === selectedWinners[tenderElement?.id || '']);
+                    const proposalItem = winnerProposal?.items.find(item => 
+                      item.name.toLowerCase().includes(winner.elementName.toLowerCase())
+                    );
+                    return total + (proposalItem?.cost || 0);
+                  }, 0).toLocaleString()}
+                </span>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedWinners({})}
+                  className="border-red-300 text-red-600 hover:bg-red-50"
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Clear All
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Export Winners
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <Card className="p-8 text-center border-2 border-dashed border-gray-300">
+          <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Crown className="w-8 h-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            No Winners Selected Yet
+          </h3>
+          <p className="text-gray-500 mb-4">
+            Start selecting winners for each tender element to see the summary here.
+          </p>
+          <Badge variant="outline" className="text-gray-500">
+            0 of {tender.items.length} elements completed
+          </Badge>
+        </Card>
+      )}
     </div>
   );
 };
