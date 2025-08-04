@@ -46,6 +46,7 @@ import {
   AlertTriangle,
   X,
   Building2,
+  MoreVertical,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -316,9 +317,9 @@ export function MyTenders({
               {/* Status indicator */}
               <div
                 className={`absolute top-0 left-0 w-full h-1 ${
-                  deadlinePassed
+                  tender.status === "closed"
                     ? "bg-red-500"
-                    : deadlineNear
+                    : tender.status === "draft"
                     ? "bg-yellow-500"
                     : tender.status === "published"
                     ? "bg-green-500"
@@ -338,13 +339,6 @@ export function MyTenders({
                     </CardTitle>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge
-                      variant={getStatusVariant(tender.status)}
-                      className="flex items-center gap-1 shrink-0"
-                    >
-                      {getStatusIcon(tender.status)}
-                      {tender.status}
-                    </Badge>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
@@ -352,7 +346,7 @@ export function MyTenders({
                           size="sm"
                           className="h-8 w-8 p-0"
                         >
-                          <MoreHorizontal className="w-4 h-4" />
+                          <MoreVertical className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
@@ -386,6 +380,14 @@ export function MyTenders({
 
               <CardContent className="space-y-4">
                 <div className="space-y-2">
+                  <div className={`flex items-center text-sm`}>
+                    <Clock className="w-4 h-4 mr-2" />
+                    <span>
+                      {tender.status.charAt(0).toUpperCase() +
+                        tender.status.slice(1)}
+                    </span>
+                  </div>
+
                   <div
                     className={`flex items-center text-sm ${
                       deadlinePassed
@@ -405,7 +407,7 @@ export function MyTenders({
 
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Users className="w-4 h-4 mr-2" />
-                    <span>{tender.items.length} items</span>
+                    <span>{tender.items.length} proposals</span>
                   </div>
 
                   <div className="flex items-center text-sm text-muted-foreground">
@@ -425,13 +427,6 @@ export function MyTenders({
                   >
                     <Eye className="w-4 h-4 mr-2" />
                     View
-                  </Button>
-                  <Button
-                    onClick={() => onEditTender(tender.id)}
-                    variant="outline"
-                    size="sm"
-                  >
-                    <Edit className="w-4 h-4" />
                   </Button>
                 </div>
               </CardContent>

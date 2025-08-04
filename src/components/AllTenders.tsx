@@ -189,9 +189,9 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
               {/* Status indicator */}
               <div
                 className={`absolute top-0 left-0 w-full h-1 ${
-                  deadlinePassed
+                  tender.status === "closed"
                     ? "bg-red-500"
-                    : deadlineNear
+                    : tender.status === "draft"
                     ? "bg-yellow-500"
                     : tender.status === "published"
                     ? "bg-green-500"
