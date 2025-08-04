@@ -80,7 +80,7 @@ export function MyProposals({
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     // Smooth scroll to top of proposals section
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const { toast } = useToast();
@@ -386,9 +386,13 @@ export function MyProposals({
         {paginatedProposals.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {paginatedProposals.map((proposal) => {
-              const tender = mockTenders.find(t => proposal.tenderIds.includes(t.id));
-              const tenderIdShort = tender?.id ? `T-${tender.id.slice(-9)}` : 'T-000000000';
-              
+              const tender = mockTenders.find((t) =>
+                proposal.tenderIds.includes(t.id)
+              );
+              const tenderIdShort = tender?.id
+                ? `T-${tender.id.slice(-9)}`
+                : "T-000000000";
+
               return (
                 <Card
                   key={proposal.id}
@@ -418,7 +422,8 @@ export function MyProposals({
                           variant={getStatusVariant(proposal.status)}
                           className="text-xs"
                         >
-                          {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}
+                          {proposal.status.charAt(0).toUpperCase() +
+                            proposal.status.slice(1)}
                         </Badge>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -535,100 +540,153 @@ export function MyProposals({
         )}
       </div>
 
-      {/* Clean Pagination */}
-      {totalPages > 1 && filteredProposals.length > 0 && (
-        <div className="flex flex-col items-center gap-4 mt-8">
-          {/* Page Statistics */}
-          <div className="text-sm text-muted-foreground text-center">
-            Showing {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, filteredProposals.length)} of {filteredProposals.length} proposals • Page {currentPage} of {totalPages}
-          </div>
-
-          {/* Pagination Controls */}
-          <div className="flex items-center gap-1">
-            {/* First Page */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePageChange(1)}
-              disabled={currentPage === 1}
-              className="h-8 w-8 p-0"
-            >
-              <span className="sr-only">First page</span>
-              ««
-            </Button>
-
-            {/* Previous Page */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="h-8 w-8 p-0"
-            >
-              <span className="sr-only">Previous page</span>
-              ‹
-            </Button>
-
-            {/* Page Numbers */}
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-              // Show first page, last page, current page, and adjacent pages
-              if (
-                page === 1 ||
-                page === totalPages ||
-                (page >= currentPage - 1 && page <= currentPage + 1)
-              ) {
-                return (
-                  <Button
-                    key={page}
-                    variant={currentPage === page ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handlePageChange(page)}
-                    className={`h-8 w-8 p-0 ${
-                      currentPage === page ? "bg-blue-600 text-white hover:bg-blue-700" : ""
-                    }`}
-                  >
-                    {page}
-                  </Button>
-                );
-              }
-
-              // Show ellipsis for gaps
-              if (page === currentPage - 2 || page === currentPage + 2) {
-                return (
-                  <span key={page} className="px-2 text-muted-foreground">
-                    …
+      {/* Enhanced Pagination */}
+      {totalPages >= 1 && (
+        <Card className="p-4 bg-gradient-to-r from-background to-muted/20 mt-7">
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
+            {/* Page Statistics */}
+            <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <span>
+                  Page{" "}
+                  <span className="font-medium text-foreground">
+                    {currentPage}
+                  </span>{" "}
+                  of{" "}
+                  <span className="font-medium text-foreground">
+                    {totalPages}
                   </span>
-                );
-              }
+                </span>
+              </div>
+              <div className="hidden sm:flex items-center gap-2 text-muted-foreground">
+                <span>•</span>
+                <span>{filteredProposals.length} total tenders</span>
+              </div>
+              <div className="hidden md:flex items-center gap-2 text-muted-foreground">
+                <span>•</span>
+                <span>{stats.submitted} submitted</span>
+              </div>
+            </div>
 
-              return null;
-            })}
+            {/* Main Pagination Controls */}
+            <div className="flex items-center gap-2">
+              {/* First Page */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(1)}
+                disabled={currentPage === 1}
+                className="h-9 w-9 p-0 hover:bg-primary hover:text-primary-foreground transition-colors"
+                title="First page"
+              >
+                ««
+              </Button>
 
-            {/* Next Page */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="h-8 w-8 p-0"
-            >
-              <span className="sr-only">Next page</span>
-              ›
-            </Button>
+              {/* Previous Page */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="h-9 w-9 p-0 hover:bg-primary hover:text-primary-foreground transition-colors"
+                title="Previous page"
+              >
+                ‹
+              </Button>
 
-            {/* Last Page */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePageChange(totalPages)}
-              disabled={currentPage === totalPages}
-              className="h-8 w-8 p-0"
-            >
-              <span className="sr-only">Last page</span>
-              »»
-            </Button>
+              {/* Page Numbers with Smart Display */}
+              <div className="flex items-center gap-1 mx-2">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => {
+                    // Show first, last, current, and adjacent pages
+                    if (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 2 && page <= currentPage + 2)
+                    ) {
+                      return (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(page)}
+                          className={`h-9 w-9 p-0 transition-all duration-200 ${
+                            currentPage === page
+                              ? "bg-primary text-primary-foreground shadow-md scale-105"
+                              : "hover:bg-primary hover:text-primary-foreground"
+                          }`}
+                        >
+                          {page}
+                        </Button>
+                      );
+                    }
+
+                    // Show ellipsis for gaps
+                    if (page === currentPage - 3 || page === currentPage + 3) {
+                      return (
+                        <span
+                          key={page}
+                          className="px-2 text-muted-foreground font-medium"
+                        >
+                          …
+                        </span>
+                      );
+                    }
+
+                    return null;
+                  }
+                )}
+              </div>
+
+              {/* Next Page */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="h-9 w-9 p-0 hover:bg-primary hover:text-primary-foreground transition-colors"
+                title="Next page"
+              >
+                ›
+              </Button>
+
+              {/* Last Page */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(totalPages)}
+                disabled={currentPage === totalPages}
+                className="h-9 w-9 p-0 hover:bg-primary hover:text-primary-foreground transition-colors"
+                title="Last page"
+              >
+                »»
+              </Button>
+            </div>
+
+            {/* Quick Navigation */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground hidden sm:inline">
+                  Jump to:
+                </span>
+                <Input
+                  type="number"
+                  min={1}
+                  max={totalPages}
+                  value={currentPage}
+                  onChange={(e) => {
+                    const page = Number(e.target.value);
+                    if (page >= 1 && page <= totalPages) {
+                      handlePageChange(page);
+                    }
+                  }}
+                  className="w-16 h-9 text-center border-2 focus:border-primary transition-colors"
+                  placeholder="#"
+                />
+              </div>
+            </div>
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );
