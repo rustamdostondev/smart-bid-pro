@@ -48,6 +48,7 @@ import {
   Edit,
   Trash2,
   MoreVertical,
+  Tag,
 } from "lucide-react";
 import {
   mockProposals,
@@ -74,6 +75,14 @@ export function MyProposals({
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Handle page change with smooth scrolling
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Smooth scroll to top of proposals section
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const { toast } = useToast();
   const user = getCurrentUser();
   const itemsPerPage = 6;
@@ -377,17 +386,40 @@ export function MyProposals({
         {paginatedProposals.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {paginatedProposals.map((proposal) => {
+              const tender = mockTenders.find(t => proposal.tenderIds.includes(t.id));
+              const tenderIdShort = tender?.id ? `T-${tender.id.slice(-9)}` : 'T-000000000';
+              
               return (
                 <Card
                   key={proposal.id}
-                  className="shadow-soft hover:shadow-medium transition-all duration-300"
+                  className="shadow-soft hover:shadow-medium transition-all duration-300 relative overflow-hidden"
                 >
+                  {/* Status indicator */}
+                  <div
+                    className={`absolute top-0 left-0 w-full h-1 ${
+                      proposal.status === "draft"
+                        ? "bg-yellow-500"
+                        : proposal.status === "submitted"
+                        ? "bg-blue-500"
+                        : proposal.status === "accepted"
+                        ? "bg-green-500"
+                        : proposal.status === "rejected"
+                        ? "bg-red-500"
+                        : "bg-gray-300"
+                    }`}
+                  />
                   <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                       <CardTitle className="text-lg flex-1 min-w-0">
                         {proposal.name}
                       </CardTitle>
                       <div className="flex items-center gap-2">
+                        <Badge
+                          variant={getStatusVariant(proposal.status)}
+                          className="text-xs"
+                        >
+                          {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}
+                        </Badge>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
@@ -428,6 +460,11 @@ export function MyProposals({
                   </CardHeader>
 
                   <CardContent className="pb-2 space-y-3">
+                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                      <Tag className="w-4 h-4 flex-shrink-0" />
+                      <span>{tenderIdShort} (Tender ID)</span>
+                    </div>
+
                     <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                       <FileText className="w-4 h-4 flex-shrink-0" />
                       <span className="truncate">
@@ -487,6 +524,7 @@ export function MyProposals({
                   onClick={() => {
                     setSearchTerm("");
                     setStatusFilter("all");
+                    setCurrentPage(1);
                   }}
                 >
                   Clear Filters
@@ -496,6 +534,102 @@ export function MyProposals({
           </Card>
         )}
       </div>
+
+      {/* Clean Pagination */}
+      {totalPages > 1 && filteredProposals.length > 0 && (
+        <div className="flex flex-col items-center gap-4 mt-8">
+          {/* Page Statistics */}
+          <div className="text-sm text-muted-foreground text-center">
+            Showing {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, filteredProposals.length)} of {filteredProposals.length} proposals • Page {currentPage} of {totalPages}
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="flex items-center gap-1">
+            {/* First Page */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(1)}
+              disabled={currentPage === 1}
+              className="h-8 w-8 p-0"
+            >
+              <span className="sr-only">First page</span>
+              ««
+            </Button>
+
+            {/* Previous Page */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="h-8 w-8 p-0"
+            >
+              <span className="sr-only">Previous page</span>
+              ‹
+            </Button>
+
+            {/* Page Numbers */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+              // Show first page, last page, current page, and adjacent pages
+              if (
+                page === 1 ||
+                page === totalPages ||
+                (page >= currentPage - 1 && page <= currentPage + 1)
+              ) {
+                return (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handlePageChange(page)}
+                    className={`h-8 w-8 p-0 ${
+                      currentPage === page ? "bg-blue-600 text-white hover:bg-blue-700" : ""
+                    }`}
+                  >
+                    {page}
+                  </Button>
+                );
+              }
+
+              // Show ellipsis for gaps
+              if (page === currentPage - 2 || page === currentPage + 2) {
+                return (
+                  <span key={page} className="px-2 text-muted-foreground">
+                    …
+                  </span>
+                );
+              }
+
+              return null;
+            })}
+
+            {/* Next Page */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="h-8 w-8 p-0"
+            >
+              <span className="sr-only">Next page</span>
+              ›
+            </Button>
+
+            {/* Last Page */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(totalPages)}
+              disabled={currentPage === totalPages}
+              className="h-8 w-8 p-0"
+            >
+              <span className="sr-only">Last page</span>
+              »»
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

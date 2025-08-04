@@ -774,7 +774,7 @@ export const mockProposals: Proposal[] = [
     description: "Comprehensive proposal for all office equipment needs",
     submittedBy: "2",
     company: "Tech Solutions Ltd",
-    status: "submitted",
+    status: "rejected",
     items: [
       {
         id: "1",
@@ -899,7 +899,7 @@ export const mockProposals: Proposal[] = [
       "High-end proposal for enterprise-grade office equipment with advanced features",
     submittedBy: "1", // Admin user
     company: "TenderCorp",
-    status: "submitted",
+    status: "draft",
     items: [
       {
         id: "7",
