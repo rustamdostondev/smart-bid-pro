@@ -844,17 +844,9 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
         )}
       </div>
 
-      <div className="flex items-center justify-between mb-6 mt-10">
-        <h3 className="text-lg font-semibold">Selected Winners</h3>
-        <div className="text-sm text-gray-600">
-          Showing {Object.keys(selectedWinners).length} of {tender.items.length}
-          tender elements
-        </div>
-      </div>
-
       {/* Enhanced Winners Summary */}
       {Object.keys(selectedWinners).length > 0 ? (
-        <div className="bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 border-2 border-green-200 rounded-2xl p-8 shadow-lg">
+        <div className="bg-gradient-to-br mt-20 via-emerald-50 to-green-100 border-2 border-green-200 rounded-2xl p-8 shadow-lg">
           {/* Header Section */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center space-x-4">
@@ -866,7 +858,8 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
                   Selected Winners
                 </h3>
                 <p className="text-green-600 font-medium">
-                  {Object.keys(selectedWinners).length} of {tender.items.length} elements have winners selected
+                  {Object.keys(selectedWinners).length} of {tender.items.length}{" "}
+                  elements have winners selected
                 </p>
               </div>
             </div>
@@ -876,7 +869,12 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
                   Completion Rate
                 </div>
                 <div className="text-2xl font-bold text-green-700">
-                  {Math.round((Object.keys(selectedWinners).length / tender.items.length) * 100)}%
+                  {Math.round(
+                    (Object.keys(selectedWinners).length /
+                      tender.items.length) *
+                      100
+                  )}
+                  %
                 </div>
               </div>
             </div>
@@ -889,13 +887,20 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
                 Selection Progress
               </span>
               <span className="text-sm text-green-600">
-                {Object.keys(selectedWinners).length} / {tender.items.length} completed
+                {Object.keys(selectedWinners).length} / {tender.items.length}{" "}
+                completed
               </span>
             </div>
             <div className="w-full bg-green-200 rounded-full h-3 shadow-inner">
-              <div 
+              <div
                 className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-500 shadow-sm"
-                style={{ width: `${(Object.keys(selectedWinners).length / tender.items.length) * 100}%` }}
+                style={{
+                  width: `${
+                    (Object.keys(selectedWinners).length /
+                      tender.items.length) *
+                    100
+                  }%`,
+                }}
               ></div>
             </div>
           </div>
@@ -904,13 +909,28 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {getSelectedWinnersList().map((winner, index) => {
               // Find the proposal details for this winner
-              const winnerProposal = proposals.find(p => p.id === selectedWinners[tender.items.find(item => item.name === winner.elementName)?.id || '']);
-              const tenderElement = tender.items.find(item => item.name === winner.elementName);
-              const proposalItem = winnerProposal?.items.find(item => 
-                item.name.toLowerCase().includes(winner.elementName.toLowerCase()) ||
-                winner.elementName.toLowerCase().includes(item.name.toLowerCase())
+              const winnerProposal = proposals.find(
+                (p) =>
+                  p.id ===
+                  selectedWinners[
+                    tender.items.find(
+                      (item) => item.name === winner.elementName
+                    )?.id || ""
+                  ]
               );
-              
+              const tenderElement = tender.items.find(
+                (item) => item.name === winner.elementName
+              );
+              const proposalItem = winnerProposal?.items.find(
+                (item) =>
+                  item.name
+                    .toLowerCase()
+                    .includes(winner.elementName.toLowerCase()) ||
+                  winner.elementName
+                    .toLowerCase()
+                    .includes(item.name.toLowerCase())
+              );
+
               return (
                 <div
                   key={index}
@@ -919,95 +939,48 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
                   {/* Winner Header */}
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-md">
-                        <Crown className="w-5 h-5 text-white" />
-                      </div>
                       <div>
                         <h4 className="font-bold text-gray-900 text-lg">
-                          {winner.company}
+                          {"Eduplus Mchj"}
                         </h4>
-                        <Badge className="bg-green-500 text-white px-2 py-1 text-xs font-semibold">
-                          WINNER
-                        </Badge>
                       </div>
                     </div>
                   </div>
 
-                  {/* Element Details */}
+                  {/* Element tenders */}
                   <div className="mb-4">
                     <h5 className="font-semibold text-gray-800 mb-2 flex items-center">
                       <Package className="w-4 h-4 mr-2 text-green-600" />
                       {winner.elementName}
                     </h5>
                     <div className="text-sm text-gray-600 mb-3">
-                      {tenderElement?.description || 'Tender element description'}
+                      {tenderElement?.description ||
+                        "Tender element description"}
                     </div>
                   </div>
 
-                  {/* Key Metrics Grid */}
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="bg-green-50 rounded-lg p-3 border border-green-100">
-                      <div className="text-xs text-green-600 font-medium mb-1">
-                        Winning Bid
-                      </div>
-                      <div className="font-bold text-green-700">
-                        ${(proposalItem?.cost || 0).toLocaleString()}
-                      </div>
-                    </div>
-                    <div className="bg-green-50 rounded-lg p-3 border border-green-100">
-                      <div className="text-xs text-green-600 font-medium mb-1">
-                        Budget
-                      </div>
-                      <div className="font-bold text-gray-700">
-                        ${(tenderElement?.estimatedCost || 0).toLocaleString()}
-                      </div>
-                    </div>
-                    <div className="bg-green-50 rounded-lg p-3 border border-green-100">
-                      <div className="text-xs text-green-600 font-medium mb-1">
-                        Quantity
-                      </div>
-                      <div className="font-bold text-gray-700">
-                        {proposalItem?.quantity || tenderElement?.quantity || 0} {tenderElement?.unit || 'units'}
-                      </div>
-                    </div>
-                    <div className="bg-green-50 rounded-lg p-3 border border-green-100">
-                      <div className="text-xs text-green-600 font-medium mb-1">
-                        Savings
-                      </div>
-                      <div className={`font-bold ${
-                        (tenderElement?.estimatedCost || 0) - (proposalItem?.cost || 0) > 0 
-                          ? 'text-green-600' 
-                          : 'text-red-600'
-                      }`}>
-                        {(tenderElement?.estimatedCost || 0) - (proposalItem?.cost || 0) > 0 ? '+' : ''}$
-                        {((tenderElement?.estimatedCost || 0) - (proposalItem?.cost || 0)).toLocaleString()}
-                      </div>
+                  {/* Proposal Details */}
+                  <div className="mb-4">
+                    <h5 className="font-semibold text-gray-800 mb-2 flex items-center">
+                      <Package className="w-4 h-4 mr-2 text-green-600" />
+                      {winner.elementName}
+                    </h5>
+                    <div className="text-sm text-gray-600 mb-3">
+                      {tenderElement?.description ||
+                        "Tender element description"}
                     </div>
                   </div>
-
-                  {/* Product Information */}
-                  {proposalItem && (
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 border border-green-200">
-                      <div className="text-xs text-green-600 font-medium mb-1">
-                        Selected Product
-                      </div>
-                      <div className="font-semibold text-gray-800 text-sm">
-                        {proposalItem.name}
-                      </div>
-                      {proposalItem.description && (
-                        <div className="text-xs text-gray-600 mt-1 line-clamp-2">
-                          {proposalItem.description}
-                        </div>
-                      )}
-                    </div>
-                  )}
 
                   {/* Action Buttons */}
                   <div className="flex gap-2 mt-4">
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => onViewProposalDetail?.(selectedWinners[tenderElement?.id || ''])}
+                      onClick={() =>
+                        onViewProposalDetail?.(
+                          selectedWinners[tenderElement?.id || ""]
+                        )
+                      }
                       className="flex-1 border-green-300 text-green-700 hover:bg-green-50 text-xs"
                     >
                       <ExternalLink className="w-3 h-3 mr-1" />
@@ -1037,18 +1010,25 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
           <div className="mt-8 pt-6 border-t border-green-200">
             <div className="flex items-center justify-between">
               <div className="text-sm text-green-700">
-                <span className="font-medium">
-                  Total Selected Value: 
-                </span>
+                <span className="font-medium">Total Selected Value:</span>
                 <span className="font-bold text-lg text-green-800">
-                  ${getSelectedWinnersList().reduce((total, winner) => {
-                    const tenderElement = tender.items.find(item => item.name === winner.elementName);
-                    const winnerProposal = proposals.find(p => p.id === selectedWinners[tenderElement?.id || '']);
-                    const proposalItem = winnerProposal?.items.find(item => 
-                      item.name.toLowerCase().includes(winner.elementName.toLowerCase())
-                    );
-                    return total + (proposalItem?.cost || 0);
-                  }, 0).toLocaleString()}
+                  $
+                  {getSelectedWinnersList()
+                    .reduce((total, winner) => {
+                      const tenderElement = tender.items.find(
+                        (item) => item.name === winner.elementName
+                      );
+                      const winnerProposal = proposals.find(
+                        (p) => p.id === selectedWinners[tenderElement?.id || ""]
+                      );
+                      const proposalItem = winnerProposal?.items.find((item) =>
+                        item.name
+                          .toLowerCase()
+                          .includes(winner.elementName.toLowerCase())
+                      );
+                      return total + (proposalItem?.cost || 0);
+                    }, 0)
+                    .toLocaleString()}
                 </span>
               </div>
               <div className="flex gap-3">
@@ -1081,7 +1061,8 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
             No Winners Selected Yet
           </h3>
           <p className="text-gray-500 mb-4">
-            Start selecting winners for each tender element to see the summary here.
+            Start selecting winners for each tender element to see the summary
+            here.
           </p>
           <Badge variant="outline" className="text-gray-500">
             0 of {tender.items.length} elements completed
