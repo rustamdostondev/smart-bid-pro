@@ -844,162 +844,152 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
         )}
       </div>
 
-      {/* Enhanced Winners Summary */}
+      {/* Winners Summary */}
       {Object.keys(selectedWinners).length > 0 ? (
-        <div className="bg-gradient-to-br mt-20 via-emerald-50 to-green-100 border-2 border-green-200 rounded-2xl p-8 shadow-lg">
-          {/* Header Section */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Crown className="w-8 h-8 text-white" />
-              </div>
+        <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <Crown className="w-6 h-6 text-blue-600" />
               <div>
-                <h3 className="text-2xl font-bold text-green-800 mb-1">
+                <h3 className="text-lg font-semibold text-gray-900">
                   Selected Winners
                 </h3>
-                <p className="text-green-600 font-medium">
-                  {Object.keys(selectedWinners).length} of {tender.items.length}{" "}
-                  elements have winners selected
+                <p className="text-sm text-gray-600">
+                  {Object.keys(selectedWinners).length} of {tender.items.length} elements completed
                 </p>
               </div>
             </div>
             <div className="text-right">
-              <div className="bg-white rounded-xl p-4 border border-green-200 shadow-sm">
-                <div className="text-sm text-green-600 font-medium mb-1">
-                  Completion Rate
-                </div>
-                <div className="text-2xl font-bold text-green-700">
-                  {Math.round(
-                    (Object.keys(selectedWinners).length /
-                      tender.items.length) *
-                      100
-                  )}
-                  %
-                </div>
+              <div className="text-2xl font-bold text-gray-900">
+                {Math.round(
+                  (Object.keys(selectedWinners).length / tender.items.length) * 100
+                )}%
               </div>
+              <div className="text-sm text-gray-500">Complete</div>
             </div>
           </div>
 
-          {/* Progress Bar */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-green-700">
-                Selection Progress
-              </span>
-              <span className="text-sm text-green-600">
-                {Object.keys(selectedWinners).length} / {tender.items.length}{" "}
-                completed
-              </span>
-            </div>
-            <div className="w-full bg-green-200 rounded-full h-3 shadow-inner">
-              <div
-                className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-500 shadow-sm"
-                style={{
-                  width: `${
-                    (Object.keys(selectedWinners).length /
-                      tender.items.length) *
-                    100
-                  }%`,
-                }}
-              ></div>
-            </div>
-          </div>
+          {/* Winners Table */}
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                    Winner
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                    Element
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-700">
+                    Bid Price
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-700">
+                    Savings
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-medium text-gray-700">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 bg-white">
+                {getSelectedWinnersList().map((winner, index) => {
+                  const tenderElement = tender.items.find(
+                    (item) => item.name === winner.elementName
+                  );
+                  const winnerProposal = proposals.find(
+                    (p) => p.id === selectedWinners[tenderElement?.id || ""]
+                  );
+                  const proposalItem = winnerProposal?.items.find(
+                    (item) =>
+                      item.name
+                        .toLowerCase()
+                        .includes(winner.elementName.toLowerCase()) ||
+                      winner.elementName
+                        .toLowerCase()
+                        .includes(item.name.toLowerCase())
+                  );
+                  const savings =
+                    (tenderElement?.estimatedCost || 0) -
+                    (proposalItem?.cost || 0);
 
-          {/* Winners Grid */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {getSelectedWinnersList().map((winner, index) => {
-              const tenderElement = tender.items.find(
-                (item) => item.name === winner.elementName
-              );
-              const winnerProposal = proposals.find(
-                (p) => p.id === selectedWinners[tenderElement?.id || ""]
-              );
-              const proposalItem = winnerProposal?.items.find(
-                (item) =>
-                  item.name
-                    .toLowerCase()
-                    .includes(winner.elementName.toLowerCase()) ||
-                  winner.elementName
-                    .toLowerCase()
-                    .includes(item.name.toLowerCase())
-              );
-              const savings = (tenderElement?.estimatedCost || 0) - (proposalItem?.cost || 0);
-
-              return (
-                <div key={index} className="bg-white rounded-xl p-5 border border-green-200 shadow-md hover:shadow-lg transition-shadow">
-                  {/* Winner Header */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                        <Crown className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-gray-900">{winner.company}</h4>
-                        <Badge className="bg-green-100 text-green-800 text-xs">WINNER</Badge>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        if (tenderElement?.id) {
-                          const newWinners = { ...selectedWinners };
-                          delete newWinners[tenderElement.id];
-                          setSelectedWinners(newWinners);
-                        }
-                      }}
-                      className="text-gray-400 hover:text-red-500"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-
-                  {/* Essential Info */}
-                  <div className="space-y-3">
-                    <div>
-                      <span className="text-sm text-gray-600">Element:</span>
-                      <div className="font-semibold text-gray-900">{tenderElement?.name}</div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <span className="text-sm text-gray-600">Bid Price:</span>
-                        <div className="font-bold text-lg text-gray-900">
-                          ${proposalItem?.cost?.toLocaleString() || '0'}
+                  return (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center">
+                            <Crown className="w-3 h-3 text-white" />
+                          </div>
+                          <div className="font-medium text-gray-900">
+                            {winner.company}
+                          </div>
                         </div>
-                      </div>
-                      <div>
-                        <span className="text-sm text-gray-600">Savings:</span>
-                        <div className={`font-bold text-lg ${
-                          savings >= 0 ? 'text-green-600' : 'text-red-600'
-                        }`}>
-                          {savings >= 0 ? '+' : ''}${savings.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-gray-900">
+                          {tenderElement?.name}
                         </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Action Button */}
-                  <div className="mt-4">
-                    <Button
-                      onClick={() => onViewProposalDetail?.(selectedWinners[tenderElement?.id || ""])}
-                      className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-                      size="sm"
-                    >
-                      View Details
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
+                        <div className="text-sm text-gray-500">
+                          {tenderElement?.description?.substring(0, 40)}...
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="font-semibold text-gray-900">
+                          ${proposalItem?.cost?.toLocaleString() || "0"}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div
+                          className={`font-semibold ${
+                            savings >= 0 ? "text-green-600" : "text-red-600"
+                          }`}
+                        >
+                          {savings >= 0 ? "+" : ""}${savings.toLocaleString()}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center space-x-1">
+                          <Button
+                            onClick={() =>
+                              onViewProposalDetail?.(
+                                selectedWinners[tenderElement?.id || ""]
+                              )
+                            }
+                            size="sm"
+                            variant="outline"
+                            className="text-xs"
+                          >
+                            View
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              if (tenderElement?.id) {
+                                const newWinners = { ...selectedWinners };
+                                delete newWinners[tenderElement.id];
+                                setSelectedWinners(newWinners);
+                              }
+                            }}
+                            className="text-gray-400 hover:text-red-500 p-1"
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
 
           {/* Summary Actions */}
-          <div className="mt-8 pt-6 border-t border-green-200">
+          <div className="mt-6 pt-4 border-t border-gray-200">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-green-700">
-                <span className="font-medium">Total Selected Value:</span>
-                <span className="font-bold text-lg text-green-800">
+              <div className="text-sm text-gray-700">
+                <span className="font-medium">Total Value: </span>
+                <span className="font-semibold text-gray-900">
                   $
                   {getSelectedWinnersList()
                     .reduce((total, winner) => {
@@ -1019,43 +1009,35 @@ const TenderAnalytics: React.FC<TenderAnalyticsProps> = ({
                     .toLocaleString()}
                 </span>
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setSelectedWinners({})}
-                  className="border-red-300 text-red-600 hover:bg-red-50"
+                  className="text-gray-600"
                 >
-                  <X className="w-4 h-4 mr-2" />
                   Clear All
                 </Button>
                 <Button
                   size="sm"
-                  className="bg-green-600 hover:bg-green-700 text-white"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
-                  <Download className="w-4 h-4 mr-2" />
-                  Export Winners
+                  Export
                 </Button>
               </div>
             </div>
           </div>
         </div>
       ) : (
-        <Card className="p-8 text-center border-2 border-dashed border-gray-300">
-          <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Crown className="w-8 h-8 text-gray-400" />
-          </div>
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">
-            No Winners Selected Yet
+        <div className="mt-8 p-8 text-center border border-gray-200 rounded-lg bg-gray-50">
+          <Crown className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+          <h3 className="text-lg font-medium text-gray-700 mb-2">
+            No Winners Selected
           </h3>
-          <p className="text-gray-500 mb-4">
-            Start selecting winners for each tender element to see the summary
-            here.
+          <p className="text-gray-500 text-sm">
+            Select winners for tender elements to see the summary here.
           </p>
-          <Badge variant="outline" className="text-gray-500">
-            0 of {tender.items.length} elements completed
-          </Badge>
-        </Card>
+        </div>
       )}
     </div>
   );
