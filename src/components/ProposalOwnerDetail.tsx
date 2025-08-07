@@ -463,13 +463,6 @@ export function ProposalOwnerDetail({
           : "pending",
       icon: Target,
     },
-    {
-      id: "ai_insights",
-      name: "AI Analysis",
-      description: "Generate insights and recommendations",
-      status: "pending",
-      icon: Brain,
-    },
   ];
 
   const currentStep = steps.find((step) => step.id === selectedStep);
