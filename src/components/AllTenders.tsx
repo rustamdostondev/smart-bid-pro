@@ -62,12 +62,7 @@ export function AllTenders({ onViewTender }: AllTendersProps) {
   };
 
   const filteredTenders = useMemo(() => {
-    let tenders = mockTenders.filter((tender) => {
-      // Show only public tenders or private tenders user is invited to
-      if (tender.visibility === "public") return true;
-      if (tender.invitedUsers?.includes(user?.id || "")) return true;
-      return false;
-    });
+    let tenders = mockTenders.filter((tender) => tender.visibility == "public");
 
     // Search filter
     if (searchQuery) {
