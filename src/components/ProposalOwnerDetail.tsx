@@ -445,6 +445,13 @@ export function ProposalOwnerDetail({
       icon: Shield,
     },
     {
+      id: "ai_parsing",
+      name: "Proposal Items Management",
+      description: "Extract and structure tender data",
+      status: "running",
+      icon: Code,
+    },
+    {
       id: "proposal_matching",
       name: "Tender Matching",
       description: "Match proposal items with tender requirements",
@@ -722,7 +729,7 @@ export function ProposalOwnerDetail({
       case "ai_parsing":
         return (
           <div className="space-y-6">
-            <div>
+            {/* <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">
                 Tender Items Management
               </h3>
@@ -738,7 +745,7 @@ export function ProposalOwnerDetail({
                   edit items below.
                 </p>
               </div>
-            </div>
+            </div> */}
 
             {/* Proposal Items CRUD */}
             <div>
@@ -1371,14 +1378,6 @@ export function ProposalOwnerDetail({
                     <div className="flex items-center mr-4">
                       <FileText className="w-4 h-4 mr-1 text-gray-500" />
                       <span>{tender.items?.length || 0} items</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      <Badge
-                        variant="outline"
-                        className="bg-white text-gray-700"
-                      >
-                        {tender.status}
-                      </Badge>
                     </div>
                   </div>
                 </div>

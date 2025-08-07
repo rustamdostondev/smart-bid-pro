@@ -147,7 +147,7 @@ export function TenderOwnerDetail({
     },
     {
       id: "ai_parsing",
-      name: "Parse to JSON",
+      name: "Tender Items Management",
       description: "Extract and structure tender data",
       status: "running",
       icon: Code,
@@ -409,10 +409,10 @@ export function TenderOwnerDetail({
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              {/* <h3 className="text-lg font-semibold text-gray-900 mb-3">
                 Tender Items Management
-              </h3>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              </h3> */}
+              {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                 <div className="flex items-center">
                   <Clock className="w-5 h-5 text-blue-600 mr-2 animate-spin" />
                   <span className="text-blue-800 font-medium">
@@ -423,7 +423,7 @@ export function TenderOwnerDetail({
                   Extracting and structuring tender items. You can review and
                   edit items below.
                 </p>
-              </div>
+              </div> */}
             </div>
 
             {/* Tender Items CRUD */}
@@ -802,7 +802,7 @@ export function TenderOwnerDetail({
                             <p className="text-sm text-gray-600 mb-2">
                               {item.description}
                             </p>
-                            {item.specifications && (
+                            {/* {item.specifications && (
                               <div className="mb-2">
                                 <p className="text-xs text-gray-500 mb-1">
                                   Specifications:
@@ -811,7 +811,7 @@ export function TenderOwnerDetail({
                                   {item.specifications}
                                 </p>
                               </div>
-                            )}
+                            )} */}
                             {item.attributes &&
                               Object.keys(item.attributes).length > 0 && (
                                 <div className="mt-2">
@@ -1479,7 +1479,7 @@ function EditItemForm({
         </div>
       </div>
 
-      <div>
+      {/* <div>
         <label className="text-sm font-medium mb-1 block text-gray-700">
           Specifications
         </label>
@@ -1491,7 +1491,7 @@ function EditItemForm({
           }
           rows={3}
         />
-      </div>
+      </div> */}
 
       <div>
         <label className="text-sm font-medium mb-2 block text-gray-700">
